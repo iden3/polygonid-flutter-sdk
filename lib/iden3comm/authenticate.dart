@@ -22,6 +22,7 @@ import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/chain_config_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/filter_entity.dart';
+import 'package:polygonid_flutter_sdk/common/domain/entities/media_type.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_selected_chain_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/common/utils/base_64.dart';
@@ -45,6 +46,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/mappers/proof_request_filters_mapper.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/request/auth_request_iden3_message_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/constants.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_request_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_query_request.dart';
@@ -335,8 +337,8 @@ class Authenticate {
       thid: message.thid,
       to: message.from,
       from: profileDid,
-      typ: "application/iden3-zkp-json",
-      type: "https://iden3-communication.io/authorization/1.0/response",
+      typ: MediaType.ZKPMessage.name,
+      type: Iden3MessageType.authResponse.type,
       body: AuthBodyResponseDTO(
         message: (message as AuthIden3MessageEntity).body.message,
         scope: proofs,
@@ -966,10 +968,10 @@ class Authenticate {
     required ProofRepository proofRepository,
   }) async {
     JWZHeader header = JWZHeader(
-      circuitId: "authV2",
+      circuitId: AcceptAuthCircuits.AuthV2.name,
       crit: ["circuitId"],
-      typ: "application/iden3-zkp-json",
-      alg: "groth16",
+      typ: MediaType.ZKPMessage.name,
+      alg: AcceptJwzAlgorithms.Groth16.name,
     );
 
     JWZPayload payload = JWZPayload(payload: message);

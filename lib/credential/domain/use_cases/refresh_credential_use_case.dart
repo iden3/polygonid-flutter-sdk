@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_constants.dart';
+import 'package:polygonid_flutter_sdk/common/domain/entities/media_type.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
@@ -8,6 +9,7 @@ import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.da
 import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_exceptions.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/save_claims_use_case.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/request/credential_refresh_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/iden3comm_credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_auth_token_use_case.dart';
@@ -57,8 +59,8 @@ class RefreshCredentialUseCase
     CredentialRefreshIden3MessageEntity credentialRefreshEntity =
         CredentialRefreshIden3MessageEntity(
       id: id,
-      typ: "application/iden3comm-plain-json",
-      type: "https://iden3-communication.io/credentials/1.0/refresh",
+      typ: MediaType.PlainMessage.name,
+      type: Iden3MessageType.credentialRefresh.type,
       thid: id,
       body: CredentialRefreshBodyRequest(
         param.credential.id,

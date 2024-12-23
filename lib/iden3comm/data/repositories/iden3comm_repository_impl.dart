@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:polygonid_flutter_sdk/common/domain/entities/media_type.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/iden3_message_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/lib_pidcore_iden3comm_data_source.dart';
@@ -112,10 +113,10 @@ class Iden3commRepositoryImpl extends Iden3commRepository {
       thid: request.thid,
       to: request.from,
       from: did,
-      typ: "application/iden3-zkp-json",
+      typ: MediaType.ZKPMessage.name,
       //request
       //.typ, // "application/iden3-zkp-json", // TODO if it's plain json typ: "application/iden3comm-plain-json",
-      type: "https://iden3-communication.io/authorization/1.0/response",
+      type: Iden3MessageType.authResponse.type,
       body: AuthBodyResponseDTO(
         message: request.body.message,
         scope: scope,

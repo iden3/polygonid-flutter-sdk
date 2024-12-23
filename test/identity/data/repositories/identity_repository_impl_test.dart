@@ -4,9 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:polygonid_flutter_sdk/common/domain/entities/media_type.dart';
 import 'package:polygonid_flutter_sdk/credential/data/data_sources/local_claim_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/response/auth_body_response.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/response/auth_response.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/db_destination_path_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/encryption_db_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
@@ -55,8 +57,8 @@ final mockAuthResponse = AuthResponse(
   thid: Iden3commMocks.authRequest.thid,
   to: Iden3commMocks.authRequest.from,
   from: CommonMocks.identifier,
-  typ: "application/iden3comm-plain-json",
-  type: "https://iden3-communication.io/authorization/1.0/response",
+  typ: MediaType.PlainMessage.name,
+  type: Iden3MessageType.authResponse.name,
   body: AuthBodyResponse(
     message: Iden3commMocks.authRequest.body.message,
     proofs: [],

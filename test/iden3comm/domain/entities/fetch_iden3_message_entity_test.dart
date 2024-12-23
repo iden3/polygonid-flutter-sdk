@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:polygonid_flutter_sdk/common/domain/entities/media_type.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/response/fetch_iden3_message_entity.dart';
 
@@ -17,7 +18,7 @@ void main() {
     test("fromJson", () {
       var fetchRequest = FetchIden3MessageEntity.fromJson(json);
       expect(fetchRequest.id, "4dd6479b-99b6-405c-ba9e-c7b18d251a5e");
-      expect(fetchRequest.typ, "application/iden3comm-plain-json");
+      expect(fetchRequest.typ, MediaType.PlainMessage.name);
       expect(fetchRequest.messageType,
           Iden3MessageType.credentialIssuanceResponse);
       expect(fetchRequest.thid, "4dd6479b-99b6-405c-ba9e-c7b18d251a5e");
