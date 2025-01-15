@@ -1,19 +1,9 @@
 import 'package:polygonid_flutter_sdk/common/utils/format_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
-
-enum AtomicQueryInputsType {
-  mtp,
-  sig,
-  mtponchain,
-  sigonchain,
-  v3,
-  v3onchain,
-  linkedMultiQuery10,
-  unknown;
-}
+import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 
 class AtomicQueryInputsParam {
-  final AtomicQueryInputsType type;
+  final CircuitType type;
   final String id;
   final BigInt profileNonce;
   final BigInt claimSubjectProfileNonce;

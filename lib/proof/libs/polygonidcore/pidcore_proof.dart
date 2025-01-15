@@ -364,6 +364,15 @@ class PolygonIdCoreProof extends PolygonIdCore {
     return result;
   }
 
+  String generateInputs(String input, String? config) {
+    return callGenericCoreFunction(
+      input: () => input,
+      config: config,
+      function: PolygonIdCore.nativePolygonIdCoreLib.PLGNAGenerateInputs,
+      parse: (result) => result,
+    );
+  }
+
   void _trackError(ConsumedStatusResult consumedStatus, String methodName) {
     _stacktraceManager.addTrace(
         "libpolygonid - $methodName: [${consumedStatus.statusCode}] - ${consumedStatus.message}");

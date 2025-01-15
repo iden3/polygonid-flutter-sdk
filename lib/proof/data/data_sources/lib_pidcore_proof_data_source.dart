@@ -60,50 +60,10 @@ class LibPolygonIdCoreWrapper {
     ComputeAtomicQueryInputs computeParam,
   ) {
     try {
-      String result;
-
-      switch (computeParam.param.type) {
-        case AtomicQueryInputsType.mtp:
-          result = _polygonIdCoreProof.getMTProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.sig:
-          result = _polygonIdCoreProof.getSigProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.mtponchain:
-          result = _polygonIdCoreProof.getMTPOnchainProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.sigonchain:
-          result = _polygonIdCoreProof.getSigOnchainProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.v3:
-          result = _polygonIdCoreProof.getV3ProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.v3onchain:
-          result = _polygonIdCoreProof.getV3OnchainProofInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.linkedMultiQuery10:
-          result = _polygonIdCoreProof.getLinkedMultiQueryInputs(
-              jsonEncode(computeParam.param.toJson()),
-              jsonEncode(computeParam.configParam?.toJson()));
-          break;
-        case AtomicQueryInputsType.unknown:
-          throw NullAtomicQueryInputsException(
-            id: computeParam.param.id,
-            errorMessage: "Unknown AtomicQueryInputsType",
-          );
-      }
+      final result = _polygonIdCoreProof.generateInputs(
+        jsonEncode(computeParam.param.toJson()),
+        jsonEncode(computeParam.configParam?.toJson()),
+      );
 
       return Future.value(result);
     } on PolygonIdSDKException catch (_) {
@@ -196,32 +156,20 @@ class LibPolygonIdCoreProofDataSource {
     String? signature,
     required ClaimInfoDTO credential,
     required Map<String, dynamic> request,
-    required String circuitId, //ProofScopeRequest request,
+    required String circuitId,
     Map<String, dynamic>? config,
     String? verifierId,
     String? linkNonce,
     Map<String, dynamic>? scopeParams,
     Map<String, dynamic>? transactionData,
   }) {
-    AtomicQueryInputsType type = AtomicQueryInputsType.unknown;
 
-    if (circuitId == CircuitType.mtp.name) {
-      type = AtomicQueryInputsType.mtp;
-    } else if (circuitId == CircuitType.mtponchain.name) {
-      type = AtomicQueryInputsType.mtponchain;
-    } else if (circuitId == CircuitType.sig.name) {
-      type = AtomicQueryInputsType.sig;
-    } else if (circuitId == CircuitType.sigonchain.name) {
-      type = AtomicQueryInputsType.sigonchain;
-    } else if (circuitId == CircuitType.circuitsV3.name) {
-      type = AtomicQueryInputsType.v3;
-    } else if (circuitId == CircuitType.circuitsV3onchain.name) {
-      type = AtomicQueryInputsType.v3onchain;
-    } else if (circuitId == CircuitType.linkedMultyQuery10.name) {
-      type = AtomicQueryInputsType.linkedMultiQuery10;
+    if (request.isEmpty || request.containsKey("circuitId")) {
+      request["circuitId"] = circuitId;
     }
+
     final inputParam = AtomicQueryInputsParam(
-      type: type,
+      type: CircuitType.fromString(circuitId),
       id: id,
       profileNonce: profileNonce,
       claimSubjectProfileNonce: claimSubjectProfileNonce,

@@ -3806,6 +3806,31 @@ class NativePolygonIdCoreLib {
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Pointer<PLGNStatus>>)>();
 
+  int PLGNAGenerateInputs(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> jsonResponse,
+    ffi.Pointer<ffi.Char> in1,
+    ffi.Pointer<ffi.Char> cfg,
+    ffi.Pointer<ffi.Pointer<PLGNStatus>> status,
+  ) {
+    return _PLGNAGenerateInputs(
+      jsonResponse,
+      in1,
+      cfg,
+      status,
+    );
+  }
+
+  late final _PLGNAGenerateInputsPtr = _lookup<
+      ffi.NativeFunction<
+          GoUint8 Function(
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<PLGNStatus>>)>>('PLGNAGenerateInputs');
+  late final _PLGNAGenerateInputs = _PLGNAGenerateInputsPtr.asFunction<
+      int Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<PLGNStatus>>)>();
+
   void PLGNFreeStatus(
     ffi.Pointer<PLGNStatus> status,
   ) {
