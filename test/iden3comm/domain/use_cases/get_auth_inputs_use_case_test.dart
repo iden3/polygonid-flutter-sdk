@@ -97,7 +97,8 @@ void main() {
     'Given a param, when I call execute, then I expect a bytes list to be returned',
     () async {
       // When
-      expect(await useCase.execute(param: param), CommonMocks.generateInputsResponse);
+      expect(await useCase.execute(param: param),
+          CommonMocks.generateInputsResponse);
 
       // Then
       var capturedIdentity =

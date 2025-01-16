@@ -59,8 +59,8 @@ void main() {
         (realInvocation) => Future.value(Iden3commMocks.encodedJWZ));
     when(getAuthChallengeUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.challenge));
-    when(getAuthInputsUseCase.execute(param: anyNamed('param')))
-        .thenAnswer((realInvocation) => Future.value(CommonMocks.generateInputsResponse));
+    when(getAuthInputsUseCase.execute(param: anyNamed('param'))).thenAnswer(
+        (realInvocation) => Future.value(CommonMocks.generateInputsResponse));
     when(loadCircuitUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(ProofMocks.circuitData));
     when(proveUseCase.execute(param: anyNamed('param')))
