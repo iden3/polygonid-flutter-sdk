@@ -17,6 +17,7 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_ide
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/sign_message_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/get_gist_mtproof_use_case.dart';
 
 class GetAuthInputsParam {
@@ -29,7 +30,8 @@ class GetAuthInputsParam {
       this.challenge, this.genesisDid, this.profileNonce, this.privateKey);
 }
 
-class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
+class GetAuthInputsUseCase
+    extends FutureUseCase<GetAuthInputsParam, GenerateInputsResponse> {
   final GetIdentityUseCase _getIdentityUseCase;
   final CredentialRepository _credentialRepository;
   final SignMessageUseCase _signMessageUseCase;
@@ -53,7 +55,8 @@ class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
   );
 
   @override
-  Future<String> execute({required GetAuthInputsParam param}) async {
+  Future<GenerateInputsResponse> execute(
+      {required GetAuthInputsParam param}) async {
     final stopwatch = Stopwatch()..start();
     try {
       IdentityEntity identity = await _getIdentityUseCase.execute(

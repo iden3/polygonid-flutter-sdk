@@ -105,8 +105,6 @@ import 'package:polygonid_flutter_sdk/credential/libs/polygonidcore/pidcore_cred
     as _i328;
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/iden3_message_data_source.dart'
     as _i296;
-import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/lib_pidcore_iden3comm_data_source.dart'
-    as _i882;
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/remote_iden3comm_data_source.dart'
     as _i409;
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/secure_storage_did_profile_info_data_source.dart'
@@ -189,8 +187,6 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/interaction/rem
     as _i975;
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/interaction/update_interaction_use_case.dart'
     as _i989;
-import 'package:polygonid_flutter_sdk/iden3comm/libs/polygonidcore/pidcore_iden3comm.dart'
-    as _i360;
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/db_destination_path_data_source.dart'
     as _i938;
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/encryption_db_data_source.dart'
@@ -472,8 +468,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i839.RemoteIdentityDataSource(gh<_i267.StacktraceManager>()));
     gh.factory<_i795.ErrorHandling>(
         () => _i795.ErrorHandling(gh<_i267.StacktraceManager>()));
-    gh.factory<_i360.PolygonIdCoreIden3comm>(
-        () => _i360.PolygonIdCoreIden3comm(gh<_i267.StacktraceManager>()));
     gh.factory<_i296.Iden3MessageDataSource>(
         () => _i296.Iden3MessageDataSource(gh<_i267.StacktraceManager>()));
     gh.factory<_i96.ProofRequestFiltersMapper>(
@@ -583,9 +577,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i41.LibPolygonIdCoreWrapper(gh<_i961.PolygonIdCoreProof>()));
     gh.factory<_i42.StorageSMTDataSource>(
         () => _i42.StorageSMTDataSource(gh<_i42.IdentitySMTStoreRefWrapper>()));
-    gh.factory<_i882.LibPolygonIdCoreIden3commDataSource>(() =>
-        _i882.LibPolygonIdCoreIden3commDataSource(
-            gh<_i360.PolygonIdCoreIden3comm>()));
     gh.factory<_i232.SecureStorageProfilesDataSource>(() =>
         _i232.SecureStorageProfilesDataSource(
             gh<_i232.SecureStorageProfilesStoreRefWrapper>()));
@@ -612,16 +603,6 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i461.FiltersMapper>(),
               gh<_i267.StacktraceManager>(),
             ));
-    gh.factory<_i588.Iden3commRepositoryImpl>(
-        () => _i588.Iden3commRepositoryImpl(
-              gh<_i296.Iden3MessageDataSource>(),
-              gh<_i409.RemoteIden3commDataSource>(),
-              gh<_i882.LibPolygonIdCoreIden3commDataSource>(),
-              gh<_i599.QMapper>(),
-              gh<_i98.JWZMapper>(),
-              gh<_i897.GetIden3MessageUseCase>(),
-              gh<_i267.StacktraceManager>(),
-            ));
     gh.factory<_i631.GetProofQueryContextUseCase>(
         () => _i631.GetProofQueryContextUseCase(
               gh<_i698.Iden3commCredentialRepository>(),
@@ -644,10 +625,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i646.RemoveDidProfileInfoUseCase>(() =>
         _i646.RemoveDidProfileInfoUseCase(
             gh<_i258.DidProfileInfoRepository>()));
-    gh.factory<_i88.Iden3commRepository>(() => repositoriesModule
-        .iden3commRepository(gh<_i588.Iden3commRepositoryImpl>()));
-    gh.factory<_i359.CleanSchemaCacheUseCase>(
-        () => _i359.CleanSchemaCacheUseCase(gh<_i88.Iden3commRepository>()));
     gh.factoryAsync<_i525.StorageKeyValueDataSource>(
         () async => _i525.StorageKeyValueDataSource(
               await getAsync<_i310.Database>(),
@@ -660,15 +637,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i328.SMTRepositoryImpl>(() => _i328.SMTRepositoryImpl(
           gh<_i575.SMTDataSource>(),
           gh<_i42.StorageSMTDataSource>(),
-        ));
-    gh.factory<_i734.GetAuthChallengeUseCase>(
-        () => _i734.GetAuthChallengeUseCase(
-              gh<_i88.Iden3commRepository>(),
-              gh<_i267.StacktraceManager>(),
-            ));
-    gh.factory<_i249.GetJWZUseCase>(() => _i249.GetJWZUseCase(
-          gh<_i88.Iden3commRepository>(),
-          gh<_i267.StacktraceManager>(),
         ));
     gh.factory<_i627.GetProofRequestsUseCase>(
         () => _i627.GetProofRequestsUseCase(
@@ -688,11 +656,25 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i461.FiltersMapper>(),
               gh<_i267.StacktraceManager>(),
             ));
+    gh.factory<_i588.Iden3commRepositoryImpl>(
+        () => _i588.Iden3commRepositoryImpl(
+              gh<_i296.Iden3MessageDataSource>(),
+              gh<_i409.RemoteIden3commDataSource>(),
+              gh<_i41.LibPolygonIdCoreProofDataSource>(),
+              gh<_i599.QMapper>(),
+              gh<_i98.JWZMapper>(),
+              gh<_i897.GetIden3MessageUseCase>(),
+              gh<_i267.StacktraceManager>(),
+            ));
     gh.singletonAsync<_i415.ConfigRepository>(() async =>
         _i415.ConfigRepository(
             await getAsync<_i525.StorageKeyValueDataSource>()));
     gh.factory<_i946.SMTRepository>(
         () => repositoriesModule.smtRepository(gh<_i328.SMTRepositoryImpl>()));
+    gh.factory<_i88.Iden3commRepository>(() => repositoriesModule
+        .iden3commRepository(gh<_i588.Iden3commRepositoryImpl>()));
+    gh.factory<_i359.CleanSchemaCacheUseCase>(
+        () => _i359.CleanSchemaCacheUseCase(gh<_i88.Iden3commRepository>()));
     gh.factory<_i309.CredentialRepository>(() => repositoriesModule
         .credentialRepository(gh<_i550.CredentialRepositoryImpl>()));
     gh.factory<_i53.GetClaimRevocationNonceUseCase>(() =>
@@ -733,6 +715,15 @@ extension GetItInjectableX on _i174.GetIt {
               await getAsync<_i626.GetEnvUseCase>(),
               gh<_i267.StacktraceManager>(),
             ));
+    gh.factory<_i734.GetAuthChallengeUseCase>(
+        () => _i734.GetAuthChallengeUseCase(
+              gh<_i88.Iden3commRepository>(),
+              gh<_i267.StacktraceManager>(),
+            ));
+    gh.factory<_i249.GetJWZUseCase>(() => _i249.GetJWZUseCase(
+          gh<_i88.Iden3commRepository>(),
+          gh<_i267.StacktraceManager>(),
+        ));
     gh.factoryAsync<_i1031.AddInteractionUseCase>(
         () async => _i1031.AddInteractionUseCase(
               await getAsync<_i1012.InteractionRepository>(),

@@ -3370,29 +3370,6 @@ class NativePolygonIdCoreLib {
       _lookup<ffi.NativeFunction<ffi.Int Function(ffi.LongLong)>>('flsll');
   late final _flsll = _flsllPtr.asFunction<int Function(int)>();
 
-  int PLGNAuthV2InputsMarshal(
-    ffi.Pointer<ffi.Pointer<ffi.Char>> jsonResponse,
-    ffi.Pointer<ffi.Char> in1,
-    ffi.Pointer<ffi.Pointer<PLGNStatus>> status,
-  ) {
-    return _PLGNAuthV2InputsMarshal(
-      jsonResponse,
-      in1,
-      status,
-    );
-  }
-
-  late final _PLGNAuthV2InputsMarshalPtr = _lookup<
-          ffi.NativeFunction<
-              GoUint8 Function(
-                  ffi.Pointer<ffi.Pointer<ffi.Char>>,
-                  ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<ffi.Pointer<PLGNStatus>>)>>(
-      'PLGNAuthV2InputsMarshal');
-  late final _PLGNAuthV2InputsMarshal = _PLGNAuthV2InputsMarshalPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Pointer<PLGNStatus>>)>();
-
   int PLGNCalculateGenesisID(
     ffi.Pointer<ffi.Pointer<ffi.Char>> jsonResponse,
     ffi.Pointer<ffi.Char> in1,

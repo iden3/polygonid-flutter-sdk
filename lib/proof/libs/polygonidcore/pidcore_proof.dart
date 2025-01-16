@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
 
@@ -8,6 +9,7 @@ import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_ma
 
 import 'package:polygonid_flutter_sdk/common/libs/polygonidcore/native_polygonidcore.dart';
 import 'package:polygonid_flutter_sdk/common/libs/polygonidcore/pidcore_base.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 
 @injectable
 class PolygonIdCoreProof extends PolygonIdCore {
@@ -364,12 +366,14 @@ class PolygonIdCoreProof extends PolygonIdCore {
     return result;
   }
 
-  String generateInputs(String input, String? config) {
+  GenerateInputsResponse generateInputs(String input, String? config) {
     return callGenericCoreFunction(
       input: () => input,
       config: config,
       function: PolygonIdCore.nativePolygonIdCoreLib.PLGNAGenerateInputs,
-      parse: (result) => result,
+      parse: (result) {
+        return GenerateInputsResponse.fromJson(jsonDecode(result));
+      },
     );
   }
 
