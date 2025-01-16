@@ -27,7 +27,11 @@ class GetAuthInputsParam {
   final String privateKey;
 
   GetAuthInputsParam(
-      this.challenge, this.genesisDid, this.profileNonce, this.privateKey);
+    this.challenge,
+    this.genesisDid,
+    this.profileNonce,
+    this.privateKey,
+  );
 }
 
 class GetAuthInputsUseCase
@@ -55,8 +59,9 @@ class GetAuthInputsUseCase
   );
 
   @override
-  Future<GenerateInputsResponse> execute(
-      {required GetAuthInputsParam param}) async {
+  Future<GenerateInputsResponse> execute({
+    required GetAuthInputsParam param,
+  }) async {
     final stopwatch = Stopwatch()..start();
     try {
       IdentityEntity identity = await _getIdentityUseCase.execute(
