@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
+import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_param.dart';
 
 import '../../../common/credential_mocks.dart';
@@ -9,8 +10,8 @@ import '../../../common/credential_mocks.dart';
 void main() {
   group('AtomicQueryInputsParam', () {
     test('toJson includes all non-null fields', () {
-      final param = AtomicQueryInputsParam(
-        type: AtomicQueryInputsType.mtp,
+      final param = GenericAtomicQueryInputsParam(
+        type: CircuitType.mtp,
         id: 'testId',
         profileNonce: BigInt.from(123),
         claimSubjectProfileNonce: BigInt.from(456),
@@ -28,8 +29,8 @@ void main() {
     });
 
     test('toJson excludes null fields', () {
-      final param = AtomicQueryInputsParam(
-        type: AtomicQueryInputsType.mtp,
+      final param = GenericAtomicQueryInputsParam(
+        type: CircuitType.mtp,
         id: 'testId',
         profileNonce: BigInt.from(123),
         claimSubjectProfileNonce: BigInt.from(456),
@@ -53,8 +54,8 @@ void main() {
     });
 
     test('toJson converts transactionData to camelCase', () {
-      final param = AtomicQueryInputsParam(
-        type: AtomicQueryInputsType.mtp,
+      final param = GenericAtomicQueryInputsParam(
+        type: CircuitType.mtp,
         id: 'testId',
         profileNonce: BigInt.from(123),
         claimSubjectProfileNonce: BigInt.from(456),
@@ -70,8 +71,8 @@ void main() {
     });
 
     test('toJson excludes verifierId if it is empty', () {
-      final param = AtomicQueryInputsParam(
-        type: AtomicQueryInputsType.mtp,
+      final param = GenericAtomicQueryInputsParam(
+        type: CircuitType.mtp,
         id: 'testId',
         profileNonce: BigInt.from(123),
         claimSubjectProfileNonce: BigInt.from(456),

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/iden3_message_data_source.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/lib_pidcore_iden3comm_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/remote_iden3comm_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_response_dto.dart';
@@ -17,16 +16,17 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/iden3comm_re
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_iden3message_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/data/mappers/q_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
+import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:poseidon/poseidon.dart';
 import 'package:uuid/uuid.dart';
 
 class Iden3commRepositoryImpl extends Iden3commRepository {
   final Iden3MessageDataSource _iden3messageDataSource;
   final RemoteIden3commDataSource _remoteIden3commDataSource;
-  final LibPolygonIdCoreIden3commDataSource
-      _libPolygonIdCoreIden3commDataSource;
+  final LibPolygonIdCoreProofDataSource _libPolygonIdCoreProofDataSource;
   final QMapper _qMapper;
   final JWZMapper _jwzMapper;
   final GetIden3MessageUseCase _getIden3MessageUseCase;
@@ -35,7 +35,7 @@ class Iden3commRepositoryImpl extends Iden3commRepository {
   Iden3commRepositoryImpl(
     this._iden3messageDataSource,
     this._remoteIden3commDataSource,
-    this._libPolygonIdCoreIden3commDataSource,
+    this._libPolygonIdCoreProofDataSource,
     this._qMapper,
     this._jwzMapper,
     this._getIden3MessageUseCase,
@@ -126,7 +126,7 @@ class Iden3commRepositoryImpl extends Iden3commRepository {
   }
 
   @override
-  Future<String> getAuthInputs({
+  Future<GenerateInputsResponse> getAuthInputs({
     required String genesisDid,
     required BigInt profileNonce,
     required String challenge,
@@ -137,8 +137,9 @@ class Iden3commRepositoryImpl extends Iden3commRepository {
     required MTProofEntity nonRevProof,
     required GistMTProofEntity gistProof,
     required Map<String, dynamic> treeState,
+    Map<String, dynamic>? config,
   }) {
-    return _libPolygonIdCoreIden3commDataSource.getAuthInputs(
+    return _libPolygonIdCoreProofDataSource.getAuthInputs(
       genesisDid: genesisDid,
       profileNonce: profileNonce,
       authClaim: authClaim,
@@ -148,6 +149,7 @@ class Iden3commRepositoryImpl extends Iden3commRepository {
       treeState: treeState,
       challenge: challenge,
       signature: signature,
+      config: config,
     );
   }
 

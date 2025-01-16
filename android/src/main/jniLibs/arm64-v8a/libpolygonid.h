@@ -108,6 +108,12 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
+
+// Deprecated: Use PLGNAGenerateInputs with additional
+// `"request": {"circuitId": "authV2"}` in the request json. This function
+// does not support `statsInfo` in response and returns inputs
+// on top level of response object.
+//
 extern GoUint8 PLGNAuthV2InputsMarshal(char** jsonResponse, char* in, PLGNStatus** status);
 
 // Deprecated: Use PLGNNewGenesisID instead. It supports environment
@@ -204,6 +210,11 @@ extern GoUint8 PLGNAtomicQueryV3OnChainInputs(char** jsonResponse, char* in, cha
 // linkedMultiQuery10-beta.1 circuit.
 //
 extern GoUint8 PLGNALinkedMultiQueryInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+
+// PLGNAGenerateInputs returns the inputs for the circuit based on the
+// request.circuitId field.
+//
+extern GoUint8 PLGNAGenerateInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
 extern void PLGNFreeStatus(PLGNStatus* status);
 
 // Deprecated: Use PLGNCleanCache2 instead. We need to support consistent path
