@@ -37,7 +37,7 @@ class ProverLibDataSource {
 Future<Map<String, dynamic>?> _computeProof(ProveParam param) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(param.rootToken);
 
-  final result = await Rapidsnark().groth16ProveWithZKeyFilePath(
+  final result = await Rapidsnark().groth16Prove(
     zkeyPath: param.zKeyPath,
     witness: param.wtns,
   );

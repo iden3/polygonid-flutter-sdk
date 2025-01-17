@@ -1,19 +1,62 @@
 import 'package:polygonid_flutter_sdk/common/utils/format_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
+import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 
-enum AtomicQueryInputsType {
-  mtp,
-  sig,
-  mtponchain,
-  sigonchain,
-  v3,
-  v3onchain,
-  linkedMultiQuery10,
-  unknown;
+abstract class AtomicQueryInputsParam {
+  String get id;
+
+  Map<String, dynamic> toJson();
 }
 
-class AtomicQueryInputsParam {
-  final AtomicQueryInputsType type;
+class AuthAtomicQueryInputsParam extends AtomicQueryInputsParam {
+  final String genesisDid;
+  final BigInt profileNonce;
+  final List<String> authClaim;
+  final Map<String, dynamic> incProof;
+  final Map<String, dynamic> nonRevProof;
+  final Map<String, dynamic> gistProof;
+  final Map<String, dynamic> treeState;
+  final String challenge;
+  final String signature;
+  final String circuitId;
+
+  AuthAtomicQueryInputsParam({
+    required this.genesisDid,
+    required this.profileNonce,
+    required this.authClaim,
+    required this.incProof,
+    required this.nonRevProof,
+    required this.gistProof,
+    required this.treeState,
+    required this.challenge,
+    required this.signature,
+    this.circuitId = "authV2",
+  });
+
+  @override
+  String get id => genesisDid;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "genesisDID": genesisDid,
+      "profileNonce": profileNonce.toString(),
+      "authClaim": authClaim,
+      "authClaimIncMtp": incProof,
+      "authClaimNonRevMtp": nonRevProof,
+      "treeState": treeState,
+      "gistProof": gistProof,
+      "signature": signature,
+      "challenge": challenge,
+      "request": {
+        "circuitId": circuitId,
+      },
+    };
+  }
+}
+
+class GenericAtomicQueryInputsParam extends AtomicQueryInputsParam {
+  final CircuitType type;
   final String id;
   final BigInt profileNonce;
   final BigInt claimSubjectProfileNonce;
@@ -34,7 +77,7 @@ class AtomicQueryInputsParam {
 
   final Map<String, dynamic>? transactionData;
 
-  AtomicQueryInputsParam({
+  GenericAtomicQueryInputsParam({
     required this.type,
     required this.id,
     required this.profileNonce,
@@ -54,6 +97,7 @@ class AtomicQueryInputsParam {
     this.transactionData,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> inputs = {
       "id": id,
