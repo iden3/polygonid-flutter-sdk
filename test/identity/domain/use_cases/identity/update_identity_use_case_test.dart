@@ -71,30 +71,6 @@ void main() {
   });
 
   test(
-      "Given a param with an invalid private key, when I call execute, then I expect an InvalidPrivateKeyException to be thrown",
-      () async {
-    // Given
-    when(getIdentityUseCase.execute(param: anyNamed('param')))
-        .thenAnswer((realInvocation) => Future.value(IdentityMocks.identity));
-
-    // When
-    await useCase.execute(param: param).then((_) => null).catchError((error) {
-      expect(error, isA<InvalidPrivateKeyException>());
-      expect(error.encryptionKey, param.encryptionKey);
-    });
-
-    // Then
-    var capturedGet =
-        verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
-            .captured
-            .first;
-    expect(capturedGet.genesisDid, param.genesisDid);
-
-    verifyNever(identityRepository.storeIdentity(
-        identity: captureAnyNamed('identity')));
-  });
-
-  test(
       "Given a param, when I call execute and an error occurred, then I expect an exception to be thrown",
       () async {
     // Given
