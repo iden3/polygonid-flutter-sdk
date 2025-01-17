@@ -106,7 +106,7 @@ void main() {
           .captured
           .first;
       expect(captureCheck.did, CommonMocks.did);
-      expect(captureCheck.privateKey, CommonMocks.privateKey);
+      expect(captureCheck.publicKey, CommonMocks.publicKey);
       expect(captureCheck.profileNonce, BigInt.two);
 
       var getIdentityCapture =
@@ -119,7 +119,7 @@ void main() {
           verify(updateIdentityUseCase.execute(param: captureAnyNamed('param')))
               .captured
               .first;
-      expect(capturedUpdate.privateKey, CommonMocks.privateKey);
+      expect(capturedUpdate.encryptionKey, CommonMocks.privateKey);
       expect(capturedUpdate.profiles[1], CommonMocks.profiles[1]);
     },
   );
@@ -145,7 +145,7 @@ void main() {
         .captured
         .first;
     expect(captureCheck.did, CommonMocks.did);
-    expect(captureCheck.privateKey, CommonMocks.privateKey);
+    expect(captureCheck.publicKey, CommonMocks.publicKey);
     expect(captureCheck.profileNonce, CommonMocks.nonce);
 
     var captureGetIdentity =
@@ -153,7 +153,6 @@ void main() {
             .captured
             .first;
     expect(captureGetIdentity.genesisDid, CommonMocks.did);
-    expect(captureGetIdentity.privateKey, CommonMocks.privateKey);
 
     verifyNever(updateIdentityUseCase.execute(param: captureAnyNamed('param')));
   });
@@ -174,7 +173,7 @@ void main() {
         .captured
         .first;
     expect(captureCheck.did, CommonMocks.did);
-    expect(captureCheck.privateKey, CommonMocks.privateKey);
+    expect(captureCheck.publicKey, CommonMocks.publicKey);
     expect(captureCheck.profileNonce, BigInt.two);
 
     var captureGetIdentity =
@@ -182,7 +181,6 @@ void main() {
             .captured
             .first;
     expect(captureGetIdentity.genesisDid, CommonMocks.did);
-    expect(captureGetIdentity.privateKey, CommonMocks.privateKey);
 
     verifyNever(updateIdentityUseCase.execute(param: captureAnyNamed('param')));
   });

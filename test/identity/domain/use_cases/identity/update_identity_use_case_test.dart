@@ -62,7 +62,6 @@ void main() {
         verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedGet.encryptionKey, param.encryptionKey);
     expect(capturedGet.genesisDid, param.genesisDid);
 
     var capturedStore = verify(identityRepository.storeIdentity(
@@ -89,7 +88,6 @@ void main() {
         verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedGet.encryptionKey, param.encryptionKey);
     expect(capturedGet.genesisDid, param.genesisDid);
 
     verifyNever(identityRepository.storeIdentity(
@@ -111,7 +109,6 @@ void main() {
         verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedGet.encryptionKey, param.encryptionKey);
     expect(capturedGet.genesisDid, param.genesisDid);
 
     verifyNever(identityRepository.storeIdentity(
