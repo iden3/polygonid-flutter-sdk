@@ -69,7 +69,6 @@ abstract class Payment {
 
   factory Payment.fromJson(Map<String, dynamic> json) {
     final String type = json['type'];
-    String? context = json['@context'];
 
     switch (type) {
       case 'Iden3PaymentCryptoV1':
