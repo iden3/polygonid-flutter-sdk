@@ -403,7 +403,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
       param: FetchOnchainClaimsParam(
         contractAddress: contractAddress,
         genesisDid: genesisDid,
-        profileNonce: profileNonce ?? GENESIS_PROFILE_NONCE,
+        profileNonce: profileNonce,
         privateKey: privateKey,
         chainId: chainId,
       ),

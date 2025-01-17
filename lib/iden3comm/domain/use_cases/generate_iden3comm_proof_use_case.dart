@@ -8,7 +8,6 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
-import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_sd_proof_entity.dart';
@@ -25,7 +24,6 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_identity_aut
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_latest_state_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/sign_message_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
@@ -211,11 +209,7 @@ class GenerateIden3commProofUseCase
 
     final envConfig = param.config;
     if (envConfig != null) {
-      config = ConfigParam(
-        ipfsNodeURL: envConfig.ipfsNodeUrl,
-        chainConfigs: envConfig.chainConfigs,
-        didMethods: envConfig.didMethods,
-      ).toJson();
+      config = envConfig.toJson();
       _stacktraceManager.addTrace(
           "[GenerateIden3commProofUseCase] AtomicQueryInputsConfigParam: success");
     }
@@ -267,12 +261,12 @@ class GenerateIden3commProofUseCase
       log: true,
     );
 
-    Uint8List atomicQueryInputs =
-        Uint8ArrayUtils.uint8ListfromString(json.encode(inputsJson["inputs"]));
+    final inputs = json.encode(inputsJson["inputs"]);
+    final atomicQueryInputs = inputs;
 
     if (kDebugMode) {
       //just for debug
-      String inputs = Uint8ArrayUtils.uint8ListToString(atomicQueryInputs);
+      logger().i('[GenerateIden3commProofUseCase] inputs: $inputs');
     }
 
     var vpProof;

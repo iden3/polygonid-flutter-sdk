@@ -48,6 +48,7 @@ class RemoteIden3commDataSource {
             HttpHeaders.acceptHeader: '*/*',
             HttpHeaders.contentTypeHeader: 'text/plain',
           },
+          receiveTimeout: const Duration(seconds: 30),
         ),
       );
 
@@ -62,6 +63,21 @@ class RemoteIden3commDataSource {
         );
       } else {
         return response;
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        _stacktraceManager.addError(
+            'authWithToken error: $url response with\ncode: ${e.response?.statusCode}\nmsg: ${e.response?.data}');
+        throw NetworkException(
+          errorMessage:
+              "Connection timeout while sending auth token to the requester.",
+          statusCode: e.response?.statusCode ?? 0,
+        );
+      } else {
+        _stacktraceManager.addError(
+            'authWithToken error: $url response with\ncode: ${e.response?.statusCode}\nmsg: ${e.response?.data}');
+        rethrow;
       }
     } catch (e) {
       logger().e('authWithToken error: $e');

@@ -1,9 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
-import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
@@ -20,8 +17,8 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_ide
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/sign_message_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/get_gist_mtproof_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/gist_proof_cache.dart';
 
 class GetAuthInputsParam {
   final String challenge;
@@ -40,7 +37,7 @@ class GetAuthInputsParam {
 }
 
 class GetAuthInputsUseCase
-    extends FutureUseCase<GetAuthInputsParam, Uint8List> {
+    extends FutureUseCase<GetAuthInputsParam, GenerateInputsResponse> {
   final GetIdentityUseCase _getIdentityUseCase;
   final CredentialRepository _credentialRepository;
   final SignMessageUseCase _signMessageUseCase;
@@ -64,7 +61,9 @@ class GetAuthInputsUseCase
   );
 
   @override
-  Future<Uint8List> execute({required GetAuthInputsParam param}) async {
+  Future<GenerateInputsResponse> execute({
+    required GetAuthInputsParam param,
+  }) async {
     final stopwatch = Stopwatch()..start();
     try {
       IdentityEntity identity = await _getIdentityUseCase.execute(
@@ -139,7 +138,7 @@ class GetAuthInputsUseCase
       logger().i(
           'GetAuthInputsUseCase: got all for inputs in: ${stopwatch.elapsedMilliseconds} ms');
 
-      Uint8List authInputs = await _iden3commRepository.getAuthInputs(
+      final authInputs = await _iden3commRepository.getAuthInputs(
         genesisDid: param.genesisDid,
         profileNonce: param.profileNonce,
         challenge: param.challenge,

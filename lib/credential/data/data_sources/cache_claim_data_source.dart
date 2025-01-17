@@ -5,7 +5,7 @@ class CacheCredentialDataSource {
 
   CacheCredentialDataSource(this._libPolygonIdCoreCredentialDataSource);
 
-  Future<String?> cacheCredential({
+  Future<bool> cacheCredential({
     required String credential,
     String? config,
   }) async {

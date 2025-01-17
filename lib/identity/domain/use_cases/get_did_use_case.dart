@@ -2,15 +2,12 @@ import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/did_entity.dart';
 
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 
 /// Get the DID entity from the string representation.
 /// [param] - DID string representation.
 /// Example: did:iden3:privado:main:2SZR7B32w1QSBNeX99h6hyVA8AFrpeX26r2f3S881j
 class GetDidUseCase extends FutureUseCase<String, DidEntity> {
-  final IdentityRepository _identityRepository;
-
-  GetDidUseCase(this._identityRepository);
+  GetDidUseCase();
 
   @override
   Future<DidEntity> execute({required String param}) {

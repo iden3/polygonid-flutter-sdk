@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
-import 'package:polygonid_flutter_sdk/credential/data/dtos/display_type/display_type.dart';
+import 'package:polygonid_flutter_sdk/credential/data/dtos/display_type/unknown_display_type.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_info_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_state_mapper.dart';
@@ -43,6 +43,7 @@ final entity = ClaimEntity(
   id: fetchClaimDTO.credential.id,
   credentialRawValue: mockFetchClaim,
 );
+final displayType = UnknownDisplayType({});
 
 // Dependencies
 MockClaimStateMapper stateMapper = MockClaimStateMapper();
@@ -51,7 +52,11 @@ MockDisplayTypeMapper displayTypeMapper = MockDisplayTypeMapper();
 // Tested instance
 ClaimMapper mapper = ClaimMapper(stateMapper, infoMapper, displayTypeMapper);
 
-@GenerateMocks([ClaimStateMapper, ClaimInfoMapper, DisplayTypeMapper])
+@GenerateMocks([
+  ClaimStateMapper,
+  ClaimInfoMapper,
+  DisplayTypeMapper,
+])
 void main() {
   setUp(() {});
 
@@ -62,7 +67,7 @@ void main() {
       // Given
       when(infoMapper.mapFrom(any)).thenReturn(info);
       when(stateMapper.mapFrom(any)).thenReturn(ClaimState.active);
-      when(displayTypeMapper.mapFrom(any)).thenReturn(null);
+      when(displayTypeMapper.mapFrom(any)).thenReturn(displayType);
 
       // When
       expect(mapper.mapFrom(dto), entity);
@@ -82,7 +87,7 @@ void main() {
       // Given
       when(infoMapper.mapTo(any)).thenReturn(fetchClaimDTO.credential);
       when(stateMapper.mapTo(any)).thenReturn('');
-      when(displayTypeMapper.mapTo(any)).thenReturn(null);
+      when(displayTypeMapper.mapTo(any)).thenReturn({});
 
       // When
       expect(mapper.mapTo(entity), dto);

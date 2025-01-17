@@ -14,13 +14,6 @@ class PolygonIdSdkPlugin : FlutterPlugin, MethodCallHandler {
 
     init {
         System.loadLibrary("polygonid")
-        System.loadLibrary("gmp")
-        System.loadLibrary("witnesscalc_authV2")
-        System.loadLibrary("witnesscalc_credentialAtomicQuerySigV2")
-        System.loadLibrary("witnesscalc_credentialAtomicQueryMTPV2")
-        System.loadLibrary("witnesscalc_credentialAtomicQuerySigV2OnChain")
-        System.loadLibrary("witnesscalc_credentialAtomicQueryMTPV2OnChain")
-        System.loadLibrary("rapidsnark")
     }
 
     /// The MethodChannel that will the communication between Flutter and native Android

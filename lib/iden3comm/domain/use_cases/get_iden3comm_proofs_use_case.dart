@@ -11,16 +11,12 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/common/utils/credential_sort_order.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/refresh_credential_use_case.dart';
-import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_claims_use_case.dart';
-import 'package:polygonid_flutter_sdk/credential/domain/use_cases/save_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_request_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/iden3comm_credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/generate_iden3comm_proof_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_auth_token_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/is_proof_circuit_supported_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/infrastructure/proof_generation_stream_manager.dart';
@@ -65,10 +61,6 @@ class GetIden3commProofsUseCase
   final ProofGenerationStepsStreamManager _proofGenerationStepsStreamManager;
   final StacktraceManager _stacktraceManager;
 
-  final GetAuthTokenUseCase _getAuthTokenUseCase;
-  final Iden3commCredentialRepository _iden3commCredentialRepository;
-  final RemoveClaimsUseCase _removeClaimsUseCase;
-  final SaveClaimsUseCase _saveClaimsUseCase;
   final RefreshCredentialUseCase _refreshCredentialUseCase;
 
   GetIden3commProofsUseCase(
@@ -80,10 +72,6 @@ class GetIden3commProofsUseCase
     this._getIdentityUseCase,
     this._proofGenerationStepsStreamManager,
     this._stacktraceManager,
-    this._getAuthTokenUseCase,
-    this._iden3commCredentialRepository,
-    this._removeClaimsUseCase,
-    this._saveClaimsUseCase,
     this._refreshCredentialUseCase,
   );
 

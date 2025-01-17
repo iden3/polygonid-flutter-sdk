@@ -7,11 +7,6 @@ analyzer:
     non_constant_identifier_names: ignore
     constant_identifier_names: ignore
     prefer_final_fields: ignore
-    unused_element: ignore
-    unused_local_variable: ignore
-    unnecessary_import: ignore
-    unused_import: ignore
-    unused_field: ignore
     camel_case_types: ignore
     no_leading_underscores_for_local_identifiers: ignore
     override_on_non_overriding_member: ignore

@@ -6,7 +6,6 @@ import 'package:polygonid_flutter_sdk/identity/data/data_sources/storage_identit
 import 'package:polygonid_flutter_sdk/common/data/data_sources/storage_key_value_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/wallet_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/hex_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 import 'package:sembast/sembast.dart';
 
@@ -29,7 +28,6 @@ final exception = Exception();
 MockDatabase database = MockDatabase();
 MockIdentityStoreRefWrapper storeRefWrapper = MockIdentityStoreRefWrapper();
 MockWalletDataSource walletDataSource = MockWalletDataSource();
-MockHexMapper hexMapper = MockHexMapper();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 // Tested instance
@@ -44,7 +42,6 @@ StorageIdentityDataSource dataSource = StorageIdentityDataSource(
   IdentityStoreRefWrapper,
   StorageKeyValueDataSource,
   WalletDataSource,
-  HexMapper,
   StacktraceManager,
 ])
 void main() {

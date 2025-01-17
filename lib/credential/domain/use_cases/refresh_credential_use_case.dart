@@ -6,7 +6,6 @@ import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_ma
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_exceptions.dart';
-import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/save_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/request/credential_refresh_iden3_message_entity.dart';
@@ -29,7 +28,6 @@ class RefreshCredentialParam {
 
 class RefreshCredentialUseCase
     extends FutureUseCase<RefreshCredentialParam, ClaimEntity> {
-  final CredentialRepository _credentialRepository;
   final StacktraceManager _stacktraceManager;
   final GetIdentityUseCase _getIdentityUseCase;
   final GetAuthTokenUseCase _getAuthTokenUseCase;
@@ -38,7 +36,6 @@ class RefreshCredentialUseCase
   final SaveClaimsUseCase _saveClaimsUseCase;
 
   RefreshCredentialUseCase(
-    this._credentialRepository,
     this._stacktraceManager,
     this._getIdentityUseCase,
     this._getAuthTokenUseCase,

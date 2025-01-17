@@ -20,7 +20,6 @@ import 'package:polygonid_flutter_sdk/identity/data/data_sources/local_contract_
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_identifier_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -210,7 +209,7 @@ class FetchCredentialsUseCase {
     final issuerIdInt = await getIssuerId.getId();
     final issuerDid = (await _identityRepository.describeId(
       id: issuerIdInt,
-      config: ConfigParam.fromEnv(env),
+      config: env.config,
     ))
         .did;
 

@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
@@ -6,13 +6,11 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exce
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_auth_inputs_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_auth_challenge_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_jwz_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/load_circuit_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/prove_use_case.dart';
 
 import '../../../common/domain/domain_logger.dart';
 import '../../../common/domain/use_case.dart';
-import '../../../proof/domain/entities/circuit_data_entity.dart';
 
 class GetAuthTokenParam {
   final String genesisDid;
@@ -62,7 +60,7 @@ class GetAuthTokenUseCase extends FutureUseCase<GetAuthTokenParam, String> {
       logger().i(
           'GetAuthTokenUseCase: getAuthChallengeUseCase at ${stopwatch.elapsedMilliseconds} ms');
 
-      Uint8List authInputs = await _getAuthInputsUseCase.execute(
+      final generateInputsResponse = await _getAuthInputsUseCase.execute(
         param: GetAuthInputsParam(
           challenge: authChallenge,
           genesisDid: param.genesisDid,
@@ -71,6 +69,7 @@ class GetAuthTokenUseCase extends FutureUseCase<GetAuthTokenParam, String> {
           encryptionKey: param.privateKey,
         ),
       );
+      final authInputs = jsonEncode(generateInputsResponse.inputs);
 
       logger().i(
           'GetAuthTokenUseCase: getAuthInputsUseCase at ${stopwatch.elapsedMilliseconds} ms');

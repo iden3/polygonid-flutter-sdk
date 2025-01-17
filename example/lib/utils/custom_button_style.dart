@@ -54,12 +54,11 @@ class CustomButtonStyle {
   );
 
   static ButtonStyle iconButtonStyle = ButtonStyle(
-    elevation: MaterialStateProperty.all(0.0),
-    shape: MaterialStateProperty.all(const CircleBorder()),
-    backgroundColor:
-        MaterialStateProperty.all(Colors.white), // <-- Button color
-    overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
-      if (states.contains(MaterialState.pressed)) {
+    elevation: WidgetStateProperty.all(0.0),
+    shape: WidgetStateProperty.all(const CircleBorder()),
+    backgroundColor: WidgetStateProperty.all(Colors.white), // <-- Button color
+    overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+      if (states.contains(WidgetState.pressed)) {
         return CustomColors.backButtonPressed;
       }
       return null; // <-- Splash color

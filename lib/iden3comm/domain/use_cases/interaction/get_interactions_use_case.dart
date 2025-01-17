@@ -8,8 +8,6 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/inte
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/interaction_exception.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/interaction_repository.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/profile/check_profile_validity_use_case.dart';
 
 class GetInteractionsParam {
   final String? genesisDid;
@@ -32,20 +30,17 @@ class GetInteractionsParam {
 class GetInteractionsUseCase
     extends FutureUseCase<GetInteractionsParam, List<InteractionBaseEntity>> {
   final InteractionRepository _interactionRepository;
-  final CheckProfileValidityUseCase _checkProfileValidityUseCase;
-  final GetIdentityUseCase _getIdentityUseCase;
   final StacktraceManager _stacktraceManager;
 
   GetInteractionsUseCase(
     this._interactionRepository,
-    this._checkProfileValidityUseCase,
-    this._getIdentityUseCase,
     this._stacktraceManager,
   );
 
   @override
-  Future<List<InteractionBaseEntity>> execute(
-      {required GetInteractionsParam param}) async {
+  Future<List<InteractionBaseEntity>> execute({
+    required GetInteractionsParam param,
+  }) async {
     try {
       List<InteractionBaseEntity> interactions =
           await _interactionRepository.getInteractions(

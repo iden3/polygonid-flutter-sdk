@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/request/auth_request_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/response/jwz.dart';
@@ -7,6 +5,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/i
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 
 abstract class Iden3commRepository {
   Future<Iden3MessageEntity?> authenticate({
@@ -14,17 +13,19 @@ abstract class Iden3commRepository {
     required String authToken,
   });
 
-  Future<Uint8List> getAuthInputs(
-      {required String genesisDid,
-      required BigInt profileNonce,
-      required String challenge,
-      required List<String> authClaim,
-      required IdentityEntity identity,
-      required String signature,
-      required MTProofEntity incProof,
-      required MTProofEntity nonRevProof,
-      required GistMTProofEntity gistProof,
-      required Map<String, dynamic> treeState});
+  Future<GenerateInputsResponse> getAuthInputs({
+    required String genesisDid,
+    required BigInt profileNonce,
+    required String challenge,
+    required List<String> authClaim,
+    required IdentityEntity identity,
+    required String signature,
+    required MTProofEntity incProof,
+    required MTProofEntity nonRevProof,
+    required GistMTProofEntity gistProof,
+    required Map<String, dynamic> treeState,
+    Map<String, dynamic>? config,
+  });
 
   Future<String> getAuthResponse({
     required String did,

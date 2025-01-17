@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:polygonid_flutter_sdk/common/utils/hex_utils.dart';
-import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:web3dart/credentials.dart';
 
 import 'eddsa_babyjub.dart';
@@ -15,10 +13,6 @@ import 'package:bip32/bip32.dart' as bip32;
 class BjjWallet {
   late Uint8List privateKey;
   late List<String> publicKey;
-  dynamic publicKeyHex;
-  String? publicKeyCompressed;
-  String? publicKeyCompressedHex;
-  String? publicKeyBase64;
 
   /// Initialize Babyjubjub wallet from private key
   ///
@@ -28,19 +22,9 @@ class BjjWallet {
       throw ArgumentError('buf must be 32 bytes');
     }
 
-    final priv = BjjPrivateKey(privateKey);
-    final BjjPublicKey publicKey = priv.publicKey();
-    this.publicKey = [publicKey.p[0].toString(), publicKey.p[1].toString()];
-    publicKeyHex = [
-      publicKey.p[0].toRadixString(16).padLeft(64, '0'),
-      publicKey.p[1].toRadixString(16).padLeft(64, '0')
-    ];
-    final compressedPublicKey =
-        Uint8ArrayUtils.leBuff2int(publicKey.compress());
-    publicKeyCompressed = compressedPublicKey.toString();
-    publicKeyCompressedHex =
-        compressedPublicKey.toRadixString(16).padLeft(64, '0');
-    publicKeyBase64 = HexUtils.hexToBase64BJJ(publicKeyCompressedHex!);
+    final priv = PrivateKey(privateKey);
+    final PublicKey publicKey = priv.public();
+    this.publicKey = [publicKey.p.x.toString(), publicKey.p.y.toString()];
   }
 
   /// Creates a BjjWallet

@@ -15,4 +15,13 @@ enum CircuitType {
   final String name;
 
   const CircuitType(this.name);
+
+  static CircuitType fromString(String value) {
+    for (var e in CircuitType.values) {
+      if (e.name == value) {
+        return e;
+      }
+    }
+    return CircuitType.unknown;
+  }
 }

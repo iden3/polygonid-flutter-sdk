@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/services.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_exceptions.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:path/path.dart' as pathLib;
@@ -11,21 +11,17 @@ class CircuitsFilesDataSource {
 
   CircuitsFilesDataSource(this.directory);
 
-  Future<Uint8List> loadCircuitDatFile(String circuitId) async {
+  Future<Uint8List> loadGraphFile(String circuitId) async {
     try {
-      final circuitDatFileName = '$circuitId.dat';
-      final circuitDatFilePath = '${directory.path}/$circuitDatFileName';
-      final circuitDatFile = File(circuitDatFilePath);
-
-      return circuitDatFile.readAsBytesSync();
-    } on PathNotFoundException catch (error) {
+      final path = "assets/$circuitId.wcd";
+      final circuitGraphFile = await rootBundle.load(path);
+      return circuitGraphFile.buffer.asUint8List();
+    } catch (_) {
       throw CircuitNotDownloadedException(
         circuit: circuitId,
         errorMessage:
-            "${error.message} Circuit $circuitId not downloaded or not found",
+            "Circuit $circuitId not found at assets path \"assets/$circuitId.wcd\"",
       );
-    } catch (_) {
-      rethrow;
     }
   }
 

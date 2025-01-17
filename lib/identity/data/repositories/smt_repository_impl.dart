@@ -2,8 +2,6 @@ import 'package:polygonid_flutter_sdk/identity/data/data_sources/smt_data_source
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/storage_smt_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/node_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/hash_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/tree_state_mapper.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/tree_type_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/tree_state_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/tree_type.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repository.dart';
@@ -13,14 +11,10 @@ import 'package:poseidon/poseidon.dart';
 class SMTRepositoryImpl implements SMTRepository {
   final SMTDataSource _smtDataSource;
   final StorageSMTDataSource _storageSMTDataSource;
-  final TreeTypeMapper _treeTypeMapper;
-  final TreeStateMapper _treeStateMapper;
 
   SMTRepositoryImpl(
     this._smtDataSource,
     this._storageSMTDataSource,
-    this._treeTypeMapper,
-    this._treeStateMapper,
   );
 
   // @override
@@ -55,7 +49,7 @@ class SMTRepositoryImpl implements SMTRepository {
   }) {
     return _smtDataSource.addLeaf(
       newNodeLeaf: leaf,
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -70,7 +64,7 @@ class SMTRepositoryImpl implements SMTRepository {
   }) {
     return _storageSMTDataSource.getNode(
       key: hash,
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -83,7 +77,7 @@ class SMTRepositoryImpl implements SMTRepository {
     required String encryptionKey,
   }) {
     return _storageSMTDataSource.getRoot(
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -100,7 +94,7 @@ class SMTRepositoryImpl implements SMTRepository {
     return _storageSMTDataSource.addNode(
       key: hash,
       node: node,
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -115,7 +109,7 @@ class SMTRepositoryImpl implements SMTRepository {
   }) {
     return _storageSMTDataSource.setRoot(
       root: (root),
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -130,7 +124,7 @@ class SMTRepositoryImpl implements SMTRepository {
   }) async {
     return _smtDataSource.generateProof(
       key: (key),
-      storeName: _treeTypeMapper.mapTo(type),
+      storeName: type.storeName,
       did: did,
       encryptionKey: encryptionKey,
     );
@@ -167,7 +161,7 @@ class SMTRepositoryImpl implements SMTRepository {
   }) {
     return _smtDataSource.createSMT(
         maxLevels: maxLevels,
-        storeName: _treeTypeMapper.mapTo(type),
+        storeName: type.storeName,
         did: did,
         encryptionKey: encryptionKey);
   }
@@ -177,13 +171,11 @@ class SMTRepositoryImpl implements SMTRepository {
     required TreeType type,
     required String did,
     required String encryptionKey,
-  }) {
-    var name = _treeTypeMapper.mapTo(type);
-
-    return _smtDataSource
-        .removeSMT(storeName: name, did: did, encryptionKey: encryptionKey)
-        .then((_) => _smtDataSource.removeRoot(
-            storeName: name, did: did, encryptionKey: encryptionKey));
+  }) async {
+    await _smtDataSource.removeSMT(
+        storeName: type.storeName, did: did, encryptionKey: encryptionKey);
+    await _smtDataSource.removeRoot(
+        storeName: type.storeName, did: did, encryptionKey: encryptionKey);
   }
 
   @override
@@ -201,6 +193,6 @@ class SMTRepositoryImpl implements SMTRepository {
 
   @override
   Future<Map<String, dynamic>> convertState({required TreeStateEntity state}) {
-    return Future.value(_treeStateMapper.mapTo(state));
+    return Future.value(state.toJson());
   }
 }

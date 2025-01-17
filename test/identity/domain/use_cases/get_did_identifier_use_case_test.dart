@@ -10,7 +10,6 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_genesis_stat
 import '../../../common/common_mocks.dart';
 import '../../../common/identity_mocks.dart';
 
-import '../../../iden3comm/domain/use_cases/authenticate_use_case_test.dart';
 import 'get_did_identifier_use_case_test.mocks.dart';
 
 MockGetEnvUseCase getEnvUseCase = MockGetEnvUseCase();

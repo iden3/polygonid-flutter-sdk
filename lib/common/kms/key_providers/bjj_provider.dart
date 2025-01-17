@@ -91,8 +91,7 @@ class BjjProvider implements IKeyProvider {
       Uint8List message, String signatureHex, KeyId keyId) async {
     final publicKey = await this.publicKey(keyId);
 
-    final bytes = hexToBytes(publicKey.hex);
-    final pbkey = BjjPublicKey.newFromCompressed(bytesToUnsignedInt(bytes));
+    final pbkey = PublicKey.hex(publicKey);
 
     return pbkey.verify(
       Uint8ArrayUtils.uint8ListToString(message),

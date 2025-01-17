@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:polygonid_flutter_sdk/common/data/data_sources/mappers/filters_mapper.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/filter_entity.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/constants.dart';
 import 'package:polygonid_flutter_sdk/credential/data/credential_repository_impl.dart';
 import 'package:polygonid_flutter_sdk/credential/data/data_sources/cache_claim_data_source.dart';
 import 'package:polygonid_flutter_sdk/credential/data/data_sources/local_claim_data_source.dart';
@@ -16,19 +13,12 @@ import 'package:polygonid_flutter_sdk/credential/data/data_sources/remote_claim_
 import 'package:polygonid_flutter_sdk/credential/data/data_sources/storage_claim_data_source.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
-import 'package:polygonid_flutter_sdk/credential/data/mappers/id_filter_mapper.dart';
-import 'package:polygonid_flutter_sdk/credential/data/mappers/revocation_status_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_exceptions.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/credential/response/fetch_claim_response_dto.dart';
-import 'package:polygonid_flutter_sdk/identity/data/data_sources/db_destination_path_data_source.dart';
-import 'package:polygonid_flutter_sdk/identity/data/data_sources/encryption_db_data_source.dart';
-import 'package:polygonid_flutter_sdk/identity/data/data_sources/remote_identity_data_source.dart';
-import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:sembast/sembast.dart';
 
 import '../../../common/common_mocks.dart';
-import '../../../common/iden3comm_mocks.dart';
 import '../../../iden3comm/data/dtos/fetch_claim_response_dto_test.dart';
 import 'credential_repository_impl_test.mocks.dart';
 
@@ -99,7 +89,6 @@ MockCacheCredentialDataSource cacheCredentialDataSource =
     MockCacheCredentialDataSource();
 MockClaimMapper claimMapper = MockClaimMapper();
 MockFiltersMapper filtersMapper = MockFiltersMapper();
-MockIdFilterMapper idFilterMapper = MockIdFilterMapper();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 // Tested instance
@@ -110,7 +99,6 @@ CredentialRepositoryImpl repository = CredentialRepositoryImpl(
   cacheCredentialDataSource,
   claimMapper,
   filtersMapper,
-  idFilterMapper,
   stacktraceManager,
 );
 
@@ -121,7 +109,6 @@ CredentialRepositoryImpl repository = CredentialRepositoryImpl(
   CacheCredentialDataSource,
   ClaimMapper,
   FiltersMapper,
-  IdFilterMapper,
   StacktraceManager,
 ])
 void main() {
@@ -326,7 +313,6 @@ void main() {
 
       when(filtersMapper.mapTo(any)).thenReturn(filter);
       when(claimMapper.mapFrom(any)).thenReturn(claimEntities[0]);
-      when(idFilterMapper.mapTo(any)).thenReturn(filter);
     });
 
     test(

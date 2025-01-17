@@ -18,15 +18,11 @@ import 'package:polygonid_flutter_sdk/identity/data/mappers/private_key/private_
 import 'package:polygonid_flutter_sdk/identity/domain/entities/hash_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/id_description.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/node_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/dtos/rhs_node_dto.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/hex_mapper.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/rhs_node_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/data/mappers/state_identifier_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/rhs_node_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:poseidon/poseidon.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -39,9 +35,7 @@ class IdentityRepositoryImpl extends IdentityRepository {
   final LibPolygonIdCoreIdentityDataSource _libPolygonIdCoreIdentityDataSource;
   final EncryptionDbDataSource _encryptionDbDataSource;
   final DestinationPathDataSource _destinationPathDataSource;
-  final HexMapper _hexMapper;
   final PrivateKeyMapper _privateKeyMapper;
-  final RhsNodeMapper _rhsNodeMapper;
   final StateIdentifierMapper _stateIdentifierMapper;
   final SecureStorageProfilesDataSource _secureStorageProfilesDataSource;
 
@@ -54,9 +48,7 @@ class IdentityRepositoryImpl extends IdentityRepository {
     this._libPolygonIdCoreIdentityDataSource,
     this._encryptionDbDataSource,
     this._destinationPathDataSource,
-    this._hexMapper,
     this._privateKeyMapper,
-    this._rhsNodeMapper,
     this._stateIdentifierMapper,
     this._secureStorageProfilesDataSource,
   );
@@ -65,13 +57,13 @@ class IdentityRepositoryImpl extends IdentityRepository {
   Future<String> getPrivateKey({required String? secret}) {
     return _walletDataSource
         .createWallet(secret: _privateKeyMapper.mapFrom(secret))
-        .then((wallet) => _hexMapper.mapFrom(wallet.privateKey));
+        .then((wallet) => bytesToHex(wallet.privateKey));
   }
 
   @override
   Future<List<String>> getPublicKeys({required String bjjPrivateKey}) async {
     final wallet = await _walletDataSource.getWallet(
-      privateKey: _hexMapper.mapTo(bjjPrivateKey),
+      privateKey: hexToBytes(privateKey),
     );
     final pubKeys = wallet.publicKey;
     return pubKeys;
@@ -158,7 +150,7 @@ class IdentityRepositoryImpl extends IdentityRepository {
     required String message,
   }) async {
     try {
-      final Uint8List hexPrivateKey = _hexMapper.mapTo(privateKey);
+      final Uint8List hexPrivateKey = hexToBytes(privateKey);
       final String signedMessage = await _walletDataSource.signMessage(
         privateKey: hexPrivateKey,
         message: message,
@@ -196,10 +188,8 @@ class IdentityRepositoryImpl extends IdentityRepository {
   @override
   Future<RhsNodeEntity> getStateRoots({required String url}) async {
     try {
-      final RhsNodeDTO rhsNodeDTO =
-          await _remoteIdentityDataSource.fetchStateRoots(url: url);
-      RhsNodeEntity rhsNodeEntity = _rhsNodeMapper.mapFrom(rhsNodeDTO);
-      return rhsNodeEntity;
+      final node = await _remoteIdentityDataSource.fetchStateRoots(url: url);
+      return node;
     } on PolygonIdSDKException catch (_) {
       rethrow;
     } catch (error) {
@@ -294,6 +284,15 @@ class IdentityRepositoryImpl extends IdentityRepository {
   }
 
   @override
+  String getPrivateProfileForGenesisDid({
+    required String genesisDid,
+    required BigInt profileNonce,
+  }) {
+    return _libPolygonIdCoreIdentityDataSource.calculateProfileId(
+        genesisDid, profileNonce);
+  }
+
+  @override
   Future<String> convertIdToBigInt({required String id}) {
     String idBigInt = _libPolygonIdCoreIdentityDataSource.genesisIdToBigInt(id);
     return Future.value(idBigInt);
@@ -302,7 +301,7 @@ class IdentityRepositoryImpl extends IdentityRepository {
   @override
   Future<IdDescription> describeId({
     required BigInt id,
-    ConfigParam? config,
+    EnvConfigEntity? config,
   }) async {
     final idDescriptionJson = _libPolygonIdCoreIdentityDataSource.describeId(
       idAsInt: id.toString(),

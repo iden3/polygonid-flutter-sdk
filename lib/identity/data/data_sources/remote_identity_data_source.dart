@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
-import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/common/utils/pinata_gateway_utils.dart';
-import 'package:polygonid_flutter_sdk/identity/data/dtos/rhs_node_dto.dart';
 import 'package:polygonid_flutter_sdk/identity/data/mappers/node_type_entity_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/data/mappers/state_identifier_mapper.dart';
 
@@ -18,14 +16,13 @@ import 'package:polygonid_flutter_sdk/identity/domain/entities/rhs_node_entity.d
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/hash_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/node_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/rhs_node_type_mapper.dart';
 
 class RemoteIdentityDataSource {
   final StacktraceManager _stacktraceManager;
 
   RemoteIdentityDataSource(this._stacktraceManager);
 
-  Future<RhsNodeDTO> fetchStateRoots({required String url}) async {
+  Future<RhsNodeEntity> fetchStateRoots({required String url}) async {
     try {
       //fetch rhs state and save it
       String rhsId = url;
@@ -59,7 +56,7 @@ class RemoteIdentityDataSource {
         rhsNode['node']['type'] = NodeTypeEntityMapper()
             .mapFrom(NodeEntity.fromJson(rhsNode['node']))
             .name;
-        RhsNodeDTO rhsNodeResponse = RhsNodeDTO.fromJson(rhsNode);
+        final rhsNodeResponse = RhsNodeEntity.fromJson(rhsNode);
         logger().d('rhs node: ${rhsNodeResponse.toString()}');
         return rhsNodeResponse;
       } else {
@@ -82,22 +79,23 @@ class RemoteIdentityDataSource {
   }
 
   Future<Map<String, dynamic>> getNonRevocationProof(
-      String identityState,
-      BigInt revNonce,
-      String rhsBaseUrl,
-      Map<String, dynamic>? cachedNonRevProof) async {
+    String identityState,
+    BigInt revNonce,
+    String rhsBaseUrl,
+    Map<String, dynamic>? cachedNonRevProof,
+  ) async {
     try {
       /// FIXME: this 2 lines should go to a DS and be called in a repo
       // 1. Fetch state roots from RHS
-      RhsNodeDTO rhsNode =
+      final rhsNode =
           await fetchStateRoots(url: rhsBaseUrl + "/" + identityState);
-      RhsNodeType rhsNodeType = RhsNodeTypeMapper().mapFrom(rhsNode.node);
+      final rhsNodeType = rhsNode.node.type;
       StateIdentifierMapper identifierMapper = StateIdentifierMapper();
 
       Map<String, dynamic>? issuer;
       String revTreeRootHash =
           "0000000000000000000000000000000000000000000000000000000000000000";
-      if (rhsNodeType == RhsNodeType.state) {
+      if (rhsNodeType == NodeType.state) {
         revTreeRootHash = rhsNode.node.children[1].toString();
         issuer = {
           "state": identifierMapper.mapTo(rhsNode.node.hash.toString()),
@@ -126,17 +124,17 @@ class RemoteIdentityDataSource {
       bool exists = false;
       List<String> siblings = <String>[];
       String nextKey = revTreeRootHash;
-      int depth = 0;
       Uint8List key = Uint8ArrayUtils.bigIntToBytes(revNonce);
 
       for (int depth = 0; depth < (key.length * 8); depth++) {
         if (BigInt.parse(nextKey) != BigInt.zero) {
           // rev root is not empty
-          RhsNodeDTO revNode = await fetchStateRoots(
-              url: rhsBaseUrl + "/" + identifierMapper.mapTo(nextKey));
-          RhsNodeType nodeType = RhsNodeTypeMapper().mapFrom(revNode.node);
+          RhsNodeEntity revNode = await fetchStateRoots(
+            url: rhsBaseUrl + "/" + identifierMapper.mapTo(nextKey),
+          );
+          final nodeType = revNode.node.type;
 
-          if (nodeType == RhsNodeType.middle) {
+          if (nodeType == NodeType.middle) {
             if (_testBit(key, depth)) {
               nextKey = revNode.node.children[1].toString();
               siblings.add(revNode.node.children[0].toString());
@@ -144,7 +142,7 @@ class RemoteIdentityDataSource {
               nextKey = revNode.node.children[0].toString();
               siblings.add(revNode.node.children[1].toString());
             }
-          } else if (nodeType == RhsNodeType.leaf) {
+          } else if (nodeType == NodeType.leaf) {
             if (Uint8ArrayUtils.leBuff2int(key).toString() ==
                 revNode.node.children[0].toString()) {
               exists = true;

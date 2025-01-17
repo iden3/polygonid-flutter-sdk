@@ -53,6 +53,9 @@ void main() {
       final keyStore = InMemoryPrivateKeyStore();
       final ed25519Provider = Ed25519Provider(KeyType.Ed25519, keyStore);
       final secp256k1Provider = Sec256k1Provider(KeyType.Secp256k1, keyStore);
+
+      // BJJ uses platform based implementation
+      // ignore: unused_local_variable
       final bjjProvider = BjjProvider(KeyType.BabyJubJub, keyStore);
       await Future.wait([
         // testFlow(bjjProvider),

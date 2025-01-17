@@ -19,7 +19,6 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/i
 import 'package:polygonid_flutter_sdk/identity/domain/entities/did_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/circuits_to_download_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
@@ -970,14 +969,14 @@ class PolygonIdFlutterChannel
 
   @override
   Future<void> cacheCredential(
-      {required ClaimEntity credential, ConfigParam? configParam}) {
+      {required ClaimEntity credential, EnvConfigEntity? configParam}) {
     // TODO: implement cacheCredential
     throw UnimplementedError();
   }
 
   @override
   Future<void> cacheCredentials(
-      {required List<ClaimEntity> credentials, ConfigParam? configParam}) {
+      {required List<ClaimEntity> credentials, EnvConfigEntity? configParam}) {
     // TODO: implement cacheCredentials
     throw UnimplementedError();
   }

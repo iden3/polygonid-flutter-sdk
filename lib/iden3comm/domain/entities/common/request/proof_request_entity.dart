@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 
 class ProofRequestEntity {

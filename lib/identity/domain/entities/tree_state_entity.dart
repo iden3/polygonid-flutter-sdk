@@ -24,4 +24,13 @@ class TreeStateEntity {
 
   @override
   int get hashCode => runtimeType.hashCode;
+
+  Map<String, dynamic> toJson() {
+    return {
+      "state": hash,
+      "claimsRoot": claimsTree.string(),
+      "revocationRoot": revocationTree.string(),
+      "rootOfRoots": rootsTree.string(),
+    };
+  }
 }

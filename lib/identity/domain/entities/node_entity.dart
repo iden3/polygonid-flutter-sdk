@@ -10,7 +10,6 @@ part 'node_entity.g.dart';
 /// - State node: [Claims Tree root, Revocation Tree root, Roots Tree root]
 /// - Middle node: [leftNode, rightNode]
 /// - Leaf node: [key, value, 1]
-// TODO (moria): Complete doc
 /// - Empty node: ???
 enum NodeType {
   middle,

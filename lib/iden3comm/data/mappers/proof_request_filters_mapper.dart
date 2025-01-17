@@ -9,6 +9,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exce
 class ProofRequestFiltersMapper
     extends FromMapper<ProofRequestEntity, List<FilterEntity>> {
   final StacktraceManager _stacktraceManager;
+
   ProofRequestFiltersMapper(this._stacktraceManager);
 
   @override

@@ -21,7 +21,7 @@ jobs:
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.3'
+          flutter-version: '3.24.4'
           channel: 'stable'
           cache: true
           # instead of "channel: stable", you could be more precise by specifying the exact version of Flutter you're using:
@@ -49,9 +49,6 @@ jobs:
 
       - name: Run tests
         run: flutter test --coverage
-
-      - name: Run Rust library test
-        run: cd rust && cargo test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3

@@ -16,7 +16,6 @@ import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.da
 import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/remote_iden3comm_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/local_contract_files_data_source.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -67,7 +66,9 @@ class FetchOnchainClaimUseCase
   );
 
   @override
-  Future<ClaimEntity> execute({required FetchOnchainClaimParam param}) async {
+  Future<ClaimEntity> execute({
+    required FetchOnchainClaimParam param,
+  }) async {
     final env = await _getEnvUseCase.execute();
     final chain = param.chainId != null
         ? env.chainConfigs[param.chainId]
@@ -114,7 +115,7 @@ class FetchOnchainClaimUseCase
         issuerDID: param.issuerDid,
         hexdata: rawCredential,
         version: param.adapterVersion,
-        config: ConfigParam.fromEnv(env).toJsonString(),
+        config: jsonEncode(env.config),
       );
 
       final claimJson = jsonDecode(rawClaim);
@@ -135,7 +136,7 @@ class FetchOnchainClaimUseCase
       );
 
       final displayMethod = claimInfoDto.displayMethod;
-      final futures = await Future.wait([
+      await Future.wait([
         _remoteIden3commDataSource
             .fetchSchema(url: claimInfoDto.credentialSchema.id)
             .then((schema) {

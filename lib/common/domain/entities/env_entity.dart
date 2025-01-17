@@ -14,6 +14,8 @@ class EnvEntity {
   final String? pinataGateway;
   final String? pinataGatewayToken;
 
+  final String? cacheDir;
+
   EnvEntity._({
     required this.pushUrl,
     required this.ipfsUrl,
@@ -22,6 +24,7 @@ class EnvEntity {
     this.stacktraceEncryptionKey,
     this.pinataGateway,
     this.pinataGatewayToken,
+    this.cacheDir,
   });
 
   EnvEntity({
@@ -32,6 +35,7 @@ class EnvEntity {
     this.stacktraceEncryptionKey,
     this.pinataGateway,
     this.pinataGatewayToken,
+    this.cacheDir,
   });
 
   factory EnvEntity.fromJson(Map<String, dynamic> json) {
@@ -50,6 +54,7 @@ class EnvEntity {
       stacktraceEncryptionKey: json['stacktraceEncryptionKey'],
       pinataGateway: json['pinataGateway'],
       pinataGatewayToken: json['pinataGatewayToken'],
+      cacheDir: json['cacheDir'],
     );
   }
 
@@ -67,11 +72,12 @@ class EnvEntity {
         'stacktraceEncryptionKey': stacktraceEncryptionKey,
         'pinataGateway': pinataGateway,
         'pinataGatewayToken': pinataGatewayToken,
+        'cacheDir': cacheDir,
       };
 
   @override
   String toString() {
-    return 'EnvEntity{pushUrl: $pushUrl, ipfsUrl: $ipfsUrl, chainConfig: $chainConfigs, didMethods: $didMethods, stacktraceEncryptionKey: $stacktraceEncryptionKey, , pinataGateway: $pinataGateway, pinataGatewayToken: $pinataGatewayToken}';
+    return 'EnvEntity{pushUrl: $pushUrl, ipfsUrl: $ipfsUrl, chainConfig: $chainConfigs, didMethods: $didMethods, stacktraceEncryptionKey: $stacktraceEncryptionKey, , pinataGateway: $pinataGateway, pinataGatewayToken: $pinataGatewayToken, cacheDir: $cacheDir}';
   }
 
   @override
@@ -84,7 +90,8 @@ class EnvEntity {
           listEquals(didMethods, other.didMethods) &&
           stacktraceEncryptionKey == other.stacktraceEncryptionKey &&
           pinataGateway == other.pinataGateway &&
-          pinataGatewayToken == other.pinataGatewayToken;
+          pinataGatewayToken == other.pinataGatewayToken &&
+          cacheDir == other.cacheDir;
 
   @override
   int get hashCode => runtimeType.hashCode;
@@ -101,6 +108,7 @@ class EnvEntity {
     String? stacktraceEncryptionKey,
     String? pinataGateway,
     String? pinataGatewayToken,
+    String? cacheDir,
   }) {
     return EnvEntity._(
       pushUrl: pushUrl ?? this.pushUrl,
@@ -111,16 +119,16 @@ class EnvEntity {
           stacktraceEncryptionKey ?? this.stacktraceEncryptionKey,
       pinataGateway: pinataGateway ?? this.pinataGateway,
       pinataGatewayToken: pinataGatewayToken ?? this.pinataGatewayToken,
+      cacheDir: cacheDir ?? this.cacheDir,
     );
   }
-}
 
-extension EnvEntityExtension on EnvEntity {
   EnvConfigEntity get config {
     return EnvConfigEntity(
       ipfsNodeUrl: ipfsUrl,
       chainConfigs: chainConfigs,
       didMethods: didMethods,
+      cacheDir: cacheDir,
     );
   }
 }

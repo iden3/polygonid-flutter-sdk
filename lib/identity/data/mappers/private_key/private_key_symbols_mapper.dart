@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:injectable/injectable.dart';
-import 'package:polygonid_flutter_sdk/common/mappers/from_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/data/mappers/private_key/private_key_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 

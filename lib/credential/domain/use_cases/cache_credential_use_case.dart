@@ -1,13 +1,13 @@
 import 'dart:convert';
 
+import 'package:polygonid_flutter_sdk/common/domain/entities/env_config_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 
 class CacheCredentialParam {
   final ClaimEntity credential;
-  final ConfigParam? config;
+  final EnvConfigEntity? config;
 
   CacheCredentialParam({
     required this.credential,
@@ -15,8 +15,7 @@ class CacheCredentialParam {
   });
 }
 
-class CacheCredentialUseCase
-    extends FutureUseCase<CacheCredentialParam, String?> {
+class CacheCredentialUseCase extends FutureUseCase<CacheCredentialParam, bool> {
   final CredentialRepository _credentialRepository;
 
   CacheCredentialUseCase(
@@ -24,7 +23,7 @@ class CacheCredentialUseCase
   );
 
   @override
-  Future<String?> execute({
+  Future<bool> execute({
     required CacheCredentialParam param,
   }) {
     String? config;

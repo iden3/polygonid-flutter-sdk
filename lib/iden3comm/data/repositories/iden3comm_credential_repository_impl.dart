@@ -39,7 +39,6 @@ class Iden3commCredentialRepositoryImpl extends Iden3commCredentialRepository {
     try {
       ClaimDTO claimDTO = await _remoteIden3commDataSource.fetchClaim(
           authToken: authToken, url: url, did: did);
-      final displayMethod = claimDTO.info.displayMethod;
       claimDTO = await _fetchSchemaAndDisplayType(claimDTO);
       final ClaimEntity claimEntity = _claimMapper.mapFrom(claimDTO);
       return claimEntity;

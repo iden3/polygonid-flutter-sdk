@@ -22,10 +22,11 @@ part 'mtproof_dto.g.dart';
 /// Represents a merkle tree proof DTO.
 @JsonSerializable(explicitToJson: true)
 class MTProofEntity extends Equatable {
+  @JsonKey(name: 'existence')
   final bool existence;
   @JsonKey(name: 'siblings')
   final List<HashEntity> siblings;
-  @JsonKey(name: 'node_aux')
+  @JsonKey(name: 'node_aux', includeIfNull: false)
   final NodeAuxEntity? nodeAux;
 
   const MTProofEntity({

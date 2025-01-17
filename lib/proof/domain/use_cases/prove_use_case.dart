@@ -7,7 +7,7 @@ import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart'
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart';
 
 class ProveParam {
-  final Uint8List inputs;
+  final String inputs;
   final CircuitDataEntity circuitData;
 
   ProveParam(this.inputs, this.circuitData);
@@ -26,8 +26,7 @@ class ProveUseCase extends FutureUseCase<ProveParam, ZKProofEntity> {
   Future<ZKProofEntity> execute({required ProveParam param}) async {
     Stopwatch stopwatch = Stopwatch()..start();
     try {
-      final input = String.fromCharCodes(param.inputs);
-      logger().i('ProveUseCase: input: $input');
+      logger().i('ProveUseCase: input: ${param.inputs}');
       // Calculate witness
       Uint8List wtnsBytes = await _proofRepository.calculateWitness(
         circuitData: param.circuitData,

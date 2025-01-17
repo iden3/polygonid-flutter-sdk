@@ -1,13 +1,13 @@
 name: polygonid_flutter_sdk
 description: PolygonID Flutter SDK (https://polygon.technology/polygon-id). This plugin provides a cross-platform tool (iOS, Android) to integrate the PolygonID solution.
-version: 2.3.4
+version: 2.4.0
 homepage: https://polygon.technology/polygon-id
 repository: https://github.com/0xPolygonID/polygonid-flutter-sdk
 issue_tracker: https://github.com/0xPolygonID/polygonid-flutter-sdk/issues
 documentation: https://0xpolygonid.github.io/tutorials/
 
 environment:
-  sdk: ">=2.19.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -44,15 +44,12 @@ dependencies:
   background_downloader: ^8.5.5
   meta: ^1.15.0
   poseidon: ^0.0.1
+  flutter_rapidsnark: 0.0.1-beta.1
+  circom_witnesscalc: 0.0.1-alpha.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^2.0.3
   json_serializable: ^6.7.1
   mockito: ^5.3.2
@@ -61,74 +58,15 @@ dev_dependencies:
   web3dart_builders: 0.0.7
 
 ffigen:
-  #name: NativeWitnessLinkedMultiQuery10Lib
-  #description: Bindings to `ios/Classes/witnesscalc_linkedMultiQuery10.h`.
-  #output: 'lib/proof/libs/witnesscalc/linked_multi_query_10/native_witness_linked_multi_query_10.dart'
-  #headers:
-  #    entry-points:
-  #    - 'ios/Classes/witnesscalc_linkedMultiQuery10.h'
-
-  #name: NativeWitnessV3OnchainLib
-  #description: Bindings to `ios/Classes/witnesscalc_credentialAtomicQueryV3OnChain.h`.
-  #output: 'lib/proof/libs/witnesscalc/v3_onchain/native_witness_v3_onchain.dart'
-  #headers:
-  #  entry-points:
-  #    - 'ios/Classes/witnesscalc_credentialAtomicQueryV3OnChain.h'
-
-  #name: NativeWitnessV3Lib
-  #description: Bindings to `ios/Classes/witnesscalc_credentialAtomicQueryV3.h`.
-  #output: 'lib/proof/libs/witnesscalc/v3/native_witness_v3.dart'
-  #headers:
-  #  entry-points:
-  #    - 'ios/Classes/witnesscalc_credentialAtomicQueryV3.h'
+  # dart run ffigen
 
   name: NativePolygonIdCoreLib
   description: Bindings to `ios/Classes/libpolygonid.h`.
   output: 'lib/common/libs/polygonidcore/native_polygonidcore.dart'
   headers:
     entry-points:
-      - 'ios/Classes/libpolygonid.h'
+      - 'ios/Frameworks/libpolygonid.xcframework/libpolygonid.h'
 
-  # name: WitnessMtpLib
-  # description: Bindings to `ios/Classes/witnesscalc_credentialAtomicQueryMTPV2.h`.
-  # output: 'lib/proof/libs/mtp_v2/native_witness_mtp_v2.dart'
-  # headers:
-  #  entry-points:
-  #    - 'ios/Classes/witnesscalc_mtp.h'
-
-  # name: WitnessLib
-  # description: Bindings to `ios/Classes/witnesscalc.h`.
-  # output: 'lib/libs/generated_bindings_witness.dart'
-  # headers:
-  #  entry-points:
-  #   - 'ios/Classes/witnesscalc.h'
-
-  #name: NativeWitnessMtpOnchainLib
-  #description: Bindings to `ios/Classes/witnesscalc_credentialAtomicQueryMTPV2OnChain.h`.
-  #output: 'lib/proof/libs/witnesscalc/mtp_v2_onchain/native_witness_mtp_v2_onchain.dart'
-  #headers:
-  #  entry-points:
-  #    - 'ios/Classes/witnesscalc_credentialAtomicQueryMTPV2OnChain.h'
-
-  #name: NativeWitnessSigOnchainLib
-  #description: Bindings to `ios/Classes/witnesscalc_credentialAtomicQuerySigV2OnChain.h`.
-  #output: 'lib/proof/libs/witnesscalc/sig_v2_onchain/native_witness_sig_v2_onchain.dart'
-  #headers:
-  #  entry-points:
-  #    - 'ios/Classes/witnesscalc_credentialAtomicQuerySigV2OnChain.h'
-
-
-  # name: ProverLib
-  # description: Bindings to `ios/Classes/prover.h`.
-  # output: 'lib/libs/generated_bindings_prover.dart'
-  # headers:
-  # entry-points:
-  # - 'ios/Classes/prover.h'
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
   plugin:
     platforms:
@@ -140,31 +78,3 @@ flutter:
 
   assets:
     - lib/assets/
-  # To add assets to your plugin package, add an assets section, like this:
-  # assets:
-  #
-  # For details regarding assets in packages, see
-  # https://flutter.dev/assets-and-images/#from-packages
-  #
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # To add custom fonts to your plugin package, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts in packages, see
-  # https://flutter.dev/custom-fonts/#from-packages

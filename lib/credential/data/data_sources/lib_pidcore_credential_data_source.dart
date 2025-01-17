@@ -37,7 +37,7 @@ class LibPolygonIdCoreCredentialDataSource {
     return output;
   }
 
-  String? cacheCredentials(String input, String? config) {
+  bool cacheCredentials(String input, String? config) {
     return _polygonIdCoreCredential.cacheCredentials(input, config);
   }
 

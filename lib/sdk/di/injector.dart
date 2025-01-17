@@ -13,8 +13,6 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:polygonid_flutter_sdk/common/data/repositories/config_repository_impl.dart';
-import 'package:polygonid_flutter_sdk/common/data/repositories/package_info_repository_impl.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/repositories/config_repository.dart';
 import 'package:polygonid_flutter_sdk/common/domain/repositories/package_info_repository.dart';
@@ -190,15 +188,6 @@ abstract class DatabaseModule {
 
 @module
 abstract class RepositoriesModule {
-  // common
-  ConfigRepository configRepository(
-          ConfigRepositoryImpl configRepositoryImpl) =>
-      configRepositoryImpl;
-
-  PackageInfoRepository packageInfoRepository(
-          PackageInfoRepositoryImpl packageInfoRepositoryImpl) =>
-      packageInfoRepositoryImpl;
-
   // Identity
   IdentityRepository identityRepository(
           IdentityRepositoryImpl identityRepositoryImpl) =>

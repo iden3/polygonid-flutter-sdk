@@ -14,7 +14,7 @@ MockStacktraceManager stacktraceManager = MockStacktraceManager();
 ProveUseCase useCase = ProveUseCase(proofRepository, stacktraceManager);
 
 // Data
-ProveParam param = ProveParam(CommonMocks.aBytes, ProofMocks.circuitData);
+ProveParam param = ProveParam(CommonMocks.inputs, ProofMocks.circuitData);
 
 @GenerateMocks([
   ProofRepository,

@@ -9,12 +9,8 @@ import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_ma
 import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
-import 'package:polygonid_flutter_sdk/credential/data/mappers/revocation_status_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/data/mappers/auth_proof_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/local_contract_files_data_source.dart';
-import 'package:polygonid_flutter_sdk/identity/data/data_sources/remote_identity_data_source.dart';
-import 'package:polygonid_flutter_sdk/identity/data/data_sources/rpc_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_download_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart';
@@ -25,19 +21,14 @@ import 'package:polygonid_flutter_sdk/proof/data/data_sources/prover_lib_data_so
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/witness_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/circuits_to_download_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/witness_param.dart';
-import 'package:polygonid_flutter_sdk/proof/data/mappers/circuit_type_mapper.dart';
-import 'package:polygonid_flutter_sdk/proof/data/mappers/gist_mtproof_mapper.dart';
-import 'package:polygonid_flutter_sdk/proof/data/mappers/zkproof_mapper.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/download_info_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_exceptions.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart';
 import 'package:polygonid_flutter_sdk/proof/gist_proof_cache.dart';
-import 'package:polygonid_flutter_sdk/proof/libs/witnesscalc/auth_v2/witness_auth.dart';
-import 'package:web3dart/contracts.dart';
 
 class ProofRepositoryImpl extends ProofRepository {
   final WitnessDataSource _witnessDataSource;
@@ -45,20 +36,14 @@ class ProofRepositoryImpl extends ProofRepository {
   final LibPolygonIdCoreProofDataSource _libPolygonIdCoreProofDataSource;
   final GistMTProofDataSource _gistProofDataSource;
   final ProofCircuitDataSource _proofCircuitDataSource;
-  final RemoteIdentityDataSource _remoteIdentityDataSource;
   final LocalContractFilesDataSource _localContractFilesDataSource;
   final CircuitsDownloadDataSource _circuitsDownloadDataSource;
-  final RPCDataSource _rpcDataSource;
-  final CircuitTypeMapper _circuitTypeMapper;
-  final ZKProofMapper _zkProofMapper;
-  final AuthProofMapper _authProofMapper;
   final CircuitsFilesDataSource _circuitsFilesDataSource;
   final GetEnvUseCase _getEnvUseCase;
   final StacktraceManager _stacktraceManager;
 
   // FIXME: those mappers shouldn't be used here as they are part of Credential
   final ClaimMapper _claimMapper;
-  final RevocationStatusMapper _revocationStatusMapper;
 
   ProofRepositoryImpl(
     this._witnessDataSource,
@@ -66,15 +51,9 @@ class ProofRepositoryImpl extends ProofRepository {
     this._libPolygonIdCoreProofDataSource,
     this._gistProofDataSource,
     this._proofCircuitDataSource,
-    this._remoteIdentityDataSource,
     this._localContractFilesDataSource,
     this._circuitsDownloadDataSource,
-    this._rpcDataSource,
-    this._circuitTypeMapper,
-    this._zkProofMapper,
     this._claimMapper,
-    this._revocationStatusMapper,
-    this._authProofMapper,
     this._circuitsFilesDataSource,
     this._getEnvUseCase,
     this._stacktraceManager,
@@ -83,7 +62,7 @@ class ProofRepositoryImpl extends ProofRepository {
   @override
   Future<CircuitDataEntity> loadCircuitFiles(String circuitId) async {
     final circuitDatFile =
-        await _circuitsFilesDataSource.loadCircuitDatFile(circuitId);
+        await _circuitsFilesDataSource.loadGraphFile(circuitId);
     final zkeyFilePath = await _circuitsFilesDataSource.getZkeyFilePath(
       circuitId,
     );
@@ -117,19 +96,10 @@ class ProofRepositoryImpl extends ProofRepository {
     Map<String, dynamic>? transactionData,
   }) async {
     ClaimDTO credentialDto = _claimMapper.mapTo(claim);
-    Map<String, dynamic>? gistProofMap;
-    if (gistProof != null) {
-      gistProofMap = gistProof.toJson();
-    }
-    Map<String, dynamic>? incProofMap;
-    if (incProof != null) {
-      incProofMap = _authProofMapper.mapTo(incProof);
-    }
 
-    Map<String, dynamic>? nonRevProofMap;
-    if (nonRevProof != null) {
-      nonRevProofMap = _authProofMapper.mapTo(nonRevProof);
-    }
+    final gistProofMap = gistProof?.toJson();
+    final incProofMap = incProof?.toJson();
+    final nonRevProofMap = nonRevProof?.toJson();
 
     _stacktraceManager.addTrace("getProofInputs id: $id");
     _stacktraceManager.addTrace("getProofInputs profileNonce: $profileNonce");
@@ -147,7 +117,7 @@ class ProofRepositoryImpl extends ProofRepository {
     _stacktraceManager.addTrace("getProofInputs request: $proofScopeRequest");
     _stacktraceManager.addTrace("getProofInputs circuitId: $circuitId");
 
-    String? res;
+    GenerateInputsResponse? res;
     try {
       res = await _libPolygonIdCoreProofDataSource.getProofInputs(
         id: id,
@@ -181,46 +151,33 @@ class ProofRepositoryImpl extends ProofRepository {
       );
     }
 
-    if (res.isNotEmpty) {
-      _stacktraceManager.addTrace("atomicQueryInputs result: success");
-      Uint8List inputsJsonBytes;
-      dynamic inputsJson = json.decode(res);
-      _stacktraceManager.addTrace("inputJsonType: ${inputsJson.runtimeType}");
-      if (inputsJson is Map<String, dynamic>) {
-        //Map<String, dynamic> inputs = json.decode(res);
-        Uint8List inputsJsonBytes = Uint8ArrayUtils.uint8ListfromString(
-            res /*json.encode(inputs["inputs"])*/);
-        return inputsJsonBytes;
-      } else if (inputsJson is String) {
-        Uint8List inputsJsonBytes =
-            Uint8ArrayUtils.uint8ListfromString(inputsJson);
-        return inputsJsonBytes;
-      }
+    if (res.inputs.isEmpty) {
+      _stacktraceManager.addTrace(
+          "[calculateAtomicQueryInputs/libPolygonIdCoreProof] NullAtomicQueryInputsException");
+      throw NullAtomicQueryInputsException(
+        id: id,
+        errorMessage: "Empty inputs result",
+      );
     }
 
-    _stacktraceManager.addTrace(
-        "[calculateAtomicQueryInputs/libPolygonIdCoreProof] NullAtomicQueryInputsException");
-    throw NullAtomicQueryInputsException(
-      id: id,
-      errorMessage: "Empty inputs result",
-    );
+    _stacktraceManager.addTrace("atomicQueryInputs result: success");
+    final inputsJson = jsonEncode(res.inputs);
+    final inputsJsonBytes = Uint8ArrayUtils.uint8ListfromString(inputsJson);
+    return inputsJsonBytes;
   }
 
   @override
   Future<Uint8List> calculateWitness({
     required CircuitDataEntity circuitData,
-    required Uint8List atomicQueryInputs,
+    required String atomicQueryInputs,
   }) async {
-    WitnessParam witnessParam =
-        WitnessParam(wasm: circuitData.datFile, json: atomicQueryInputs);
-
     _stacktraceManager.addTrace(
         "[calculateWitness] circuitData.circuitId ${circuitData.circuitId}");
-    CircuitType circuitType = _circuitTypeMapper.mapTo(circuitData.circuitId);
+    final circuitType = CircuitType.fromString(circuitData.circuitId);
     try {
       Uint8List? witness = await _witnessDataSource.computeWitness(
-        type: circuitType,
-        param: witnessParam,
+        inputsJson: atomicQueryInputs,
+        circuitGraphFile: circuitData.witnessCalculationData,
       );
       if (witness == null) {
         throw NullWitnessException(
@@ -252,7 +209,6 @@ class ProofRepositoryImpl extends ProofRepository {
       Stopwatch stopwatch = Stopwatch()..start();
 
       final Map<String, dynamic>? proof = await _proverLibDataSource.prove(
-        circuitData.circuitId,
         circuitData.zKeyPath,
         wtnsBytes,
       );
@@ -272,7 +228,7 @@ class ProofRepositoryImpl extends ProofRepository {
         );
       }
 
-      final ZKProofEntity zkProof = _zkProofMapper.mapFrom(proof);
+      final ZKProofEntity zkProof = ZKProofEntity.fromJson(proof);
       return zkProof;
     } on PolygonIdSDKException catch (_) {
       rethrow;
@@ -286,9 +242,9 @@ class ProofRepositoryImpl extends ProofRepository {
   }
 
   @override
-  Future<bool> isCircuitSupported({required String circuitId}) {
-    return Future.value(_circuitTypeMapper.mapTo(circuitId)).then((circuit) =>
-        _proofCircuitDataSource.isCircuitSupported(circuit: circuit));
+  Future<bool> isCircuitSupported({required String circuitId}) async {
+    final circuitType = CircuitType.fromString(circuitId);
+    return _proofCircuitDataSource.isCircuitSupported(circuit: circuitType);
   }
 
   @override

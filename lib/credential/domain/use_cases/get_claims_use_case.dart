@@ -9,7 +9,6 @@ import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.da
 import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_exceptions.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_current_env_did_identifier_use_case.dart';
 
 class GetClaimsParam {
   final List<FilterEntity>? filters;
@@ -31,12 +30,10 @@ class GetClaimsParam {
 class GetClaimsUseCase
     extends FutureUseCase<GetClaimsParam, List<ClaimEntity>> {
   final CredentialRepository _credentialRepository;
-  final GetCurrentEnvDidIdentifierUseCase _getCurrentEnvDidIdentifierUseCase;
   final StacktraceManager _stacktraceManager;
 
   GetClaimsUseCase(
     this._credentialRepository,
-    this._getCurrentEnvDidIdentifierUseCase,
     this._stacktraceManager,
   );
 

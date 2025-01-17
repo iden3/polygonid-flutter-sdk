@@ -10,6 +10,7 @@ class JWZMapper extends FromMapper<JWZEntity, String> {
   final StacktraceManager _stacktraceManager;
 
   JWZMapper(this._stacktraceManager);
+
   @override
   String mapFrom(JWZEntity from) {
     if (from.header == null) {

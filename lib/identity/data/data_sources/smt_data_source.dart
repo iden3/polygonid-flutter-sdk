@@ -2,18 +2,15 @@ import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/storage_smt_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/hash_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/node_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/hex_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/smt_exceptions.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/node_aux_entity.dart';
 import 'package:poseidon/poseidon.dart';
 
 class SMTDataSource {
-  final HexMapper _hexMapper;
   final StorageSMTDataSource _storageSMTDataSource;
 
   SMTDataSource(
-    this._hexMapper,
     this._storageSMTDataSource,
   );
 

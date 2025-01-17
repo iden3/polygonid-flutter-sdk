@@ -11,7 +11,6 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/iden3comm_cr
 
 import '../../../common/common_mocks.dart';
 import '../../../common/credential_mocks.dart';
-import '../../../common/iden3comm_mocks.dart';
 import 'iden3comm_credential_repository_impl_test.mocks.dart';
 
 // Data

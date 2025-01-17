@@ -1,5 +1,4 @@
 import 'package:polygonid_flutter_sdk/common/data/data_sources/mappers/filters_mapper.dart';
-import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/filter_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
@@ -9,7 +8,6 @@ import 'package:polygonid_flutter_sdk/credential/data/data_sources/remote_claim_
 import 'package:polygonid_flutter_sdk/credential/data/data_sources/storage_claim_data_source.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
-import 'package:polygonid_flutter_sdk/credential/data/mappers/id_filter_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_exceptions.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
@@ -24,7 +22,6 @@ class CredentialRepositoryImpl extends CredentialRepository {
   final CacheCredentialDataSource _cacheCredentialDataSource;
   final ClaimMapper _claimMapper;
   final FiltersMapper _filtersMapper;
-  final IdFilterMapper _idFilterMapper;
   final StacktraceManager _stacktraceManager;
 
   CredentialRepositoryImpl(
@@ -34,7 +31,6 @@ class CredentialRepositoryImpl extends CredentialRepository {
     this._cacheCredentialDataSource,
     this._claimMapper,
     this._filtersMapper,
-    this._idFilterMapper,
     this._stacktraceManager,
   );
 
@@ -300,7 +296,7 @@ class CredentialRepositoryImpl extends CredentialRepository {
   }
 
   @override
-  Future<String?> cacheCredential({
+  Future<bool> cacheCredential({
     required String credential,
     String? config,
   }) {

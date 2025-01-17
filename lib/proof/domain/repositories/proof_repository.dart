@@ -36,7 +36,7 @@ abstract class ProofRepository {
 
   Future<Uint8List> calculateWitness({
     required CircuitDataEntity circuitData,
-    required Uint8List atomicQueryInputs,
+    required String atomicQueryInputs,
   });
 
   Future<ZKProofEntity> prove({

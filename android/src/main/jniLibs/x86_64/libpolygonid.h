@@ -28,6 +28,22 @@ typedef enum
 {
 	PLGNSTATUSCODE_ERROR,
 	PLGNSTATUSCODE_NIL_POINTER,
+	// error extracting credential status from verifiable credential
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
+	// error resolving credential status (e.g. getting the status from chain of DHS)
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_RESOLVE_ERROR,
+	// error getting merkletree proof from credential status
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
+	// merkletree proof is invalid
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_STATE_ERROR,
+	// credential is revoked
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_REVOKED_ERROR,
+	// the same as above but for issuer credential (for signature proofs)
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_RESOLVE_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_STATE_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_REVOKED_ERROR,
 } PLGNStatusCode;
 
 typedef struct _PLGNStatus
@@ -92,6 +108,12 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
+
+// Deprecated: Use PLGNAGenerateInputs with additional
+// `"request": {"circuitId": "authV2"}` in the request json. This function
+// does not support `statsInfo` in response and returns inputs
+// on top level of response object.
+//
 extern GoUint8 PLGNAuthV2InputsMarshal(char** jsonResponse, char* in, PLGNStatus** status);
 
 // Deprecated: Use PLGNNewGenesisID instead. It supports environment
@@ -188,8 +210,19 @@ extern GoUint8 PLGNAtomicQueryV3OnChainInputs(char** jsonResponse, char* in, cha
 // linkedMultiQuery10-beta.1 circuit.
 //
 extern GoUint8 PLGNALinkedMultiQueryInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+
+// PLGNAGenerateInputs returns the inputs for the circuit based on the
+// request.circuitId field.
+//
+extern GoUint8 PLGNAGenerateInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
 extern void PLGNFreeStatus(PLGNStatus* status);
+
+// Deprecated: Use PLGNCleanCache2 instead. We need to support consistent path
+// to the cache directory. This function supposed the cache directory is empty
+// and should be calculated based on user's $HOME directory.
+//
 extern GoUint8 PLGNCleanCache(PLGNStatus** status);
+extern GoUint8 PLGNCleanCache2(char* cfg, PLGNStatus** status);
 extern GoUint8 PLGNCacheCredentials(char* in, char* cfg, PLGNStatus** status);
 
 // PLGNW3CCredentialFromOnchainHex returns a verifiable credential from an onchain data hex string.
@@ -227,6 +260,11 @@ extern GoUint8 PLGNW3CCredentialFromOnchainHex(char** jsonResponse, char* in, ch
 //	}
 //
 extern GoUint8 PLGNDescribeID(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNBabyJubJubSignPoseidon(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNBabyJubJubVerifyPoseidon(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNBabyJubJubPrivate2Public(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNBabyJubJubPublicUncompress(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNBabyJubJubPublicCompress(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
 
 #ifdef __cplusplus
 }

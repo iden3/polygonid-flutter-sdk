@@ -14,7 +14,6 @@ import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/credential/response/fe
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 
 import '../../../common/common_mocks.dart';
-import '../../../common/iden3comm_mocks.dart';
 import '../dtos/fetch_claim_response_dto_test.dart';
 import 'remote_iden3comm_data_source_test.mocks.dart';
 

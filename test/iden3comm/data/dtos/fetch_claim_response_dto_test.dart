@@ -250,6 +250,7 @@ void main() {
     setUp(() {});
 
     test("Serializable", () {
+      // ignore: unused_local_variable
       FetchClaimResponseDTO dto = FetchClaimResponseDTO.fromJson(json);
     });
   });

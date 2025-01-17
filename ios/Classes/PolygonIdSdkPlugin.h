@@ -1,5 +1,5 @@
 #import <Flutter/Flutter.h>
-#import "libbabyjubjub.h"
+#import "libpolygonid.h"
 
 @interface PolygonIdSdkPlugin : NSObject<FlutterPlugin>
 @end

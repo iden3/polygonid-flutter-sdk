@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -35,14 +36,12 @@ import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/refresh_credential_use_case.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/lib_pidcore_iden3comm_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_service_metadata_devices_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_service_metadata_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_service_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_response_dto.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/data/mappers/auth_proof_mapper.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/mappers/proof_request_filters_mapper.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/request/auth_request_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
@@ -55,14 +54,12 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/i
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_vp_proof.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/jwz_exceptions.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/generate_iden3comm_proof_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/get_iden3message_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/wallet_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/hash_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/node_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/hex_mapper.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/tree_state_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/tree_type.dart';
@@ -73,11 +70,8 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_
 import 'package:polygonid_flutter_sdk/identity/libs/bjj/bjj_wallet.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/gist_mtproof_data_source.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_param.dart';
+import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
-import 'package:polygonid_flutter_sdk/proof/data/mappers/circuit_type_mapper.dart';
-import 'package:polygonid_flutter_sdk/proof/data/mappers/gist_mtproof_mapper.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
@@ -85,17 +79,13 @@ import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_e
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart';
 import 'package:polygonid_flutter_sdk/proof/gist_proof_cache.dart';
 import 'package:polygonid_flutter_sdk/proof/infrastructure/proof_generation_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/proof/libs/polygonidcore/pidcore_proof.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
-import 'package:poseidon/constants/p1.dart';
 import 'package:poseidon/poseidon.dart';
 import 'package:sembast/sembast.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-import 'package:polygonid_flutter_sdk/identity/libs/bjj/eddsa_babyjub.dart'
-    as bjj;
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:pointycastle/asymmetric/oaep.dart';
@@ -147,8 +137,7 @@ class Authenticate {
         );
       }
 
-      HexMapper hexMapper = getItSdk<HexMapper>();
-      Uint8List privateKeyBytes = hexMapper.mapTo(privateKey);
+      Uint8List privateKeyBytes = hexToBytes(privateKey);
 
       GetSelectedChainUseCase getSelectedChainUseCase =
           await getItSdk.getAsync<GetSelectedChainUseCase>();
@@ -251,6 +240,7 @@ class Authenticate {
         authClaimNode: authClaimCompanionObject.authClaimNode!,
         gistProofEntity: authClaimCompanionObject.gistProofEntity!,
         proofRepository: proofRepository,
+        env: env,
       );
       _stacktraceManager.addTrace(
         "[Authenticate] authToken: $authToken",
@@ -270,7 +260,7 @@ class Authenticate {
         );
       }
 
-      // perform the authentication with the auth token callin the callback url
+      // perform the authentication with the auth token calling the callback url
       http.Client httpClient = http.Client();
       Uri uri = Uri.parse(callbackUrl);
       http.Response response = await httpClient.post(
@@ -280,7 +270,7 @@ class Authenticate {
           HttpHeaders.acceptHeader: '*/*',
           HttpHeaders.contentTypeHeader: 'text/plain',
         },
-      );
+      ).timeout(const Duration(seconds: 30));
 
       _stacktraceManager.addTrace(
         "[Authenticate] responseStatusCode: ${response.statusCode}\nresponseBody: ${response.body}",
@@ -316,6 +306,12 @@ class Authenticate {
       } catch (e) {
         return null;
       }
+    } on TimeoutException catch (e) {
+      String waitingTime = e.duration?.inSeconds.toString() ?? "unknown";
+      throw NetworkException(
+          statusCode: 504,
+          errorMessage:
+              "Connection timeout while sending auth token to the requester.\nwaited for $waitingTime seconds.");
     } catch (e) {
       rethrow;
     }
@@ -394,14 +390,14 @@ class Authenticate {
       final appDir = await getApplicationDocumentsDirectory();
       final circuitsDataSource = CircuitsFilesDataSource(appDir);
 
-      final circuitDatFileBytes = await circuitsDataSource
-          .loadCircuitDatFile(proofRequest.scope.circuitId);
+      final graphFileBytes =
+          await circuitsDataSource.loadGraphFile(proofRequest.scope.circuitId);
       final zkeyFilePath = await circuitsDataSource
           .getZkeyFilePath(proofRequest.scope.circuitId);
 
       CircuitDataEntity circuitDataEntity = CircuitDataEntity(
         proofRequest.scope.circuitId,
-        circuitDatFileBytes,
+        graphFileBytes,
         zkeyFilePath,
       );
 
@@ -431,13 +427,13 @@ class Authenticate {
           proofRequest.scope.circuitId == CircuitType.sigonchain.name ||
           proofRequest.scope.circuitId == CircuitType.circuitsV3onchain.name) {
         /// SIGN MESSAGE
-        String signature = await signMessage(
+        signature = await signMessage(
           privateKey: privateKeyBytes,
           message: challenge!,
         );
       }
 
-      config = ConfigParam.fromEnv(env).toJson();
+      config = env.config.toJson();
 
       List<String> splittedDid = genesisDid.split(":");
       String id = splittedDid[4];
@@ -465,12 +461,10 @@ class Authenticate {
       final inputsString = Uint8ArrayUtils.uint8ListToString(res);
 
       dynamic inputsJson = json.decode(inputsString);
-      Uint8List atomicQueryInputs = Uint8ArrayUtils.uint8ListfromString(
-          json.encode(inputsJson["inputs"]));
+      final atomicQueryInputs = json.encode(inputsJson["inputs"]);
       if (kDebugMode) {
         //just for debug
-        String inputs = Uint8ArrayUtils.uint8ListToString(atomicQueryInputs);
-        logger().i("atomicQueryInputs: $inputs");
+        logger().i("atomicQueryInputs: $atomicQueryInputs");
       }
 
       var vpProof;
@@ -635,8 +629,7 @@ class Authenticate {
                   "V3 circuit beta version mismatch $circuitId is not supported, current is ${CircuitType.currentCircuitBetaPostfix}");
         }
 
-        CircuitTypeMapper circuitTypeMapper = getItSdk<CircuitTypeMapper>();
-        CircuitType circuitType = circuitTypeMapper.mapTo(circuitId);
+        CircuitType circuitType = CircuitType.fromString(circuitId);
 
         switch (circuitType) {
           case CircuitType.mtp:
@@ -724,32 +717,6 @@ class Authenticate {
         statusCode: schemaResponse.statusCode ?? 0,
         errorMessage: schemaResponse.statusMessage ?? "",
       );
-    }
-  }
-
-  bool _isDateTime(String input) {
-    final dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-    final timeZoneFormat = RegExp(r'.*\+\d{2}:\d{2}$');
-    final utcFormat = RegExp(r'.*Z$');
-
-    if (utcFormat.hasMatch(input)) {
-      final noUtcInput = input.substring(0, input.length - 1); // Rimuovi la "Z"
-      try {
-        dateFormat.parseStrict(noUtcInput);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    } else if (timeZoneFormat.hasMatch(input)) {
-      final noTimeZoneInput = input.substring(0, input.length - 6);
-      try {
-        dateFormat.parseStrict(noTimeZoneInput);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    } else {
-      return false;
     }
   }
 
@@ -1003,6 +970,7 @@ class Authenticate {
     required Map<String, dynamic> treeState,
     required GistMTProofEntity gistProofEntity,
     required ProofRepository proofRepository,
+    required EnvEntity env,
   }) async {
     JWZHeader header = JWZHeader(
       circuitId: "authV2",
@@ -1034,29 +1002,26 @@ class Authenticate {
       message: authChallenge,
     );
 
-    LibPolygonIdCoreIden3commDataSource libPolygonIdCoreIden3commDataSource =
-        getItSdk<LibPolygonIdCoreIden3commDataSource>();
+    final libPidCoreIden3commDS = getItSdk<LibPolygonIdCoreProofDataSource>();
 
-    AuthProofMapper authProofMapper = getItSdk<AuthProofMapper>();
-
-    Uint8List authInputsBytes =
-        await libPolygonIdCoreIden3commDataSource.getAuthInputs(
+    final inputsResponse = await libPidCoreIden3commDS.getAuthInputs(
       genesisDid: genesisDid,
       profileNonce: profileNonce,
       authClaim: authClaim,
-      incProof: authProofMapper.mapTo(incProof),
-      nonRevProof: authProofMapper.mapTo(nonRevProof),
+      incProof: incProof.toJson(),
+      nonRevProof: nonRevProof.toJson(),
       gistProof: gistProofEntity.toJson(),
       treeState: treeState,
       challenge: authChallenge,
       signature: signature,
+      config: env.config.toJson(),
     );
 
     final appDir = await getApplicationDocumentsDirectory();
     final circuitsDataSource = CircuitsFilesDataSource(appDir);
 
     final circuitDatFileBytes =
-        await circuitsDataSource.loadCircuitDatFile('authV2');
+        await circuitsDataSource.loadGraphFile('authV2');
     final zkeyFilePath = await circuitsDataSource.getZkeyFilePath('authV2');
 
     CircuitDataEntity circuitDataEntity = CircuitDataEntity(
@@ -1067,7 +1032,7 @@ class Authenticate {
 
     Uint8List witnessBytes = await proofRepository.calculateWitness(
       circuitData: circuitDataEntity,
-      atomicQueryInputs: authInputsBytes,
+      atomicQueryInputs: jsonEncode(inputsResponse.inputs),
     );
 
     ZKProofEntity zkProofEntity = await proofRepository.prove(
@@ -1122,7 +1087,6 @@ class Authenticate {
     MTProofEntity? nonRevProof;
     GistMTProofEntity? gistProofEntity;
     Map<String, dynamic>? treeState;
-    Map<String, dynamic>? config;
     var libPolygonIdCredential =
         getItSdk<LibPolygonIdCoreCredentialDataSource>();
 
@@ -1247,117 +1211,6 @@ class Authenticate {
       ..gistProofEntity = gistProofEntity
       ..treeState = treeState
       ..authClaimNode = authClaimNode;
-  }
-
-  Future<Uint8List> _computeSigProof({
-    required String id,
-    required BigInt profileNonce,
-    required BigInt claimSubjectProfileNonce,
-    required ClaimEntity claim,
-    required Map<String, dynamic> proofScopeRequest,
-    required String circuitId,
-    MTProofEntity? incProof,
-    MTProofEntity? nonRevProof,
-    GistMTProofEntity? gistProof,
-    List<String>? authClaim,
-    Map<String, dynamic>? treeState,
-    String? challenge,
-    String? signature,
-    required Map<String, dynamic> config,
-    required String verifierId,
-    required String linkNonce,
-    Map<String, dynamic>? scopeParams,
-    Map<String, dynamic>? transactionData,
-  }) async {
-    PolygonIdCoreProof polygonIdCoreProof = getItSdk<PolygonIdCoreProof>();
-    var _claimMapper = getItSdk<ClaimMapper>();
-    ClaimDTO credentialDto = _claimMapper.mapTo(claim);
-    var _gistMTProofMapper = getItSdk<GistMTProofMapper>();
-    Map<String, dynamic>? gistProofMap;
-    if (gistProof != null) {
-      gistProofMap = _gistMTProofMapper.mapTo(gistProof);
-    }
-    var _authProofMapper = getItSdk<AuthProofMapper>();
-    Map<String, dynamic>? incProofMap;
-    if (incProof != null) {
-      incProofMap = _authProofMapper.mapTo(incProof);
-    }
-
-    Map<String, dynamic>? nonRevProofMap;
-    if (nonRevProof != null) {
-      nonRevProofMap = _authProofMapper.mapTo(nonRevProof);
-    }
-    final inputParam = AtomicQueryInputsParam(
-      type: AtomicQueryInputsType.sig,
-      id: id,
-      profileNonce: profileNonce,
-      claimSubjectProfileNonce: claimSubjectProfileNonce,
-      authClaim: authClaim,
-      incProof: incProofMap,
-      nonRevProof: nonRevProofMap,
-      treeState: treeState,
-      gistProof: gistProofMap,
-      challenge: challenge,
-      signature: signature,
-      credential: credentialDto.info,
-      request: proofScopeRequest,
-      verifierId: verifierId,
-      linkNonce: linkNonce,
-      params: scopeParams,
-      transactionData: transactionData,
-    );
-    String stringInputParam = jsonEncode(inputParam.toJson());
-    String configString = jsonEncode(config);
-    String sigProofInputs =
-        polygonIdCoreProof.getSigProofInputs(stringInputParam, configString);
-    Uint8List inputsJsonBytes;
-    dynamic inputsJson = json.decode(sigProofInputs);
-    if (inputsJson is Map<String, dynamic>) {
-      Uint8List inputsJsonBytes =
-          Uint8ArrayUtils.uint8ListfromString(sigProofInputs);
-      return inputsJsonBytes;
-    } else if (inputsJson is String) {
-      Uint8List inputsJsonBytes =
-          Uint8ArrayUtils.uint8ListfromString(inputsJson);
-      return inputsJsonBytes;
-    }
-    _stacktraceManager.addError(
-      "[Authenticate] Error in _computeSigProof",
-    );
-    throw Exception('Error in _computeSigProof');
-  }
-
-  void _validateV3OperatorsByCircuit({
-    required String circuitId,
-    required String operator,
-  }) {
-    const List<String> supportedOperators = [
-      '\$lte',
-      '\$gte',
-      '\$between',
-      '\$nonbetween',
-      '\$exists',
-    ];
-    const String supportedCircuitPrefix = 'credentialAtomicQueryV3';
-
-    bool operatorIsPartOfV3Operators = supportedOperators.contains(operator);
-    bool isCircuitSupported = circuitId.startsWith(supportedCircuitPrefix);
-
-    // if the operator is not part of the v3 operators, we don't need to check the circuit
-    if (!operatorIsPartOfV3Operators) {
-      return;
-    }
-
-    // if circuit is not V3, we throw an exception
-    if (!isCircuitSupported) {
-      _stacktraceManager.addError(
-        "[Authenticate] Operator $operator is not supported for circuit $circuitId",
-      );
-      throw OperatorException(
-        errorMessage:
-            "Operator $operator is not supported for circuit $circuitId",
-      );
-    }
   }
 
   Future<ClaimEntity> _checkCredentialExpirationAndTryRefreshIfExpired({

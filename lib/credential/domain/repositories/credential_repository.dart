@@ -62,7 +62,7 @@ abstract class CredentialRepository {
 
   Future<List<String>> getAuthClaim({required List<String> publicKey});
 
-  Future<String?> cacheCredential({
+  Future<bool> cacheCredential({
     required String credential,
     String? config,
   });

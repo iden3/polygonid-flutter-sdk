@@ -1,136 +1,89 @@
-import 'dart:ffi';
-import 'dart:io';
+import 'dart:convert';
 
-import 'package:ffi/ffi.dart';
 import 'package:injectable/injectable.dart';
-
-typedef CStringFree = void Function(Pointer<Utf8>);
-typedef CStringFreeFFI = Void Function(Pointer<Utf8>);
+import 'package:polygonid_flutter_sdk/common/libs/polygonidcore/pidcore_base.dart';
 
 @injectable
-class BabyjubjubLib {
-  final DynamicLibrary _nativeBabyjubjubLib = Platform.isAndroid
-      ? DynamicLibrary.open("libbabyjubjub.so")
-      : DynamicLibrary.process();
+class BabyjubjubLib extends PolygonIdCore {
+  BabyjubjubLib();
 
-  late CStringFree cstringFree;
-
-  BabyjubjubLib() {
-    _packPoint = _nativeBabyjubjubLib
-        .lookup<
-            NativeFunction<
-                Pointer<Utf8> Function(
-                    Pointer<Utf8>, Pointer<Utf8>)>>("pack_point")
-        .asFunction();
-
-    _unpackPoint = _nativeBabyjubjubLib
-        .lookup<NativeFunction<Pointer<Utf8> Function(Pointer<Utf8>)>>(
-            "unpack_point")
-        .asFunction();
-
-    _prv2Pub = _nativeBabyjubjubLib
-        .lookup<NativeFunction<Pointer<Utf8> Function(Pointer<Utf8>)>>(
-            "prv2pub")
-        .asFunction();
-
-    _signPoseidon = _nativeBabyjubjubLib
-        .lookup<
-            NativeFunction<
-                Pointer<Utf8> Function(
-                    Pointer<Utf8>, Pointer<Utf8>)>>("sign_poseidon")
-        .asFunction();
-
-    _verifyPoseidon = _nativeBabyjubjubLib
-        .lookup<
-            NativeFunction<
-                Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>,
-                    Pointer<Utf8>)>>("verify_poseidon")
-        .asFunction();
-
-    cstringFree = _nativeBabyjubjubLib
-        .lookup<NativeFunction<CStringFreeFFI>>("cstring_free")
-        .asFunction();
+  String compressPoint(String pointX, String pointY) {
+    return callGenericCoreFunction(
+      input: () => jsonEncode({
+        "public_key_x_int": pointX,
+        "public_key_y_int": pointY,
+      }),
+      function:
+          PolygonIdCore.nativePolygonIdCoreLib.PLGNBabyJubJubPublicCompress,
+      parse: (jsonString) {
+        final json = jsonDecode(jsonString);
+        return json["public_key"] as String;
+      },
+    );
   }
 
-  late Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>) _packPoint;
-
-  String packPoint(String pointX, String pointY) {
-    //if (lib == null) return "ERROR: The library is not initialized";
-
-    final ptrX = pointX.toNativeUtf8();
-    final ptrY = pointY.toNativeUtf8();
-    final resultPtr = _packPoint(ptrX, ptrY);
-    final result = resultPtr.toDartString();
-    //debugPrint("- Response string:  $result");
-    // Free the string pointer, as we already have
-    // an owned String to return
-    //print("- Freeing the native char*");
-    cstringFree(resultPtr);
-    return result;
+  List<String> uncompressPoint(String compressedPoint) {
+    return callGenericCoreFunction(
+      input: () => jsonEncode({
+        "public_key": compressedPoint,
+      }),
+      function:
+          PolygonIdCore.nativePolygonIdCoreLib.PLGNBabyJubJubPublicUncompress,
+      parse: (jsonString) {
+        final json = jsonDecode(jsonString);
+        return [
+          json["public_key_x_int"] as String,
+          json["public_key_y_int"] as String,
+        ];
+      },
+    );
   }
-
-  late Pointer<Utf8> Function(Pointer<Utf8>) _unpackPoint;
-
-  List<String>? unpackPoint(String compressedPoint) {
-    final pointPtr = compressedPoint.toNativeUtf8();
-    final resultPtr = _unpackPoint(pointPtr);
-    final result = resultPtr.toDartString();
-    //print("- Response string:  $result");
-    // Free the string pointer, as we already have
-    // an owned String to return
-    //print("- Freeing the native char*");
-    cstringFree(resultPtr);
-    return result.split(",");
-  }
-
-  // privKey.signPoseidon -> signPoseidon
-  late Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>) _signPoseidon;
 
   String signPoseidon(String privateKey, String msg) {
-    //if (lib == null) return "ERROR: The library is not initialized";
-    final prvKeyPtr = privateKey.toNativeUtf8();
-    final msgPtr = msg.toNativeUtf8();
-    final resultPtr = _signPoseidon(prvKeyPtr, msgPtr);
-    final String compressedSignature = resultPtr.toDartString();
-    //print("- Response string:  $compressedSignature");
-    // Free the string pointer, as we already have
-    // an owned String to return
-    //print("- Freeing the native char*");
-    cstringFree(resultPtr);
-    return compressedSignature;
+    return callGenericCoreFunction(
+      input: () => jsonEncode({
+        "private_key": privateKey,
+        "msg_int": msg,
+      }),
+      function: PolygonIdCore.nativePolygonIdCoreLib.PLGNBabyJubJubSignPoseidon,
+      parse: (jsonString) {
+        final json = jsonDecode(jsonString);
+        return json["signature"];
+      },
+    );
   }
-
-  // privKey.verifyPoseidon -> verifyPoseidon
-  late Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>)
-      _verifyPoseidon;
 
   bool verifyPoseidon(
-      String privateKey, String compressedSignature, String msg) {
-    final privateKeyPtr = privateKey.toNativeUtf8();
-    final sigPtr = compressedSignature.toNativeUtf8();
-    final msgPtr = msg.toNativeUtf8();
-    final resultPtr = _verifyPoseidon(privateKeyPtr, sigPtr, msgPtr);
-    final String resultString = resultPtr.toDartString();
-    //print("- Response string:  $resultString");
-    // Free the string pointer, as we already have
-    // an owned String to return
-    //print("- Freeing the native char*");
-    cstringFree(resultPtr);
-    final bool result = resultString.compareTo("1") == 0;
-    return result;
+    String publicKey,
+    String compressedSignature,
+    String msg,
+  ) {
+    return callGenericCoreFunction(
+      input: () => jsonEncode({
+        "public_key": publicKey,
+        "signature": compressedSignature,
+        "msg_int": msg,
+      }),
+      function:
+          PolygonIdCore.nativePolygonIdCoreLib.PLGNBabyJubJubVerifyPoseidon,
+      parse: (jsonString) {
+        final json = jsonDecode(jsonString);
+        return json["valid"] as bool;
+      },
+    );
   }
 
-  late Pointer<Utf8> Function(Pointer<Utf8>) _prv2Pub;
-
   String prv2pub(String privateKey) {
-    final prvKeyPtr = privateKey.toNativeUtf8();
-    final resultPtr = _prv2Pub(prvKeyPtr);
-    final String resultString = resultPtr.toDartString();
-    //print("- Response string:  $resultString");
-    // Free the string pointer, as we already have
-    // an owned String to return
-    //print("- Freeing the native char*");
-    cstringFree(resultPtr);
-    return resultString;
+    return callGenericCoreFunction(
+      input: () => jsonEncode({
+        "private_key": privateKey,
+      }),
+      function:
+          PolygonIdCore.nativePolygonIdCoreLib.PLGNBabyJubJubPrivate2Public,
+      parse: (jsonString) {
+        final json = jsonDecode(jsonString);
+        return json["public_key"] as String;
+      },
+    );
   }
 }

@@ -1,6 +1,3 @@
-import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/did_entity.dart';
-
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 
 class IdentityException extends PolygonIdSDKException {

@@ -102,8 +102,7 @@ class GenerateZKProofUseCase
     });
 
     dynamic inputsJson = json.decode(Uint8ArrayUtils.uint8ListToString(res));
-    Uint8List atomicQueryInputs =
-        Uint8ArrayUtils.uint8ListfromString(json.encode(inputsJson["inputs"]));
+    final atomicQueryInputs = json.encode(inputsJson["inputs"]);
 
     // Prove
     return _proveUseCase

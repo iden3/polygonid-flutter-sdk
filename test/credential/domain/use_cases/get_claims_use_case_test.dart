@@ -8,7 +8,6 @@ import 'package:polygonid_flutter_sdk/credential/domain/exceptions/credential_ex
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/get_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_current_env_did_identifier_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 
 import '../../../common/common_mocks.dart';
@@ -117,21 +116,17 @@ var getClaimsException = GetClaimsException(errorMessage: "error");
 
 // Dependencies
 MockCredentialRepository credentialRepository = MockCredentialRepository();
-MockGetCurrentEnvDidIdentifierUseCase getCurrentEnvDidIdentifierUseCase =
-    MockGetCurrentEnvDidIdentifierUseCase();
 MockGetIdentityUseCase getIdentityUseCase = MockGetIdentityUseCase();
 MockStacktraceManager stacktraceStreamManager = MockStacktraceManager();
 
 // Tested instance
 GetClaimsUseCase useCase = GetClaimsUseCase(
   credentialRepository,
-  getCurrentEnvDidIdentifierUseCase,
   stacktraceStreamManager,
 );
 
 @GenerateMocks([
   CredentialRepository,
-  GetCurrentEnvDidIdentifierUseCase,
   GetIdentityUseCase,
   StacktraceManager,
 ])
@@ -139,7 +134,6 @@ void main() {
   group("Get claims", () {
     setUp(() {
       reset(credentialRepository);
-      reset(getCurrentEnvDidIdentifierUseCase);
       reset(getIdentityUseCase);
 
       // Given
@@ -148,8 +142,6 @@ void main() {
               encryptionKey: anyNamed('encryptionKey'),
               filters: anyNamed("filters")))
           .thenAnswer((realInvocation) => Future.value(claimEntities));
-      when(getCurrentEnvDidIdentifierUseCase.execute(param: anyNamed('param')))
-          .thenAnswer((realInvocation) => Future.value(CommonMocks.did));
       when(getIdentityUseCase.execute(param: anyNamed('param'))).thenAnswer(
           (realInvocation) => Future.value(IdentityMocks.privateIdentity));
     });
@@ -208,10 +200,6 @@ void main() {
       // When
       await expectLater(useCase.execute(param: negativeParam),
           throwsA(isA<InvalidProfileException>()));
-
-      // Then
-      verifyNever(getCurrentEnvDidIdentifierUseCase.execute(
-          param: captureAnyNamed('param')));
 
       verifyNever(credentialRepository.getClaims(
           genesisDid: captureAnyNamed('genesisDid'),

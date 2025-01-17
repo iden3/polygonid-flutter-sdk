@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
-import 'package:polygonid_flutter_sdk/identity/data/mappers/hex_mapper.dart';
+import 'package:web3dart/crypto.dart';
 
 import '../../../common/utils/uint8_list_utils.dart';
 
@@ -44,7 +44,7 @@ class HashEntity extends Equatable {
     if (h.length != 64) {
       throw ArgumentError("Hex string must be 64 characters long");
     }
-    HexMapper().mapTo(h).asMap().forEach((i, b) {
+    hexToBytes(h).asMap().forEach((i, b) {
       data[i] = b;
     });
   }
@@ -79,6 +79,7 @@ class HashEntity extends Equatable {
   }
 
   // TestBit tests whether the bit n in bitmap is 1.
+  // ignore: unused_element
   bool _testBit(Uint8List byte, int n) {
     return data[n ~/ 8] & (1 << (n % 8)) != 0;
   }

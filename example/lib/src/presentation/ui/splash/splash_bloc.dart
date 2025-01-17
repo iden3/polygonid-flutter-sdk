@@ -23,14 +23,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
         PolygonIdSdk.I.proof.initCircuitsDownloadAndGetInfoStream(
       circuitsToDownload: [
         CircuitsToDownloadParam(
-          circuitsName: "circuitsV2",
-          bucketUrl:
-              "https://circuits.polygonid.me/circuits/v1.0.0/polygonid-keys.zip",
-        ),
-        CircuitsToDownloadParam(
-          circuitsName: "circuitsV3",
-          bucketUrl:
-              "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/circuitsv3-beta-1-1.zip",
+          circuitsName: "circuits",
+          bucketUrl: "https://circuits.privado.id/v1.0.1/keys.zip",
         ),
       ],
     );

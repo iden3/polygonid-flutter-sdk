@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_constants.dart';
+import 'package:polygonid_flutter_sdk/common/domain/entities/env_config_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/filter_entity.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/common/utils/credential_sort_order.dart';
@@ -14,7 +15,6 @@ import 'package:polygonid_flutter_sdk/credential/domain/use_cases/get_credential
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/refresh_credential_use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/update_claim_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 
 import '../credential/domain/use_cases/save_claims_use_case.dart';
 
@@ -138,12 +138,12 @@ abstract class PolygonIdSdkCredential {
 
   Future<void> cacheCredential({
     required ClaimEntity credential,
-    ConfigParam? configParam,
+    EnvConfigEntity? configParam,
   });
 
   Future<void> cacheCredentials({
     required List<ClaimEntity> credentials,
-    ConfigParam? configParam,
+    EnvConfigEntity? configParam,
   });
 }
 
@@ -377,7 +377,7 @@ class Credential implements PolygonIdSdkCredential {
   @override
   Future<void> cacheCredential({
     required ClaimEntity credential,
-    ConfigParam? configParam,
+    EnvConfigEntity? configParam,
   }) {
     return _cacheCredentialUseCase.execute(
         param: CacheCredentialParam(
@@ -389,7 +389,7 @@ class Credential implements PolygonIdSdkCredential {
   @override
   Future<void> cacheCredentials({
     required List<ClaimEntity> credentials,
-    ConfigParam? configParam,
+    EnvConfigEntity? configParam,
   }) {
     return _cacheCredentialsUseCase.execute(
       credentials: credentials,
