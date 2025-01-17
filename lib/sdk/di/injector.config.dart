@@ -476,16 +476,15 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i98.JWZMapper(gh<_i267.StacktraceManager>()));
     gh.factory<_i897.GetIden3MessageUseCase>(
         () => _i897.GetIden3MessageUseCase(gh<_i267.StacktraceManager>()));
-    gh.factory<_i409.RemoteIden3commDataSource>(
-        () => _i409.RemoteIden3commDataSource(
-              gh<_i361.Dio>(),
-              gh<_i519.Client>(),
-              gh<_i267.StacktraceManager>(),
-            ));
     gh.factory<_i310.StoreRef<String, Map<String, Object?>>>(
       () => databaseModule.interactionStore,
       instanceName: 'interactionStore',
     );
+    gh.factory<_i409.RemoteIden3commDataSource>(
+        () => _i409.RemoteIden3commDataSource(
+              gh<_i361.Dio>(),
+              gh<_i267.StacktraceManager>(),
+            ));
     gh.factory<_i425.SecureInteractionStoreRefWrapper>(() =>
         _i425.SecureInteractionStoreRefWrapper(
             gh<_i310.StoreRef<String, Map<String, Object?>>>(
