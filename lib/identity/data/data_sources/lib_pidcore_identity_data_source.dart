@@ -49,7 +49,8 @@ class LibPolygonIdCoreIdentityDataSource {
 
     String cfg = jsonEncode(config);
 
-    String output = _polygonIdCoreIdentity.calculateGenesisIdFromEth(input, cfg);
+    String output =
+        _polygonIdCoreIdentity.calculateGenesisIdFromEth(input, cfg);
     logger().d("calculateGenesisId: $output");
 
     return jsonDecode(output)["did"];

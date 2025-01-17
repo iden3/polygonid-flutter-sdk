@@ -56,7 +56,7 @@ void main() {
       profileNonce: anyNamed('profileNonce'),
       config: anyNamed('config'),
     )).thenAnswer((realInvocation) => Future.value(CommonMocks.did));
-    when(identityRepository.getPublicKeys(bjjPrivateKey: CommonMocks.privateKey))
+    when(identityRepository.getPublicKeys(privateKey: CommonMocks.privateKey))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
   });
 

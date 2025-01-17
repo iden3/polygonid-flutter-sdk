@@ -67,7 +67,6 @@ import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repo
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_identifier_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
-import 'package:polygonid_flutter_sdk/identity/libs/bjj/bjj_wallet.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/gist_mtproof_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart';
@@ -862,8 +861,10 @@ class Authenticate {
   }
 
   /// SIGN MESSAGE WITH BJJ KEY
-  Future<String> signMessage(
-      {required Uint8List privateKey, required String message,}) async {
+  Future<String> signMessage({
+    required Uint8List privateKey,
+    required String message,
+  }) async {
     final walletDs = getItSdk<WalletDataSource>();
     return walletDs.signMessage(privateKey: privateKey, message: message);
   }

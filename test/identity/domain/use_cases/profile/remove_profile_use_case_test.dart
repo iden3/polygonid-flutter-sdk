@@ -89,8 +89,8 @@ void main() {
         .thenAnswer((realInvocation) => Future.value());
     when(updateIdentityUseCase.execute(param: anyNamed('param'))).thenAnswer(
         (realInvocation) => Future.value(IdentityMocks.privateIdentity));
-    when(getPublicKeyUseCase.execute(param: anyNamed('param'))).thenAnswer(
-        (realInvocation) => Future.value(CommonMocks.publicKey));
+    when(getPublicKeyUseCase.execute(param: anyNamed('param')))
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
   });
 
   test(
