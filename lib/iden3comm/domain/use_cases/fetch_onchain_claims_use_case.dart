@@ -7,7 +7,6 @@ import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_selected_chain
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/did_profile_info_repository.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/check_profile_and_did_current_env.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_onchain_claim_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/local_contract_files_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
@@ -17,7 +16,6 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
-import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_config_param.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -41,8 +39,6 @@ class FetchOnchainClaimsParam {
 class FetchOnchainClaimsUseCase
     extends FutureUseCase<FetchOnchainClaimsParam, List<ClaimEntity>> {
   final FetchOnchainClaimUseCase _fetchOnchainClaimUseCase;
-  final CheckProfileAndDidCurrentEnvUseCase
-      _checkProfileAndDidCurrentEnvUseCase;
   final GetEnvUseCase _getEnvUseCase;
   final GetSelectedChainUseCase _getSelectedChainUseCase;
   final GetDidUseCase _getDidUseCase;
@@ -54,7 +50,6 @@ class FetchOnchainClaimsUseCase
 
   FetchOnchainClaimsUseCase(
     this._fetchOnchainClaimUseCase,
-    this._checkProfileAndDidCurrentEnvUseCase,
     this._getEnvUseCase,
     this._getSelectedChainUseCase,
     this._getDidUseCase,
@@ -78,30 +73,8 @@ class FetchOnchainClaimsUseCase
       final bjjPublicKey =
           await _getPublicKeyUseCase.execute(param: param.privateKey);
 
-      await _checkProfileAndDidCurrentEnvUseCase.execute(
-        param: CheckProfileAndDidCurrentEnvParam(
-          did: param.genesisDid,
-          publicKey: bjjPublicKey,
-          profileNonce: param.profileNonce,
-        ),
-      );
-
-      final env = await _getEnvUseCase.execute();
-      final chain = await _getSelectedChainUseCase.execute();
-
-      final profileDid = await _getDidIdentifierUseCase.execute(
-        param: GetDidIdentifierParam(
-          bjjPublicKey: bjjPublicKey,
-          blockchain: chain.blockchain,
-          network: chain.network,
-          profileNonce: param.profileNonce,
-          method: chain.method,
-        ),
-      );
-
       final claims = await _fetchOnchainClaims(
         param.contractAddress,
-        profileDid,
         bjjPublicKey,
         param,
       );
@@ -117,7 +90,6 @@ class FetchOnchainClaimsUseCase
 
   Future<List<ClaimEntity>> _fetchOnchainClaims(
     String contractAddress,
-    String profileDid,
     List<String> bjjPublicKey,
     FetchOnchainClaimsParam param,
   ) async {
@@ -180,18 +152,6 @@ class FetchOnchainClaimsUseCase
     } else {
       nonce = GENESIS_PROFILE_NONCE;
     }
-
-    final did = await _getDidIdentifierUseCase.execute(
-      param: GetDidIdentifierParam(
-        bjjPublicKey: bjjPublicKey,
-        blockchain: chain.blockchain,
-        network: chain.network,
-        profileNonce: nonce,
-        method: chain.method,
-      ),
-    );
-
-    // TODO OR
 
     final profileDid = _identityRepository.getPrivateProfileForGenesisDid(
       genesisDid: param.genesisDid,

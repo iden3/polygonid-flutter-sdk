@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/chain_config_entity.dart';

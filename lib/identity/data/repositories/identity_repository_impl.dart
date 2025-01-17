@@ -63,7 +63,7 @@ class IdentityRepositoryImpl extends IdentityRepository {
   @override
   Future<List<String>> getPublicKeys({required String bjjPrivateKey}) async {
     final wallet = await _walletDataSource.getWallet(
-      privateKey: hexToBytes(privateKey),
+      privateKey: hexToBytes(bjjPrivateKey),
     );
     final pubKeys = wallet.publicKey;
     return pubKeys;

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
 import 'package:polygonid_flutter_sdk/common/kms/keys/private_key.dart';
 import 'package:polygonid_flutter_sdk/common/kms/keys/public_key.dart';
 import 'package:polygonid_flutter_sdk/common/kms/kms.dart';

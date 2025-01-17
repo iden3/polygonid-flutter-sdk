@@ -22,8 +22,8 @@ class BjjWallet {
       throw ArgumentError('buf must be 32 bytes');
     }
 
-    final priv = PrivateKey(privateKey);
-    final PublicKey publicKey = priv.public();
+    final priv = BjjPrivateKey(privateKey);
+    final BjjPublicKey publicKey = priv.publicKey();
     this.publicKey = [publicKey.p.x.toString(), publicKey.p.y.toString()];
   }
 

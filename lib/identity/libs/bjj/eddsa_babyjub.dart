@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:hex/hex.dart';
-import 'package:poseidon/poseidon.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/private_key.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/public_key.dart';
 import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
+import 'package:poseidon/poseidon.dart';
 import 'package:web3dart/crypto.dart';
 
 import '../../../common/utils/hex_utils.dart';
@@ -57,13 +59,12 @@ class BjjSignature {
 
 /// Class representing a EdDSA Baby Jub public key
 class BjjPublicKey extends PublicKey {
-  final String hex;
   final Point p;
 
   /// Create a PublicKey from a curve point p
   /// @param {String} hex - hex representation
   /// @param {List[BigInt]} p - curve point
-  BjjPublicKey._(this.hex, this.p);
+  BjjPublicKey._(String hex, this.p) : super(hex: hex);
 
   factory BjjPublicKey.hex(String hex) {
     BabyjubjubLib bjjLib = BabyjubjubLib();
@@ -71,7 +72,7 @@ class BjjPublicKey extends PublicKey {
     BigInt x = BigInt.parse(p[0]);
     BigInt y = BigInt.parse(p[1]);
 
-    return PublicKey._(hex, (x: x, y: y));
+    return BjjPublicKey._(hex, (x: x, y: y));
   }
 
   /// Compress the PublicKey
@@ -83,7 +84,7 @@ class BjjPublicKey extends PublicKey {
     );
   }
 
-  bool verify(String messageHash, Signature signature) {
+  bool verify(String messageHash, BjjSignature signature) {
     BabyjubjubLib bjjLib = BabyjubjubLib();
     return bjjLib.verifyPoseidon(
       hex,
@@ -91,6 +92,9 @@ class BjjPublicKey extends PublicKey {
       messageHash,
     );
   }
+
+  @override
+  KeyType get keyType => KeyType.BabyJubJub;
 }
 
 /// Class representing EdDSA Baby Jub private key
@@ -114,14 +118,17 @@ class BjjPrivateKey extends PrivateKey {
     return BjjPublicKey.hex(publicKeyHex);
   }
 
-  String sign(BigInt messageHash) {
+  @override
+  Uint8List sign(Uint8List message) {
+    final messageHashBytes = bytesToHex(message);
+
+    final messageHashBigInt = BigInt.parse(messageHashBytes, radix: 16);
+
     BabyjubjubLib bjjLib = BabyjubjubLib();
     String signature = bjjLib.signPoseidon(
       HexUtils.bytesToHex(sk),
-      messageHash.toString(),
+      messageHashBigInt.toString(),
     );
-    return signature;
-  }
 
     return Uint8ArrayUtils.uint8ListfromString(signature);
   }

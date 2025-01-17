@@ -92,8 +92,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required String did,
     required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => putTransact(
                 storeName: storeName,
                 transaction: transaction,
@@ -122,8 +122,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required String did,
     required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) =>
                 getRootTransact(transaction: transaction, storeName: storeName))
             .whenComplete(() => database.close()));
@@ -153,8 +153,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required String did,
     required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => setRootTransact(
                 transaction: transaction, storeName: storeName, root: root))
             .whenComplete(() => database.close()));
@@ -173,10 +173,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
   Future<int> getMaxLevels({
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => getMaxLevelsTransact(
                 transaction: transaction, storeName: storeName))
             .then((snapshot) => snapshot!["maxLevels"] as int)
@@ -197,8 +197,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required String did,
     required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => setMaxLevelsTransact(
                 transaction: transaction,
                 storeName: storeName,
@@ -221,8 +221,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required String did,
     required String encryptionKey,
   }) {
-    return getDatabase(did: did, encryptionKey: encryptionKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => removeSMTTransact(
                 transaction: transaction, storeName: storeName))
             .whenComplete(() => database.close()));

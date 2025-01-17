@@ -88,12 +88,13 @@ class BjjProvider implements IKeyProvider {
 
   @override
   Future<bool> verify(
-      Uint8List message, String signatureHex, KeyId keyId) async {
-    final publicKey = await this.publicKey(keyId);
+    Uint8List message,
+    String signatureHex,
+    KeyId keyId,
+  ) async {
+    final publicKey = (await this.publicKey(keyId)) as BjjPublicKey;
 
-    final pbkey = PublicKey.hex(publicKey);
-
-    return pbkey.verify(
+    return publicKey.verify(
       Uint8ArrayUtils.uint8ListToString(message),
       BjjSignature.newFromCompressed(hexToBytes(signatureHex)),
     );
