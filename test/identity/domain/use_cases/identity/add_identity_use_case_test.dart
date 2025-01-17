@@ -4,14 +4,12 @@ import 'package:mockito/mockito.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/add_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/smt/create_identity_state_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/create_identity_use_case.dart';
 
 import '../../../../common/common_mocks.dart';
 import '../../../../common/identity_mocks.dart';
-import '../../../../iden3comm/domain/use_cases/check_profile_and_did_current_env_use_case_test.dart';
 import 'add_identity_use_case_test.mocks.dart';
 
 // Data
@@ -27,7 +25,6 @@ MockIdentityRepository identityRepository = MockIdentityRepository();
 MockCreateIdentityUseCase createIdentityUseCase = MockCreateIdentityUseCase();
 MockCreateIdentityStateUseCase createIdentityStateUseCase =
     MockCreateIdentityStateUseCase();
-MockGetPublicKeyUseCase getPublicKeyUseCase = MockGetPublicKeyUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 // Tested instance
@@ -35,7 +32,6 @@ AddIdentityUseCase useCase = AddIdentityUseCase(
   identityRepository,
   createIdentityUseCase,
   createIdentityStateUseCase,
-  getPublicKeyUseCase,
   stacktraceManager,
 );
 
@@ -43,7 +39,6 @@ AddIdentityUseCase useCase = AddIdentityUseCase(
   IdentityRepository,
   CreateIdentityUseCase,
   CreateIdentityStateUseCase,
-  GetPublicKeyUseCase,
   StacktraceManager,
 ])
 void main() {

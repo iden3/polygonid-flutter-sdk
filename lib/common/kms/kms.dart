@@ -48,6 +48,8 @@ abstract class IKeyProvider {
   /// @returns A promise that resolves to a boolean indicating whether the signature is valid.
   Future<bool> verify(Uint8List message, String signatureHex, KeyId keyId);
 
+  // TODO: Maybe use other annotation
+  // ignore: invalid_internal_annotation
   @internal
   Future<PrivateKey> privateKey(KeyId keyId);
 }
@@ -118,6 +120,8 @@ class KMS {
   ///
   /// @param {KmsKeyId} keyId -- key id
   /// @returns private key
+  // TODO: Maybe use other annotation
+  // ignore: invalid_internal_annotation
   @internal
   Future<PrivateKey> privateKey(KeyId keyId) async {
     final keyProvider = _registry[keyId.type];

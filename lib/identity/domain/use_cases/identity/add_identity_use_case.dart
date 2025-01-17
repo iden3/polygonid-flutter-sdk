@@ -1,12 +1,10 @@
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/smt/create_identity_state_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/create_identity_use_case.dart';
 
@@ -29,14 +27,12 @@ class AddIdentityUseCase
   final IdentityRepository _identityRepository;
   final CreateIdentityUseCase _createIdentityUseCase;
   final CreateIdentityStateUseCase _createIdentityStateUseCase;
-  final GetPublicKeyUseCase _getPublicKeysUseCase;
   final StacktraceManager _stacktraceManager;
 
   AddIdentityUseCase(
     this._identityRepository,
     this._createIdentityUseCase,
     this._createIdentityStateUseCase,
-    this._getPublicKeysUseCase,
     this._stacktraceManager,
   );
 

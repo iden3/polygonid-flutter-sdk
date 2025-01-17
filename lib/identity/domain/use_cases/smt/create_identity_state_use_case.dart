@@ -7,7 +7,6 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_identity_aut
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 
 class CreateIdentityStateParam {
   final String did;
@@ -26,14 +25,12 @@ class CreateIdentityStateUseCase
   final IdentityRepository _identityRepository;
   final SMTRepository _smtRepository;
   final GetAuthClaimUseCase _getAuthClaimUseCase;
-  final GetPublicKeyUseCase _getPublicKeysUseCase;
   final StacktraceManager _stacktraceManager;
 
   CreateIdentityStateUseCase(
     this._identityRepository,
     this._smtRepository,
     this._getAuthClaimUseCase,
-    this._getPublicKeysUseCase,
     this._stacktraceManager,
   );
 
