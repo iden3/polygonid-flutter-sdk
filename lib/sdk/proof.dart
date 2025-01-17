@@ -5,7 +5,6 @@ import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/constants.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/circuits_to_download_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
