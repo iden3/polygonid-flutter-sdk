@@ -89,36 +89,34 @@ class Iden3commSDProofEntity extends Iden3commProofEntity {
 
   Iden3commSDProofEntity({
     required this.vp,
-    required int id,
-    required String circuitId,
-    required ZKProofBaseEntity proof,
-    required List<String> pubSignals,
-  }) : super(
-            id: id, circuitId: circuitId, proof: proof, pubSignals: pubSignals);
+    required super.id,
+    required super.circuitId,
+    required super.proof,
+    required super.pubSignals,
+    required super.publicStatesInfo,
+  });
 
   /// Creates an instance from the given json
   ///
   /// @param [Map<String, dynamic>] json
   /// @returns [Iden3commSDProofEntity]
   factory Iden3commSDProofEntity.fromJson(Map<String, dynamic> json) {
-    ZKProofBaseEntity proof = ZKProofBaseEntity.fromJson(json['proof']);
-    List<String> pubSig = List.from(jsonDecode(json['pub_signals']));
+    final proof = Iden3commProofEntity.fromJson(json);
+
     Iden3commVPProof vp = Iden3commVPProof.fromJson(json["vp"]);
 
     return Iden3commSDProofEntity(
-      id: json['id'],
-      circuitId: json['circuitId'],
-      proof: proof,
-      pubSignals: pubSig,
+      id: proof.id,
+      circuitId: proof.circuitId,
+      proof: proof.proof,
+      pubSignals: proof.pubSignals,
+      publicStatesInfo: proof.publicStatesInfo,
       vp: vp,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'circuitId': circuitId,
-        'proof': proof.toJson(),
-        'pub_signals': pubSignals,
+        ...super.toJson(),
         'vp': vp.toJson(),
       };
 }

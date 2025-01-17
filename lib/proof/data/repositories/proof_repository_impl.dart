@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
@@ -75,7 +73,7 @@ class ProofRepositoryImpl extends ProofRepository {
   }
 
   @override
-  Future<Uint8List> calculateAtomicQueryInputs({
+  Future<GenerateInputsResponse> calculateAtomicQueryInputs({
     required String id,
     required BigInt profileNonce,
     required BigInt claimSubjectProfileNonce,
@@ -161,9 +159,7 @@ class ProofRepositoryImpl extends ProofRepository {
     }
 
     _stacktraceManager.addTrace("atomicQueryInputs result: success");
-    final inputsJson = jsonEncode(res.inputs);
-    final inputsJsonBytes = Uint8ArrayUtils.uint8ListfromString(inputsJson);
-    return inputsJsonBytes;
+    return res;
   }
 
   @override

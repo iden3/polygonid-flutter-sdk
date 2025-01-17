@@ -267,6 +267,7 @@ class Iden3commMocks {
     circuitId: proofRequestList[0].scope.circuitId,
     proof: ProofMocks.zkProof.proof,
     pubSignals: ProofMocks.zkProof.pubSignals,
+    publicStatesInfo: ProofMocks.publicStatesInfo,
   );
 
   static Iden3commSDProofEntity iden3commSDProof = Iden3commSDProofEntity(
@@ -274,6 +275,7 @@ class Iden3commMocks {
     circuitId: proofRequestList[0].scope.circuitId,
     proof: ProofMocks.zkProof.proof,
     pubSignals: ProofMocks.zkProof.pubSignals,
+    publicStatesInfo: ProofMocks.publicStatesInfo,
     vp: vp,
   );
 

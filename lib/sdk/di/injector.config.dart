@@ -294,6 +294,8 @@ import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_download_
     as _i352;
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart'
     as _i540;
+import 'package:polygonid_flutter_sdk/proof/data/data_sources/crosschain_resolver_data_source.dart'
+    as _i800;
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/gist_mtproof_data_source.dart'
     as _i694;
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart'
@@ -304,6 +306,8 @@ import 'package:polygonid_flutter_sdk/proof/data/data_sources/prover_lib_data_so
     as _i502;
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/witness_data_source.dart'
     as _i1039;
+import 'package:polygonid_flutter_sdk/proof/data/repositories/crosschain_repository.dart'
+    as _i1019;
 import 'package:polygonid_flutter_sdk/proof/data/repositories/proof_repository_impl.dart'
     as _i581;
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart'
@@ -396,6 +400,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1026.InteractionMapper>(() => _i1026.InteractionMapper());
     gh.factory<_i968.GetFetchRequestsUseCase>(
         () => _i968.GetFetchRequestsUseCase());
+    gh.factory<_i800.ResolverDataSource>(() => _i800.ResolverDataSource());
     gh.lazySingleton<_i920.ProofGenerationStepsStreamManager>(
         () => _i920.ProofGenerationStepsStreamManager());
     gh.lazySingleton<_i267.StacktraceManager>(() => _i267.StacktraceManager());
@@ -840,14 +845,6 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i627.GetProofRequestsUseCase>(),
               gh<_i267.StacktraceManager>(),
             ));
-    gh.factoryAsync<_i445.Proof>(() async => _i445.Proof(
-          await getAsync<_i746.GenerateZKProofUseCase>(),
-          await getAsync<_i570.DownloadCircuitsUseCase>(),
-          await getAsync<_i991.CircuitsFilesExistUseCase>(),
-          gh<_i920.ProofGenerationStepsStreamManager>(),
-          await getAsync<_i394.CancelDownloadCircuitsUseCase>(),
-          gh<_i267.StacktraceManager>(),
-        ));
     gh.factoryAsync<_i539.GetFiltersUseCase>(
         () async => _i539.GetFiltersUseCase(
               gh<_i698.Iden3commCredentialRepository>(),
@@ -890,6 +887,11 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i946.SMTRepository>(),
               gh<_i392.GetAuthClaimUseCase>(),
               gh<_i267.StacktraceManager>(),
+            ));
+    gh.factoryAsync<_i1019.CrosschainRepository>(
+        () async => _i1019.CrosschainRepository(
+              gh<_i800.ResolverDataSource>(),
+              await getAsync<_i26.IdentityRepository>(),
             ));
     gh.factoryAsync<_i344.GetGistMTProofUseCase>(
         () async => _i344.GetGistMTProofUseCase(
@@ -946,6 +948,15 @@ extension GetItInjectableX on _i174.GetIt {
               await getAsync<_i732.GetDidIdentifierUseCase>(),
               gh<_i267.StacktraceManager>(),
             ));
+    gh.factoryAsync<_i445.Proof>(() async => _i445.Proof(
+          await getAsync<_i746.GenerateZKProofUseCase>(),
+          await getAsync<_i570.DownloadCircuitsUseCase>(),
+          await getAsync<_i991.CircuitsFilesExistUseCase>(),
+          gh<_i920.ProofGenerationStepsStreamManager>(),
+          await getAsync<_i394.CancelDownloadCircuitsUseCase>(),
+          await getAsync<_i1019.CrosschainRepository>(),
+          gh<_i267.StacktraceManager>(),
+        ));
     gh.factoryAsync<_i40.GenerateNonRevProofUseCase>(
         () async => _i40.GenerateNonRevProofUseCase(
               await getAsync<_i26.IdentityRepository>(),

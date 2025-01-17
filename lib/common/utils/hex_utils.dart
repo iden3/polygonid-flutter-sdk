@@ -18,10 +18,12 @@ class HexUtils {
     return BigInt.parse(strip0x(hex), radix: 16);
   }
 
-  static String bytesToHex(List<int> bytes,
-      {bool include0x = false,
-      int? forcePadLength,
-      bool padToEvenLength = false}) {
+  static String bytesToHex(
+    List<int> bytes, {
+    bool include0x = false,
+    int? forcePadLength,
+    bool padToEvenLength = false,
+  }) {
     var encoded = HEX.encode(bytes);
 
     if (forcePadLength != null) {

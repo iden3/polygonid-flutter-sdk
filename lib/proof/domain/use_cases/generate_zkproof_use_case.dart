@@ -70,7 +70,7 @@ class GenerateZKProofUseCase
   @override
   Future<ZKProofEntity> execute({required GenerateZKProofParam param}) async {
     // Prepare atomic query inputs
-    Uint8List res = await _proofRepository
+    final res = await _proofRepository
         .calculateAtomicQueryInputs(
       id: param.identifier,
       profileNonce: param.profileNonce,
@@ -101,8 +101,7 @@ class GenerateZKProofUseCase
       throw error;
     });
 
-    dynamic inputsJson = json.decode(Uint8ArrayUtils.uint8ListToString(res));
-    final atomicQueryInputs = json.encode(inputsJson["inputs"]);
+    final atomicQueryInputs = json.encode(res.inputs);
 
     // Prove
     return _proveUseCase

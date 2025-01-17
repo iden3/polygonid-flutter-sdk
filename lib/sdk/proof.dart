@@ -5,11 +5,14 @@ import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/constants.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/circuits_to_download_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/data/repositories/crosschain_repository.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/download_info_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/cancel_download_circuits_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/circuits_files_exist_use_case.dart';
@@ -39,6 +42,11 @@ abstract class PolygonIdSdkProof {
     Map<String, dynamic>? config,
   });
 
+  Future<List<MessageWithSignature>> getCrosschainProofs({
+    required String universalResolverUrl,
+    required List<PublicStatesInfo> stateInfo,
+  });
+
   Stream<DownloadInfo> initCircuitsDownloadAndGetInfoStream({
     required List<CircuitsToDownloadParam> circuitsToDownload,
   });
@@ -58,6 +66,7 @@ class Proof implements PolygonIdSdkProof {
   final CircuitsFilesExistUseCase _circuitsFilesExistUseCase;
   final ProofGenerationStepsStreamManager _proofGenerationStepsStreamManager;
   final CancelDownloadCircuitsUseCase _cancelDownloadCircuitsUseCase;
+  final CrosschainRepository _crosschainRepository;
   final StacktraceManager _stacktraceManager;
 
   Proof(
@@ -66,6 +75,7 @@ class Proof implements PolygonIdSdkProof {
     this._circuitsFilesExistUseCase,
     this._proofGenerationStepsStreamManager,
     this._cancelDownloadCircuitsUseCase,
+    this._crosschainRepository,
     this._stacktraceManager,
   );
 
@@ -111,6 +121,17 @@ class Proof implements PolygonIdSdkProof {
       linkNonce,
       transactionData,
     ));
+  }
+
+  @override
+  Future<List<MessageWithSignature>> getCrosschainProofs({
+    required String universalResolverUrl,
+    required List<PublicStatesInfo> stateInfo,
+  }) async {
+    return _crosschainRepository.getCrosschainStatesWithSignatures(
+      universalResolverUrl: universalResolverUrl,
+      stateInfo: stateInfo,
+    );
   }
 
   ///
