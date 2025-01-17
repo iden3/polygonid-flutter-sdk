@@ -16,9 +16,18 @@ MTProofEntity _$MTProofEntityFromJson(Map<String, dynamic> json) =>
           : NodeAuxEntity.fromJson(json['node_aux'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$MTProofEntityToJson(MTProofEntity instance) =>
-    <String, dynamic>{
-      'existence': instance.existence,
-      'siblings': instance.siblings.map((e) => e.toJson()).toList(),
-      if (instance.nodeAux?.toJson() case final value?) 'node_aux': value,
-    };
+Map<String, dynamic> _$MTProofEntityToJson(MTProofEntity instance) {
+  final val = <String, dynamic>{
+    'existence': instance.existence,
+    'siblings': instance.siblings.map((e) => e.toJson()).toList(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('node_aux', instance.nodeAux?.toJson());
+  return val;
+}

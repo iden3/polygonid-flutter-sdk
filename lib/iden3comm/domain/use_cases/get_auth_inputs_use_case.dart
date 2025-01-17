@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
+import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
@@ -44,6 +45,7 @@ class GetAuthInputsUseCase
   final Iden3commRepository _iden3commRepository;
   final IdentityRepository _identityRepository;
   final SMTRepository _smtRepository;
+  final GetEnvUseCase _getEnvUseCase;
   final StacktraceManager _stacktraceManager;
 
   GetAuthInputsUseCase(
@@ -55,6 +57,7 @@ class GetAuthInputsUseCase
     this._iden3commRepository,
     this._identityRepository,
     this._smtRepository,
+    this._getEnvUseCase,
     this._stacktraceManager,
   );
 
@@ -130,6 +133,8 @@ class GetAuthInputsUseCase
       logger().i(
           'GetAuthInputsUseCase: got all for inputs in: ${stopwatch.elapsedMilliseconds} ms');
 
+      final env = await _getEnvUseCase.execute();
+
       final authInputs = await _iden3commRepository.getAuthInputs(
         genesisDid: param.genesisDid,
         profileNonce: param.profileNonce,
@@ -141,6 +146,7 @@ class GetAuthInputsUseCase
         nonRevProof: nonRevProof,
         gistProof: gistProof,
         treeState: treeState,
+        config: env.config.toJson(),
       );
       logger().i("[GetAuthInputsUseCase] Auth inputs: $authInputs");
       _stacktraceManager
