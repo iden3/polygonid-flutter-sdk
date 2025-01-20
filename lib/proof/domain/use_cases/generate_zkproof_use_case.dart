@@ -105,19 +105,20 @@ class GenerateZKProofUseCase
     final atomicQueryInputs = json.encode(inputsJson["inputs"]);
 
     // Prove
-    return _proveUseCase
-        .execute(param: ProveParam(atomicQueryInputs, param.circuitData))
-        .then((proof) {
+    try {
+      final proof = await _proveUseCase.execute(
+          param: ProveParam(atomicQueryInputs, param.circuitData));
+
       logger().i("[GenerateZKProofUseCase] proof: $proof");
       _stacktraceManager.addTrace("[GenerateZKProofUseCase] proof");
 
       return proof;
-    }).catchError((error) {
+    } catch (error) {
       _stacktraceManager.addTrace("[GenerateZKProofUseCase] Error: $error");
       _stacktraceManager.addError("[GenerateZKProofUseCase] Error: $error");
       logger().e("[GenerateZKProofUseCase] Error: $error");
 
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

@@ -26,52 +26,53 @@ class GetIden3commClaimsRevNonceUseCase
     extends FutureUseCase<GetIden3commClaimsRevNonceParam, List<int>> {
   final Iden3commCredentialRepository _iden3commCredentialRepository;
   final GetClaimsUseCase _getClaimsUseCase;
-  final GetClaimRevocationNonceUseCase _getClaimRevocationNonceUseCase;
+  final GetClaimRevocationNonceUseCase _getClaimRevNonceUseCase;
   final IsProofCircuitSupportedUseCase _isProofCircuitSupported;
   final GetProofRequestsUseCase _getProofRequestsUseCase;
 
   GetIden3commClaimsRevNonceUseCase(
     this._iden3commCredentialRepository,
     this._getClaimsUseCase,
-    this._getClaimRevocationNonceUseCase,
+    this._getClaimRevNonceUseCase,
     this._isProofCircuitSupported,
     this._getProofRequestsUseCase,
   );
 
   @override
-  Future<List<int>> execute(
-      {required GetIden3commClaimsRevNonceParam param}) async {
+  Future<List<int>> execute({
+    required GetIden3commClaimsRevNonceParam param,
+  }) async {
     Set<int> claimsRevNonce = <int>{};
 
-    List<ProofRequestEntity> requests =
-        await _getProofRequestsUseCase.execute(param: param.message);
+    final requests = await _getProofRequestsUseCase.execute(
+      param: param.message,
+    );
 
     /// We got [ProofRequestEntity], let's find the associated [ClaimEntity]
     for (ProofRequestEntity request in requests) {
-      if (await _isProofCircuitSupported.execute(
-          param: request.scope.circuitId)) {
+      final isProofCircuitSupported = await _isProofCircuitSupported.execute(
+          param: request.scope.circuitId);
+
+      if (isProofCircuitSupported) {
         // Claims
-        await _iden3commCredentialRepository
-            .getFilters(request: request)
-            .then((filters) => _getClaimsUseCase.execute(
-                    param: GetClaimsParam(
-                  filters: filters,
-                  genesisDid: param.genesisDid,
-                  profileNonce: param.profileNonce,
-                  encryptionKey: param.encryptionKey,
-                )))
-            .then(
-          (claims) async {
-            if (claims.isEmpty) {
-              return null;
-            }
-            for (int i = 0; i < claims.length; i++) {
-              int revNonce = await _getClaimRevocationNonceUseCase.execute(
-                  param: claims[i]);
-              claimsRevNonce.add(revNonce);
-            }
-          },
+        final filters = await _iden3commCredentialRepository.getFilters(
+          request: request,
         );
+        final claims = await _getClaimsUseCase.execute(
+          param: GetClaimsParam(
+            filters: filters,
+            genesisDid: param.genesisDid,
+            profileNonce: param.profileNonce,
+            encryptionKey: param.encryptionKey,
+          ),
+        );
+
+        for (int i = 0; i < claims.length; i++) {
+          int revNonce = await _getClaimRevNonceUseCase.execute(
+            param: claims[i],
+          );
+          claimsRevNonce.add(revNonce);
+        }
       }
     }
     return claimsRevNonce.toList();

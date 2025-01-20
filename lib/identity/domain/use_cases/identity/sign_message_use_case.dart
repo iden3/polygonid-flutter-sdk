@@ -15,18 +15,20 @@ class SignMessageUseCase extends FutureUseCase<SignMessageParam, String> {
   SignMessageUseCase(this._identityRepository);
 
   @override
-  Future<String> execute({required SignMessageParam param}) {
-    return _identityRepository
-        .signMessage(privateKey: param.privateKey, message: param.message)
-        .then((signature) {
+  Future<String> execute({required SignMessageParam param}) async {
+    try {
+      final signature = await _identityRepository.signMessage(
+        privateKey: param.privateKey,
+        message: param.message,
+      );
       logger().i(
           "[SignMessageUseCase] message ${param.message} with privateKey ${param.privateKey} signed successfully: $signature");
 
       return signature;
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[SignMessageUseCase] Error: $error");
 
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

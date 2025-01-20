@@ -215,22 +215,24 @@ class CredentialRepositoryImpl extends CredentialRepository {
     }
   }
 
-  Future<String> getIssuerIdentifier({required ClaimEntity claim}) {
-    return Future.value(_claimMapper.mapTo(claim).info.issuer);
+  @override
+  Future<String> getIssuerIdentifier({required ClaimEntity claim}) async {
+    return _claimMapper.mapTo(claim).info.issuer;
   }
 
   @override
-  Future<Map<String, dynamic>> getRevocationStatus(
-      {required ClaimEntity claim}) {
-    return getRevocationUrl(claim: claim, rhs: false).then((revStatusUrl) =>
-        _remoteClaimDataSource.getClaimRevocationStatus(revStatusUrl));
+  Future<Map<String, dynamic>> getRevocationStatus({
+    required ClaimEntity claim,
+  }) async {
+    final revStatusUrl = await getRevocationUrl(claim: claim, rhs: false);
+    return _remoteClaimDataSource.getClaimRevocationStatus(revStatusUrl);
   }
 
   @override
-  Future<bool> isUsingRHS({required ClaimEntity claim}) {
-    return Future.value(_claimMapper.mapTo(claim)).then((claimDTO) =>
-        (claimDTO.info.credentialStatus.type ==
-            CredentialStatusType.reverseSparseMerkleTreeProof));
+  Future<bool> isUsingRHS({required ClaimEntity claim}) async {
+    final claimDTO = _claimMapper.mapTo(claim);
+    return claimDTO.info.credentialStatus.type ==
+        CredentialStatusType.reverseSparseMerkleTreeProof;
   }
 
   @override
