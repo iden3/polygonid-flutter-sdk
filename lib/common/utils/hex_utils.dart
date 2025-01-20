@@ -69,3 +69,34 @@ class HexUtils {
     return 'hez:${base64Url.encode(finalBuffBjj.toBytes())}';
   }
 }
+
+extension Strip0x on String {
+  String strip0x() {
+    return HexUtils.strip0x(this);
+  }
+}
+
+extension HexToBytes on String {
+  Uint8List hexToBytes() {
+    return HexUtils.hexToBytes(this);
+  }
+
+  Uint8List bytesFromHex() {
+    return HexUtils.hexToBytes(this);
+  }
+}
+
+extension BytesToHex on Uint8List {
+  String bytesToHex({
+    bool include0x = false,
+    int? forcePadLength,
+    bool padToEvenLength = false,
+  }) {
+    return HexUtils.bytesToHex(
+      this,
+      include0x: include0x,
+      forcePadLength: forcePadLength,
+      padToEvenLength: padToEvenLength,
+    );
+  }
+}
