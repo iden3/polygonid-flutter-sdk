@@ -13,7 +13,7 @@ class GenerateInputsResponse {
     return GenerateInputsResponse(
       inputs: json["inputs"],
       verifiablePresentation: json["verifiablePresentation"],
-      publicStatesInfo: json["publicStatesInfo"],
+      publicStatesInfo: PublicStatesInfo.fromJson(json["publicStatesInfo"]),
     );
   }
 
