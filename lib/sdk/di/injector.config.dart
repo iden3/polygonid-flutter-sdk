@@ -88,8 +88,6 @@ import 'package:polygonid_flutter_sdk/credential/domain/use_cases/get_did_profil
     as _i108;
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/get_did_profile_info_use_case.dart'
     as _i616;
-import 'package:polygonid_flutter_sdk/credential/domain/use_cases/get_non_rev_proof_use_case.dart'
-    as _i660;
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/refresh_credential_use_case.dart'
     as _i143;
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_all_claims_use_case.dart'
@@ -758,10 +756,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
         ));
-    gh.factory<_i660.GetNonRevProofUseCase>(() => _i660.GetNonRevProofUseCase(
-          gh<_i309.CredentialRepository>(),
-          gh<_i267.StacktraceManager>(),
-        ));
     gh.factory<_i657.GetClaimsUseCase>(() => _i657.GetClaimsUseCase(
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
@@ -834,6 +828,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factoryAsync<_i394.CancelDownloadCircuitsUseCase>(() async =>
         _i394.CancelDownloadCircuitsUseCase(
             await getAsync<_i341.ProofRepository>()));
+    gh.factoryAsync<_i369.GetIden3commClaimsRevNonceUseCase>(
+        () async => _i369.GetIden3commClaimsRevNonceUseCase(
+              gh<_i698.Iden3commCredentialRepository>(),
+              gh<_i657.GetClaimsUseCase>(),
+              gh<_i53.GetClaimRevocationNonceUseCase>(),
+              await getAsync<_i735.IsProofCircuitSupportedUseCase>(),
+              gh<_i627.GetProofRequestsUseCase>(),
+            ));
     gh.factoryAsync<_i347.GetIden3commClaimsUseCase>(
         () async => _i347.GetIden3commClaimsUseCase(
               gh<_i698.Iden3commCredentialRepository>(),
@@ -853,14 +855,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factoryAsync<_i539.GetFiltersUseCase>(
         () async => _i539.GetFiltersUseCase(
               gh<_i698.Iden3commCredentialRepository>(),
-              await getAsync<_i735.IsProofCircuitSupportedUseCase>(),
-              gh<_i627.GetProofRequestsUseCase>(),
-            ));
-    gh.factoryAsync<_i369.GetIden3commClaimsRevNonceUseCase>(
-        () async => _i369.GetIden3commClaimsRevNonceUseCase(
-              gh<_i698.Iden3commCredentialRepository>(),
-              gh<_i657.GetClaimsUseCase>(),
-              gh<_i53.GetClaimRevocationNonceUseCase>(),
               await getAsync<_i735.IsProofCircuitSupportedUseCase>(),
               gh<_i627.GetProofRequestsUseCase>(),
             ));
@@ -990,6 +984,12 @@ extension GetItInjectableX on _i174.GetIt {
               await getAsync<_i26.IdentityRepository>(),
               gh<_i267.StacktraceManager>(),
             ));
+    gh.factoryAsync<_i610.GetClaimRevocationStatusUseCase>(
+        () async => _i610.GetClaimRevocationStatusUseCase(
+              gh<_i309.CredentialRepository>(),
+              await getAsync<_i40.GenerateNonRevProofUseCase>(),
+              gh<_i267.StacktraceManager>(),
+            ));
     gh.factoryAsync<_i548.CheckIdentityValidityUseCase>(
         () async => _i548.CheckIdentityValidityUseCase(
               await getAsync<_i665.GetPrivateKeyUseCase>(),
@@ -1008,13 +1008,6 @@ extension GetItInjectableX on _i174.GetIt {
               await getAsync<_i26.IdentityRepository>(),
               gh<_i946.SMTRepository>(),
               await getAsync<_i626.GetEnvUseCase>(),
-              gh<_i267.StacktraceManager>(),
-            ));
-    gh.factoryAsync<_i610.GetClaimRevocationStatusUseCase>(
-        () async => _i610.GetClaimRevocationStatusUseCase(
-              gh<_i309.CredentialRepository>(),
-              await getAsync<_i40.GenerateNonRevProofUseCase>(),
-              gh<_i660.GetNonRevProofUseCase>(),
               gh<_i267.StacktraceManager>(),
             ));
     gh.factoryAsync<_i561.GetProfilesUseCase>(
