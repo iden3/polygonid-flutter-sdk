@@ -436,7 +436,8 @@ class Authenticate {
 
       List<String> splittedDid = genesisDid.split(":");
       String id = splittedDid[4];
-      Uint8List res = await proofRepository.calculateAtomicQueryInputs(
+      final generateInputsRes =
+          await proofRepository.calculateAtomicQueryInputs(
         id: id,
         profileNonce: profileNonce,
         claimSubjectProfileNonce: claimSubjectProfileNonce,
@@ -457,19 +458,16 @@ class Authenticate {
         transactionData: transactionData,
       );
 
-      final inputsString = Uint8ArrayUtils.uint8ListToString(res);
-
-      dynamic inputsJson = json.decode(inputsString);
-      final atomicQueryInputs = json.encode(inputsJson["inputs"]);
+      final atomicQueryInputs = json.encode(generateInputsRes.inputs);
       if (kDebugMode) {
         //just for debug
         logger().i("atomicQueryInputs: $atomicQueryInputs");
       }
 
-      var vpProof;
-      if (inputsJson["verifiablePresentation"] != null) {
-        vpProof =
-            Iden3commVPProof.fromJson(inputsJson["verifiablePresentation"]);
+      Iden3commVPProof? vpProof;
+      final verifiablePresentation = generateInputsRes.verifiablePresentation;
+      if (verifiablePresentation != null) {
+        vpProof = Iden3commVPProof.fromJson(verifiablePresentation);
       }
 
       Uint8List witnessBytes = await proofRepository.calculateWitness(
@@ -485,17 +483,20 @@ class Authenticate {
       Iden3commProofEntity proof;
       if (vpProof != null) {
         proof = Iden3commSDProofEntity(
-            id: proofRequest.scope.id,
-            circuitId: proofRequest.scope.circuitId,
-            proof: zkProofEntity.proof,
-            pubSignals: zkProofEntity.pubSignals,
-            vp: vpProof);
+          id: proofRequest.scope.id,
+          circuitId: proofRequest.scope.circuitId,
+          proof: zkProofEntity.proof,
+          pubSignals: zkProofEntity.pubSignals,
+          publicStatesInfo: generateInputsRes.publicStatesInfo,
+          vp: vpProof,
+        );
       } else {
         proof = Iden3commProofEntity(
           id: proofRequest.scope.id,
           circuitId: proofRequest.scope.circuitId,
           proof: zkProofEntity.proof,
           pubSignals: zkProofEntity.pubSignals,
+          publicStatesInfo: generateInputsRes.publicStatesInfo,
         );
       }
       proofs.add(proof);

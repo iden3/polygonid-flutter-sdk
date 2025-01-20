@@ -63,17 +63,20 @@
 */
 
 import 'dart:convert';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 
 class Iden3commProofEntity extends ZKProofEntity {
   final int id;
   final String circuitId;
+  final PublicStatesInfo? publicStatesInfo;
 
   Iden3commProofEntity({
     required this.id,
     required this.circuitId,
     required super.proof,
     required super.pubSignals,
+    required this.publicStatesInfo,
   });
 
   /// Creates an instance from the given json
@@ -84,11 +87,17 @@ class Iden3commProofEntity extends ZKProofEntity {
     ZKProofBaseEntity proof = ZKProofBaseEntity.fromJson(json['proof']);
     List<String> pubSig = List.from(jsonDecode(json['pub_signals']));
 
+    PublicStatesInfo? publicStatesInfo;
+    if (json.containsKey('publicStatesInfo')) {
+      publicStatesInfo = PublicStatesInfo.fromJson(json['publicStatesInfo']);
+    }
+
     return Iden3commProofEntity(
       id: json['id'],
       circuitId: json['circuitId'],
       proof: proof,
       pubSignals: pubSig,
+      publicStatesInfo: publicStatesInfo,
     );
   }
 
@@ -96,6 +105,8 @@ class Iden3commProofEntity extends ZKProofEntity {
         'id': id,
         'circuitId': circuitId,
         'proof': proof.toJson(),
-        'pub_signals': pubSignals
+        'pub_signals': pubSignals,
+        if (publicStatesInfo != null)
+          'publicStatesInfo': publicStatesInfo?.toJson(),
       };
 }

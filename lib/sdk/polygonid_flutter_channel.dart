@@ -21,9 +21,11 @@ import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.d
 import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/circuits_to_download_param.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/data/repositories/crosschain_repository.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/download_info_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 import 'package:polygonid_flutter_sdk/sdk/credential.dart';
 import 'package:polygonid_flutter_sdk/sdk/iden3comm.dart';
@@ -435,6 +437,14 @@ class PolygonIdFlutterChannel
             challenge: call.arguments['challenge'] as String?,
             treeState: call.arguments['treeState'] as Map<String, dynamic>?,
           ).then((proof) => jsonEncode(proof));
+
+        case 'getCrosschainProofs':
+          return getCrosschainProofs(
+            universalResolverUrl: call.arguments['universalResolverUrl'],
+            stateInfo: (call.arguments['stateInfo'] as List)
+                .map((e) => PublicStatesInfo.fromJson(jsonDecode(e)))
+                .toList(),
+          );
 
         default:
           throw PlatformException(
@@ -991,6 +1001,15 @@ class PolygonIdFlutterChannel
       String? blockchain,
       String? network}) {
     // TODO: implement fetchCredentialsUseCase
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageWithSignature>> getCrosschainProofs({
+    required String universalResolverUrl,
+    required List<PublicStatesInfo> stateInfo,
+  }) {
+    // TODO: implement getCrosschainProofs
     throw UnimplementedError();
   }
 }
