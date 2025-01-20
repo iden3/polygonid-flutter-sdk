@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
@@ -24,6 +22,7 @@ import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/download_info_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_exceptions.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart';
@@ -74,7 +73,7 @@ class ProofRepositoryImpl extends ProofRepository {
   }
 
   @override
-  Future<Uint8List> calculateAtomicQueryInputs({
+  Future<GenerateInputsResponse> calculateAtomicQueryInputs({
     required String id,
     required BigInt profileNonce,
     required BigInt claimSubjectProfileNonce,
@@ -116,7 +115,7 @@ class ProofRepositoryImpl extends ProofRepository {
     _stacktraceManager.addTrace("getProofInputs request: $proofScopeRequest");
     _stacktraceManager.addTrace("getProofInputs circuitId: $circuitId");
 
-    String? res;
+    GenerateInputsResponse? res;
     try {
       res = await _libPolygonIdCoreProofDataSource.getProofInputs(
         id: id,
@@ -150,28 +149,17 @@ class ProofRepositoryImpl extends ProofRepository {
       );
     }
 
-    if (res.isNotEmpty) {
-      _stacktraceManager.addTrace("atomicQueryInputs result: success");
-      dynamic inputsJson = json.decode(res);
-      _stacktraceManager.addTrace("inputJsonType: ${inputsJson.runtimeType}");
-      if (inputsJson is Map<String, dynamic>) {
-        //Map<String, dynamic> inputs = json.decode(res);
-        Uint8List inputsJsonBytes = Uint8ArrayUtils.uint8ListfromString(
-            res /*json.encode(inputs["inputs"])*/);
-        return inputsJsonBytes;
-      } else if (inputsJson is String) {
-        Uint8List inputsJsonBytes =
-            Uint8ArrayUtils.uint8ListfromString(inputsJson);
-        return inputsJsonBytes;
-      }
+    if (res.inputs.isEmpty) {
+      _stacktraceManager.addTrace(
+          "[calculateAtomicQueryInputs/libPolygonIdCoreProof] NullAtomicQueryInputsException");
+      throw NullAtomicQueryInputsException(
+        id: id,
+        errorMessage: "Empty inputs result",
+      );
     }
 
-    _stacktraceManager.addTrace(
-        "[calculateAtomicQueryInputs/libPolygonIdCoreProof] NullAtomicQueryInputsException");
-    throw NullAtomicQueryInputsException(
-      id: id,
-      errorMessage: "Empty inputs result",
-    );
+    _stacktraceManager.addTrace("atomicQueryInputs result: success");
+    return res;
   }
 
   @override

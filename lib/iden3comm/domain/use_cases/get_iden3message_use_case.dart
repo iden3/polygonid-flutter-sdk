@@ -13,7 +13,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/respo
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/response/credential_status_update_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/response/fetch_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/response/payment_request_message_entity.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment_message_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/payment_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/request/contract_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 

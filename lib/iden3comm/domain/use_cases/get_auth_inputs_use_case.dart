@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
+import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
@@ -17,6 +18,7 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_ide
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/sign_message_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/get_gist_mtproof_use_case.dart';
 
 class GetAuthInputsParam {
@@ -26,10 +28,15 @@ class GetAuthInputsParam {
   final String privateKey;
 
   GetAuthInputsParam(
-      this.challenge, this.genesisDid, this.profileNonce, this.privateKey);
+    this.challenge,
+    this.genesisDid,
+    this.profileNonce,
+    this.privateKey,
+  );
 }
 
-class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
+class GetAuthInputsUseCase
+    extends FutureUseCase<GetAuthInputsParam, GenerateInputsResponse> {
   final GetIdentityUseCase _getIdentityUseCase;
   final CredentialRepository _credentialRepository;
   final SignMessageUseCase _signMessageUseCase;
@@ -38,6 +45,7 @@ class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
   final Iden3commRepository _iden3commRepository;
   final IdentityRepository _identityRepository;
   final SMTRepository _smtRepository;
+  final GetEnvUseCase _getEnvUseCase;
   final StacktraceManager _stacktraceManager;
 
   GetAuthInputsUseCase(
@@ -49,11 +57,14 @@ class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
     this._iden3commRepository,
     this._identityRepository,
     this._smtRepository,
+    this._getEnvUseCase,
     this._stacktraceManager,
   );
 
   @override
-  Future<String> execute({required GetAuthInputsParam param}) async {
+  Future<GenerateInputsResponse> execute({
+    required GetAuthInputsParam param,
+  }) async {
     final stopwatch = Stopwatch()..start();
     try {
       IdentityEntity identity = await _getIdentityUseCase.execute(
@@ -122,6 +133,8 @@ class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
       logger().i(
           'GetAuthInputsUseCase: got all for inputs in: ${stopwatch.elapsedMilliseconds} ms');
 
+      final env = await _getEnvUseCase.execute();
+
       final authInputs = await _iden3commRepository.getAuthInputs(
         genesisDid: param.genesisDid,
         profileNonce: param.profileNonce,
@@ -133,6 +146,7 @@ class GetAuthInputsUseCase extends FutureUseCase<GetAuthInputsParam, String> {
         nonRevProof: nonRevProof,
         gistProof: gistProof,
         treeState: treeState,
+        config: env.config.toJson(),
       );
       logger().i("[GetAuthInputsUseCase] Auth inputs: $authInputs");
       _stacktraceManager

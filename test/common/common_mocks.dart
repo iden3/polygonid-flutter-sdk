@@ -5,6 +5,7 @@ import 'package:polygonid_flutter_sdk/common/domain/entities/chain_config_entity
 import 'package:polygonid_flutter_sdk/common/domain/entities/env_config_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/env_entity.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/filter_entity.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 
 class CommonMocks {
   static String name = "theName";
@@ -48,7 +49,10 @@ class CommonMocks {
     'yep': 4
   };
   static Uint8List aBytes = Uint8List(32);
-  static String inputs = "inputs";
+  static String inputs = "{}";
+  static GenerateInputsResponse generateInputsResponse = GenerateInputsResponse(
+    inputs: {},
+  );
   static String hash = "theHash";
   static Exception exception = Exception(message);
   static String blockchain = "theBlockchain";

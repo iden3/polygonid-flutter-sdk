@@ -22,38 +22,38 @@ const token = "theToken";
 const url = "theUrl";
 const identifier = "theIdentifier";
 Response dioResponse = Response(
-    data: mockFetchClaim,
+    data: jsonDecode(mockFetchClaim),
     statusCode: 200,
     requestOptions: RequestOptions(path: url));
 Response dioErrorResponse = Response(
-    data: mockFetchClaim,
+    data: 'Error message',
     statusCode: 444,
     requestOptions: RequestOptions(path: url));
-http.Response response = http.Response(mockFetchClaim, 200);
-http.Response errorResponse = http.Response(mockFetchClaim, 444);
-http.Response otherTypeResponse = http.Response(mockOtherTypeFetchClaim, 200);
+Response otherTypeResponse = Response(
+    data: jsonDecode(mockOtherTypeFetchClaim),
+    statusCode: 200,
+    requestOptions: RequestOptions(path: url));
 final exception = Exception();
 
 /// We assume [FetchClaimResponseDTO] has been tested
 final fetchClaimDTO =
     FetchClaimResponseDTO.fromJson(jsonDecode(mockFetchClaim));
 final claim = ClaimDTO(
-    id: fetchClaimDTO.credential.id,
-    issuer: fetchClaimDTO.from,
-    did: identifier,
-    expiration: fetchClaimDTO.credential.expirationDate,
-    type: fetchClaimDTO.credential.credentialSubject.type,
-    info: fetchClaimDTO.credential,
-    credentialRawValue: mockFetchClaim);
+  id: fetchClaimDTO.credential.id,
+  issuer: fetchClaimDTO.from,
+  did: identifier,
+  expiration: fetchClaimDTO.credential.expirationDate,
+  type: fetchClaimDTO.credential.credentialSubject.type,
+  info: fetchClaimDTO.credential,
+  credentialRawValue: jsonEncode(jsonDecode(mockFetchClaim)),
+);
 
 //DEPENDENCIES
 MockDio dio = MockDio();
-MockClient client = MockClient();
 MockStacktraceManager stacktraceStreamManager = MockStacktraceManager();
 
 RemoteIden3commDataSource dataSource = RemoteIden3commDataSource(
   dio,
-  client,
   stacktraceStreamManager,
 );
 
@@ -105,47 +105,48 @@ void main() {
     });
 
     test(
-        "Given token and authRequest, when I call authWithToken and a server error occurred with status code 450, then I expect an UnknownApiException to be thrown",
-        () async {
-      //
-      when(
-        dio.post(
-          any,
-          data: anyNamed('data'),
-          options: anyNamed('options'),
-        ),
-      ).thenAnswer(
-        (realInvocation) => Future.value(dioErrorResponse),
-      );
+      "Given token and authRequest, when I call authWithToken and a server error occurred with status code 450, then I expect a DioException to be thrown",
+      () async {
+        // Arrange
+        when(
+          dio.post(
+            any,
+            data: anyNamed('data'),
+            options: anyNamed('options'),
+          ),
+        ).thenAnswer(
+          (_) => Future.value(dioErrorResponse),
+        );
 
-      //
-      await expectLater(
-        dataSource.authWithToken(
-          url: CommonMocks.url,
-          token: CommonMocks.token,
-        ),
-        throwsA(isA<NetworkException>()),
-      );
+        // Act & Assert
+        await expectLater(
+          dataSource.authWithToken(
+            url: CommonMocks.url,
+            token: CommonMocks.token,
+          ),
+          throwsA(isA<NetworkException>()),
+        );
 
-      //
-      var captured = verify(
-        dio.post(
-          captureAny,
-          data: captureAnyNamed('data'),
-          options: captureAnyNamed('options'),
-        ),
-      ).captured;
+        // Verify
+        var captured = verify(
+          dio.post(
+            captureAny,
+            data: captureAnyNamed('data'),
+            options: captureAnyNamed('options'),
+          ),
+        ).captured;
 
-      expect(captured[0], CommonMocks.url);
-      expect(captured[1], CommonMocks.token);
-      expect(
-        captured[2].headers,
-        {
-          HttpHeaders.acceptHeader: '*/*',
-          HttpHeaders.contentTypeHeader: 'text/plain',
-        },
-      );
-    });
+        expect(captured[0], CommonMocks.url);
+        expect(captured[1], CommonMocks.token);
+        expect(
+          captured[2].headers,
+          {
+            HttpHeaders.acceptHeader: '*/*',
+            HttpHeaders.contentTypeHeader: 'text/plain',
+          },
+        );
+      },
+    );
   });
 
   group("Fetch credential", () {
@@ -153,9 +154,8 @@ void main() {
         "Given parameters, when I call fetchClaim, then I expect a Claim to be returned",
         () async {
       // Given
-      when(client.post(any,
-              body: anyNamed('body'), headers: anyNamed('headers')))
-          .thenAnswer((realInvocation) => Future.value(response));
+      when(dio.post(any, data: anyNamed('data'), options: anyNamed('options')))
+          .thenAnswer((realInvocation) => Future.value(dioResponse));
 
       // When
       expect(
@@ -164,14 +164,14 @@ void main() {
           claim);
 
       // Then
-      var captured = verify(client.post(captureAny,
-              body: captureAnyNamed('body'),
-              headers: captureAnyNamed('headers')))
+      var captured = verify(dio.post(captureAny,
+              data: captureAnyNamed('data'),
+              options: captureAnyNamed('options')))
           .captured;
 
-      expect(captured[0], Uri.parse(url));
+      expect(captured[0], url);
       expect(captured[1], token);
-      expect(captured[2], {
+      expect(captured[2].headers, {
         HttpHeaders.acceptHeader: '*/*',
         HttpHeaders.contentTypeHeader: 'text/plain',
       });
@@ -181,9 +181,8 @@ void main() {
         "Given parameters, when I call fetchClaim and a server error occurred, then I expect an NetworkException to be thrown",
         () async {
       // Given
-      when(client.post(any,
-              body: anyNamed('body'), headers: anyNamed('headers')))
-          .thenAnswer((realInvocation) => Future.value(errorResponse));
+      when(dio.post(any, data: anyNamed('data'), options: anyNamed('options')))
+          .thenAnswer((realInvocation) => Future.value(dioErrorResponse));
 
       // When
       await expectLater(
@@ -191,14 +190,14 @@ void main() {
           throwsA(isA<NetworkException>()));
 
       // Then
-      var captured = verify(client.post(captureAny,
-              body: captureAnyNamed('body'),
-              headers: captureAnyNamed('headers')))
+      var captured = verify(dio.post(captureAny,
+              data: captureAnyNamed('data'),
+              options: captureAnyNamed('options')))
           .captured;
 
-      expect(captured[0], Uri.parse(url));
+      expect(captured[0], url);
       expect(captured[1], token);
-      expect(captured[2], {
+      expect(captured[2].headers, {
         HttpHeaders.acceptHeader: '*/*',
         HttpHeaders.contentTypeHeader: 'text/plain',
       });
@@ -208,8 +207,7 @@ void main() {
         "Given parameters, when I call fetchClaim and an unsupported FetchClaimResponseType is returned, then I expect an UnsupportedFetchClaimTypeException to be thrown",
         () async {
       // Given
-      when(client.post(any,
-              body: anyNamed('body'), headers: anyNamed('headers')))
+      when(dio.post(any, data: anyNamed('data'), options: anyNamed('options')))
           .thenAnswer((realInvocation) => Future.value(otherTypeResponse));
 
       // When
@@ -222,14 +220,14 @@ void main() {
       });
 
       // Then
-      var captured = verify(client.post(captureAny,
-              body: captureAnyNamed('body'),
-              headers: captureAnyNamed('headers')))
+      var captured = verify(dio.post(captureAny,
+              data: captureAnyNamed('data'),
+              options: captureAnyNamed('options')))
           .captured;
 
-      expect(captured[0], Uri.parse(url));
+      expect(captured[0], url);
       expect(captured[1], token);
-      expect(captured[2], {
+      expect(captured[2].headers, {
         HttpHeaders.acceptHeader: '*/*',
         HttpHeaders.contentTypeHeader: 'text/plain',
       });
@@ -239,8 +237,7 @@ void main() {
         "Given parameters, when I call fetchClaim and an error occurred, then I expect an exception to be thrown",
         () async {
       // Given
-      when(client.post(any,
-              body: anyNamed('body'), headers: anyNamed('headers')))
+      when(dio.post(any, data: anyNamed('data'), options: anyNamed('options')))
           .thenAnswer((realInvocation) => Future.error(exception));
 
       // When
@@ -249,14 +246,14 @@ void main() {
           throwsA(exception));
 
       // Then
-      var captured = verify(client.post(captureAny,
-              body: captureAnyNamed('body'),
-              headers: captureAnyNamed('headers')))
+      var captured = verify(dio.post(captureAny,
+              data: captureAnyNamed('data'),
+              options: captureAnyNamed('options')))
           .captured;
 
-      expect(captured[0], Uri.parse(url));
+      expect(captured[0], url);
       expect(captured[1], token);
-      expect(captured[2], {
+      expect(captured[2].headers, {
         HttpHeaders.acceptHeader: '*/*',
         HttpHeaders.contentTypeHeader: 'text/plain',
       });

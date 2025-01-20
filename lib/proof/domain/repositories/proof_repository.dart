@@ -6,6 +6,7 @@ import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.
 import 'package:polygonid_flutter_sdk/proof/domain/entities/download_info_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 
 abstract class ProofRepository {
@@ -13,7 +14,7 @@ abstract class ProofRepository {
 
   Future<CircuitDataEntity> loadCircuitFiles(String circuitId);
 
-  Future<Uint8List> calculateAtomicQueryInputs({
+  Future<GenerateInputsResponse> calculateAtomicQueryInputs({
     required String id,
     required BigInt profileNonce,
     required BigInt claimSubjectProfileNonce,

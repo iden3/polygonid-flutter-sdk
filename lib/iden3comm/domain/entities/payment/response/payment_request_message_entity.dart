@@ -1,4 +1,7 @@
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_message_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/response/payment_rails_erc20_request_v1_data.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/response/payment_rails_request_v1_data.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/response/payment_request_crypto_v1_data.dart';
 
 /*
 https://iden3-communication.io/credentials/0.1/payment-request
@@ -58,6 +61,7 @@ class PaymentRequestEntity extends Iden3MessageEntity<PaymentRequestBody> {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toJson(),
@@ -78,9 +82,9 @@ class PaymentRequestBody {
   factory PaymentRequestBody.fromJson(Map<String, dynamic> json) {
     return PaymentRequestBody(
       agent: json['agent'],
-      payments: List<PaymentRequest>.from(
-        json['payments'].map((x) => PaymentRequest.fromJson(x)),
-      ),
+      payments: (json['payments'] as List<dynamic>)
+          .map((x) => PaymentRequest.fromJson(x))
+          .toList(),
     );
   }
 
@@ -94,39 +98,56 @@ class PaymentRequestBody {
 
 class PaymentRequest {
   final List<CredentialInfo> credentials;
-  final String type;
-  final PaymentRequestData data;
-  final String expiration;
+  final List<PaymentRequestData> data;
   final String description;
 
   PaymentRequest({
     required this.credentials,
-    required this.type,
     required this.data,
     required this.description,
-    required this.expiration,
   });
 
   factory PaymentRequest.fromJson(Map<String, dynamic> json) {
     return PaymentRequest(
-      type: json['type'],
       description: json['description'],
-      expiration: json['expiration'],
-      credentials: List<CredentialInfo>.from(
-        json['credentials'].map((x) => CredentialInfo.fromJson(x)),
-      ),
-      data: PaymentRequestData.fromJson(json['data']),
+      credentials: (json['credentials'] as List<dynamic>)
+          .map((x) => CredentialInfo.fromJson(x))
+          .toList(),
+      data: (json['data'] as List<dynamic>)
+          .map((x) => PaymentRequestDataFactory.fromJson(x))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "type": type,
       "description": description,
-      "expiration": expiration,
       "credentials": credentials.map((e) => e.toJson()).toList(),
-      "data": data.toJson(),
+      "data": data.map((e) => e.toJson()).toList(),
     };
+  }
+}
+
+enum PaymentRequestDataType {
+  cryptoV1,
+  railsV1,
+  railsERC20V1,
+}
+
+class PaymentRequestDataFactory {
+  static PaymentRequestData fromJson(Map<String, dynamic> json) {
+    String type = json['type'];
+
+    switch (type) {
+      case 'Iden3PaymentRequestCryptoV1':
+        return Iden3PaymentRequestCryptoV1Data.fromJson(json);
+      case 'Iden3PaymentRailsRequestV1':
+        return Iden3PaymentRailsRequestV1Data.fromJson(json);
+      case 'Iden3PaymentRailsERC20RequestV1':
+        return Iden3PaymentRailsERC20RequestV1Data.fromJson(json);
+      default:
+        throw Exception('Unknown payment request data type: $type');
+    }
   }
 }
 
@@ -166,45 +187,9 @@ class CredentialInfo {
   }
 }
 
-class PaymentRequestData {
-  final String type;
-  final String amount;
-  final String id;
-  final String chainId;
-  final String address;
-  final String currency;
-  final String? signature;
+abstract class PaymentRequestData {
+  String get type;
+  PaymentRequestDataType get paymentRequestDataType;
 
-  PaymentRequestData({
-    required this.type,
-    required this.amount,
-    required this.id,
-    required this.chainId,
-    required this.address,
-    required this.signature,
-    required this.currency,
-  });
-
-  factory PaymentRequestData.fromJson(Map<String, dynamic> json) {
-    return PaymentRequestData(
-      type: json['type'],
-      amount: json['amount'],
-      id: json['id'],
-      chainId: json['chainId'],
-      address: json['address'],
-      signature: json['signature'],
-      currency: json['currency'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "type": type,
-      "amount": amount,
-      "id": id,
-      "address": address,
-      "signature": signature,
-      "currency": currency,
-    };
-  }
+  Map<String, dynamic> toJson();
 }

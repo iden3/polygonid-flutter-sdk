@@ -21,7 +21,7 @@ dependencies:
   json_annotation: ^4.6.0
   equatable: ^2.0.3
   crypto: ^3.0.1
-  get_it: ^7.2.0
+  get_it: 8.0.2
   injectable: ^2.1.2
   path_provider: ^2.0.15
   archive: ^3.5.1
@@ -43,8 +43,8 @@ dependencies:
   secp256k1: ^0.3.0
   background_downloader: ^8.5.5
   poseidon: ^0.0.1
-  flutter_rapidsnark: 0.0.1-alpha.3
-  circom_witnesscalc: 0.0.1-alpha.1
+  flutter_rapidsnark: 0.0.1-beta.1
+  circom_witnesscalc: 0.0.1-alpha.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.8.0'
+    ext.kotlin_version = '1.9.10'
     ext.gradle_tools = '7.3.1'
     repositories {
         google()

@@ -37,7 +37,6 @@ import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_dto.dart';
 import 'package:polygonid_flutter_sdk/credential/data/mappers/claim_mapper.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/refresh_credential_use_case.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/data/data_sources/lib_pidcore_iden3comm_data_source.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_service_metadata_devices_response_dto.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/data/dtos/authorization/response/auth_body_did_doc_service_metadata_response_dto.dart';
@@ -71,6 +70,7 @@ import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repositor
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_identifier_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/gist_mtproof_data_source.dart';
+import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
@@ -237,6 +237,7 @@ class Authenticate {
         authClaimNode: authClaimCompanionObject.authClaimNode!,
         gistProofEntity: authClaimCompanionObject.gistProofEntity!,
         proofRepository: proofRepository,
+        env: env,
       );
       _stacktraceManager.addTrace(
         "[Authenticate] authToken: $authToken",
@@ -433,7 +434,8 @@ class Authenticate {
 
       List<String> splittedDid = genesisDid.split(":");
       String id = splittedDid[4];
-      Uint8List res = await proofRepository.calculateAtomicQueryInputs(
+      final generateInputsRes =
+          await proofRepository.calculateAtomicQueryInputs(
         id: id,
         profileNonce: profileNonce,
         claimSubjectProfileNonce: claimSubjectProfileNonce,
@@ -454,19 +456,16 @@ class Authenticate {
         transactionData: transactionData,
       );
 
-      final inputsString = Uint8ArrayUtils.uint8ListToString(res);
-
-      dynamic inputsJson = json.decode(inputsString);
-      final atomicQueryInputs = json.encode(inputsJson["inputs"]);
+      final atomicQueryInputs = json.encode(generateInputsRes.inputs);
       if (kDebugMode) {
         //just for debug
         logger().i("atomicQueryInputs: $atomicQueryInputs");
       }
 
-      var vpProof;
-      if (inputsJson["verifiablePresentation"] != null) {
-        vpProof =
-            Iden3commVPProof.fromJson(inputsJson["verifiablePresentation"]);
+      Iden3commVPProof? vpProof;
+      final verifiablePresentation = generateInputsRes.verifiablePresentation;
+      if (verifiablePresentation != null) {
+        vpProof = Iden3commVPProof.fromJson(verifiablePresentation);
       }
 
       Uint8List witnessBytes = await proofRepository.calculateWitness(
@@ -482,17 +481,20 @@ class Authenticate {
       Iden3commProofEntity proof;
       if (vpProof != null) {
         proof = Iden3commSDProofEntity(
-            id: proofRequest.scope.id,
-            circuitId: proofRequest.scope.circuitId,
-            proof: zkProofEntity.proof,
-            pubSignals: zkProofEntity.pubSignals,
-            vp: vpProof);
+          id: proofRequest.scope.id,
+          circuitId: proofRequest.scope.circuitId,
+          proof: zkProofEntity.proof,
+          pubSignals: zkProofEntity.pubSignals,
+          publicStatesInfo: generateInputsRes.publicStatesInfo,
+          vp: vpProof,
+        );
       } else {
         proof = Iden3commProofEntity(
           id: proofRequest.scope.id,
           circuitId: proofRequest.scope.circuitId,
           proof: zkProofEntity.proof,
           pubSignals: zkProofEntity.pubSignals,
+          publicStatesInfo: generateInputsRes.publicStatesInfo,
         );
       }
       proofs.add(proof);
@@ -966,6 +968,7 @@ class Authenticate {
     required Map<String, dynamic> treeState,
     required GistMTProofEntity gistProofEntity,
     required ProofRepository proofRepository,
+    required EnvEntity env,
   }) async {
     JWZHeader header = JWZHeader(
       circuitId: AcceptAuthCircuits.AuthV2.name,
@@ -997,10 +1000,9 @@ class Authenticate {
       message: authChallenge,
     );
 
-    LibPolygonIdCoreIden3commDataSource libPolygonIdCoreIden3commDataSource =
-        getItSdk<LibPolygonIdCoreIden3commDataSource>();
+    final libPidCoreIden3commDS = getItSdk<LibPolygonIdCoreProofDataSource>();
 
-    String authInputs = await libPolygonIdCoreIden3commDataSource.getAuthInputs(
+    final inputsResponse = await libPidCoreIden3commDS.getAuthInputs(
       genesisDid: genesisDid,
       profileNonce: profileNonce,
       authClaim: authClaim,
@@ -1010,6 +1012,7 @@ class Authenticate {
       treeState: treeState,
       challenge: authChallenge,
       signature: signature,
+      config: env.config.toJson(),
     );
 
     final appDir = await getApplicationDocumentsDirectory();
@@ -1027,7 +1030,7 @@ class Authenticate {
 
     Uint8List witnessBytes = await proofRepository.calculateWitness(
       circuitData: circuitDataEntity,
-      atomicQueryInputs: authInputs,
+      atomicQueryInputs: jsonEncode(inputsResponse.inputs),
     );
 
     ZKProofEntity zkProofEntity = await proofRepository.prove(

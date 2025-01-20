@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:polygonid_flutter_sdk/common/domain/use_cases/get_env_use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
@@ -26,6 +27,7 @@ MockGetLatestStateUseCase getLatestStateUseCase = MockGetLatestStateUseCase();
 MockIden3commRepository iden3commRepository = MockIden3commRepository();
 MockIdentityRepository identityRepository = MockIdentityRepository();
 MockSMTRepository smtRepository = MockSMTRepository();
+MockGetEnvUseCase getEnvUseCase = MockGetEnvUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 // Data
@@ -44,6 +46,7 @@ GetAuthInputsUseCase useCase = GetAuthInputsUseCase(
   iden3commRepository,
   identityRepository,
   smtRepository,
+  getEnvUseCase,
   stacktraceManager,
 );
 
@@ -56,6 +59,7 @@ GetAuthInputsUseCase useCase = GetAuthInputsUseCase(
   Iden3commRepository,
   IdentityRepository,
   SMTRepository,
+  GetEnvUseCase,
   StacktraceManager,
 ])
 void main() {
@@ -66,18 +70,22 @@ void main() {
         .thenAnswer((realInvocation) => Future.value(CommonMocks.signature));
     when(credentialRepository.getAuthClaim(publicKey: anyNamed("publicKey")))
         .thenAnswer((realInvocation) => Future.value(claims));
-    when(iden3commRepository.getAuthInputs(
-            genesisDid: anyNamed('genesisDid'),
-            profileNonce: anyNamed('profileNonce'),
-            challenge: anyNamed("challenge"),
-            authClaim: anyNamed("authClaim"),
-            identity: anyNamed("identity"),
-            signature: anyNamed("signature"),
-            incProof: anyNamed('incProof'),
-            nonRevProof: anyNamed('nonRevProof'),
-            gistProof: anyNamed('gistProof'),
-            treeState: anyNamed('treeState')))
-        .thenAnswer((realInvocation) => Future.value(CommonMocks.inputs));
+    when(
+      iden3commRepository.getAuthInputs(
+        genesisDid: anyNamed('genesisDid'),
+        profileNonce: anyNamed('profileNonce'),
+        challenge: anyNamed("challenge"),
+        authClaim: anyNamed("authClaim"),
+        identity: anyNamed("identity"),
+        signature: anyNamed("signature"),
+        incProof: anyNamed('incProof'),
+        nonRevProof: anyNamed('nonRevProof'),
+        gistProof: anyNamed('gistProof'),
+        treeState: anyNamed('treeState'),
+        config: anyNamed('config'),
+      ),
+    ).thenAnswer(
+        (realInvocation) => Future.value(CommonMocks.generateInputsResponse));
     when(identityRepository.getAuthClaimNode(children: anyNamed('children')))
         .thenAnswer((realInvocation) => Future.value(IdentityMocks.node));
     when(smtRepository.generateProof(
@@ -90,13 +98,16 @@ void main() {
         .thenAnswer((realInvocation) => Future.value(CommonMocks.aMap));
     when(getGistProofUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(ProofMocks.gistMTProof));
+    when(getEnvUseCase.execute(param: anyNamed('param')))
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.env));
   });
 
   test(
     'Given a param, when I call execute, then I expect a bytes list to be returned',
     () async {
       // When
-      expect(await useCase.execute(param: param), CommonMocks.inputs);
+      expect(await useCase.execute(param: param),
+          CommonMocks.generateInputsResponse);
 
       // Then
       var capturedIdentity =
@@ -113,18 +124,21 @@ void main() {
       expect(capturedSign.privateKey, param.privateKey);
       expect(capturedSign.message, CommonMocks.challenge);
 
-      var capturedAuthInputs = verify(iden3commRepository.getAuthInputs(
-              genesisDid: captureAnyNamed('genesisDid'),
-              profileNonce: captureAnyNamed('profileNonce'),
-              challenge: captureAnyNamed("challenge"),
-              authClaim: captureAnyNamed("authClaim"),
-              identity: captureAnyNamed("identity"),
-              signature: captureAnyNamed("signature"),
-              incProof: captureAnyNamed('incProof'),
-              nonRevProof: captureAnyNamed('nonRevProof'),
-              gistProof: captureAnyNamed('gistProof'),
-              treeState: captureAnyNamed('treeState')))
-          .captured;
+      var capturedAuthInputs = verify(
+        iden3commRepository.getAuthInputs(
+          genesisDid: captureAnyNamed('genesisDid'),
+          profileNonce: captureAnyNamed('profileNonce'),
+          challenge: captureAnyNamed("challenge"),
+          authClaim: captureAnyNamed("authClaim"),
+          identity: captureAnyNamed("identity"),
+          signature: captureAnyNamed("signature"),
+          incProof: captureAnyNamed('incProof'),
+          nonRevProof: captureAnyNamed('nonRevProof'),
+          gistProof: captureAnyNamed('gistProof'),
+          treeState: captureAnyNamed('treeState'),
+          config: captureAnyNamed('config'),
+        ),
+      ).captured;
       expect(capturedAuthInputs[0], CommonMocks.did);
       expect(capturedAuthInputs[1], CommonMocks.nonce);
       expect(capturedAuthInputs[2], CommonMocks.challenge);
@@ -135,6 +149,7 @@ void main() {
       expect(capturedAuthInputs[7], ProofMocks.mtProof);
       expect(capturedAuthInputs[8], ProofMocks.gistMTProof);
       expect(capturedAuthInputs[9], CommonMocks.aMap);
+      expect(capturedAuthInputs[10], CommonMocks.env.config.toJson());
     },
   );
 
