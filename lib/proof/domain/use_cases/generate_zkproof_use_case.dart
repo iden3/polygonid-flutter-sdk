@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
@@ -70,7 +68,7 @@ class GenerateZKProofUseCase
   @override
   Future<ZKProofEntity> execute({required GenerateZKProofParam param}) async {
     // Prepare atomic query inputs
-    Uint8List res = await _proofRepository
+    final res = await _proofRepository
         .calculateAtomicQueryInputs(
       id: param.identifier,
       profileNonce: param.profileNonce,
@@ -101,8 +99,7 @@ class GenerateZKProofUseCase
       throw error;
     });
 
-    dynamic inputsJson = json.decode(Uint8ArrayUtils.uint8ListToString(res));
-    final atomicQueryInputs = json.encode(inputsJson["inputs"]);
+    final atomicQueryInputs = json.encode(res.inputs);
 
     // Prove
     return _proveUseCase

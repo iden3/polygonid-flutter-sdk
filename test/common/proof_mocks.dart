@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/gist_mtproof_entity.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/mtproof_dto.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 
 import 'common_mocks.dart';
@@ -62,4 +63,7 @@ class ProofMocks {
 
   static GistMTProofEntity gistMTProof =
       GistMTProofEntity(root: CommonMocks.message, proof: mtProof);
+
+  static PublicStatesInfo publicStatesInfo =
+      PublicStatesInfo(states: [], gists: []);
 }

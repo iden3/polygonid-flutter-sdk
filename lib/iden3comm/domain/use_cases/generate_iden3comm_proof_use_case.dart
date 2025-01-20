@@ -6,7 +6,6 @@ import 'package:polygonid_flutter_sdk/common/domain/entities/env_config_entity.d
 import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
@@ -136,8 +135,11 @@ class GenerateIden3commProofUseCase
           "[GenerateIden3commProofUseCase] OnChain ${param.request.circuitId}");
 
       IdentityEntity identity = await _getIdentityUseCase.execute(
-          param: GetIdentityParam(
-              genesisDid: param.did, privateKey: param.privateKey));
+        param: GetIdentityParam(
+          genesisDid: param.did,
+          privateKey: param.privateKey,
+        ),
+      );
       _stacktraceManager.addTrace(
           "[GenerateIden3commProofUseCase] identity: ${identity.did}");
       logger().i(
@@ -206,7 +208,7 @@ class GenerateIden3commProofUseCase
     logger().i("GENERATION PROOF didEntity executed in ${stopwatch.elapsed}");
 
     // Prepare atomic query inputs
-    Uint8List res = await _proofRepository
+    final generateInputsResponse = await _proofRepository
         .calculateAtomicQueryInputs(
       id: didEntity.identifier,
       profileNonce: param.profileNonce,
@@ -239,50 +241,46 @@ class GenerateIden3commProofUseCase
     logger().i(
         "GENERATION PROOF calculateAtomicQueryInputs executed in ${stopwatch.elapsed}");
 
-    final inputsString = Uint8ArrayUtils.uint8ListToString(res);
-    dynamic inputsJson = json.decode(inputsString);
-
-    _stacktraceManager.addTrace(
-      "[GenerateIden3commProofUseCase][MainFlow] atomic inputs JSON:$inputsString",
-      log: true,
-    );
-
-    final inputs = json.encode(inputsJson["inputs"]);
-    final atomicQueryInputs = inputs;
+    final inputs = json.encode(generateInputsResponse.inputs);
 
     if (kDebugMode) {
       //just for debug
       logger().i('[GenerateIden3commProofUseCase] inputs: $inputs');
     }
 
-    var vpProof;
-    if (inputsJson["verifiablePresentation"] != null) {
-      vpProof = Iden3commVPProof.fromJson(inputsJson["verifiablePresentation"]);
+    Iden3commVPProof? vpProof;
+    final verifiablePresentation =
+        generateInputsResponse.verifiablePresentation;
+    if (verifiablePresentation != null) {
+      vpProof = Iden3commVPProof.fromJson(verifiablePresentation);
     }
 
     logger().i('[GenerateIden3commProofUseCase] verifiablePresentation:');
-    logger().i(vpProof ?? inputsJson["verifiablePresentation"]);
+    logger().i(vpProof ?? generateInputsResponse.verifiablePresentation);
 
     logger().i(
         "GENERATION PROOF atomicQueryInputs executed in ${stopwatch.elapsed}");
 
     try {
       ZKProofEntity proof = await _proveUseCase.execute(
-        param: ProveParam(atomicQueryInputs, param.circuitData),
+        param: ProveParam(inputs, param.circuitData),
       );
       if (vpProof != null) {
         return Iden3commSDProofEntity(
-            id: param.request.id,
-            circuitId: param.circuitData.circuitId,
-            proof: proof.proof,
-            pubSignals: proof.pubSignals,
-            vp: vpProof);
+          id: param.request.id,
+          circuitId: param.circuitData.circuitId,
+          proof: proof.proof,
+          pubSignals: proof.pubSignals,
+          publicStatesInfo: generateInputsResponse.publicStatesInfo,
+          vp: vpProof,
+        );
       } else {
         return Iden3commProofEntity(
           id: param.request.id,
           circuitId: param.circuitData.circuitId,
           proof: proof.proof,
           pubSignals: proof.pubSignals,
+          publicStatesInfo: generateInputsResponse.publicStatesInfo,
         );
       }
     } on PolygonIdSDKException catch (_) {
