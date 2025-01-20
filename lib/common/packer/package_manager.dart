@@ -21,7 +21,6 @@ class PackageManagerImpl implements PackageManager {
   /// Creates an instance of PackageManager.
   PackageManagerImpl();
 
-  /// {@inheritDoc IPackageManager.isProfileSupported}
   @override
   bool isProfileSupported(MediaType mediaType, String profile) {
     final p = packers[mediaType];
@@ -32,13 +31,11 @@ class PackageManagerImpl implements PackageManager {
     return p.isProfileSupported(profile);
   }
 
-  /// {@inheritDoc IPackageManager.getSupportedMediaTypes}
   @override
   List<MediaType> getSupportedMediaTypes() {
     return [...packers.keys];
   }
 
-  /// {@inheritDoc IPackageManager.registerPackers}
   @override
   void registerPackers(List<Packer> packers) {
     for (var p in packers) {
@@ -46,7 +43,6 @@ class PackageManagerImpl implements PackageManager {
     }
   }
 
-  /// {@inheritDoc IPackageManager.pack}
   @override
   Future<Uint8List> pack(
       MediaType mediaType, Uint8List payload, PackerParams params) async {
@@ -79,7 +75,6 @@ class PackageManagerImpl implements PackageManager {
     return p.packMessage(protocolMessage, params);
   }
 
-  /// {@inheritDoc IPackageManager.unpack}
   @override
   Future<({Iden3MessageEntity unpackedMessage, MediaType unpackedMediaType})>
       unpack(
@@ -97,7 +92,6 @@ class PackageManagerImpl implements PackageManager {
     );
   }
 
-  /// {@inheritDoc IPackageManager.unpackWithType}
   @override
   Future<Iden3MessageEntity> unpackWithType(
     MediaType mediaType,
@@ -123,7 +117,6 @@ class PackageManagerImpl implements PackageManager {
     return msg;
   }
 
-  /// {@inheritDoc IPackageManager.getMediaType}
   @override
   MediaType getMediaType(String envelope) {
     // check if envelope is a json string
