@@ -65,6 +65,7 @@
 */
 
 import 'package:flutter/foundation.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/accept_header.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/authorization/request/auth_body_credentials_request.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 
@@ -75,14 +76,17 @@ class AuthBodyRequest {
   final List<ProofScopeRequest>? scope;
   final String? url;
   final List<AuthBodyCredentialsRequest>? credentials;
+  final List<AcceptProfile>? accept;
 
-  AuthBodyRequest(
-      {this.callbackUrl,
-      this.reason,
-      this.message,
-      this.scope,
-      this.url,
-      this.credentials});
+  AuthBodyRequest({
+    this.callbackUrl,
+    this.reason,
+    this.message,
+    this.scope,
+    this.url,
+    this.credentials,
+    this.accept,
+  });
 
   /// Creates an instance from the given json
   ///
@@ -103,6 +107,9 @@ class AuthBodyRequest {
       scope: scope,
       url: json['url'],
       credentials: credentials,
+      accept: (json['accept'] as List?)
+          ?.map((item) => AcceptProfile.fromJson(item))
+          .toList(),
     );
   }
 
@@ -113,11 +120,13 @@ class AuthBodyRequest {
         'scope': scope?.map((item) => item.toJson()).toList(),
         'url': url,
         'credentials': credentials?.map((item) => item.toJson()).toList(),
+        if (accept != null)
+          'accept': accept?.map((item) => item.toJson()).toList(),
       };
 
   @override
   String toString() =>
-      "[AuthBodyRequest] {callbackUrl: $callbackUrl, reason: $reason, message: $message, scope: $scope,url: $url,credentials: $credentials}";
+      "[AuthBodyRequest] {callbackUrl: $callbackUrl, reason: $reason, message: $message, scope: $scope, url: $url, credentials: $credentials, accept: $accept}";
 
   @override
   bool operator ==(Object other) =>
@@ -129,7 +138,8 @@ class AuthBodyRequest {
           message == other.message &&
           listEquals(scope, other.scope) &&
           url == other.url &&
-          listEquals(credentials, other.credentials);
+          listEquals(credentials, other.credentials) &&
+          listEquals(accept, other.accept);
 
   @override
   int get hashCode => runtimeType.hashCode;

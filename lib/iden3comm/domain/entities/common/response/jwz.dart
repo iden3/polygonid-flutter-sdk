@@ -24,11 +24,12 @@ class JWZHeader {
   final List<String> crit;
   final String typ;
 
-  JWZHeader(
-      {required this.alg,
-      required this.circuitId,
-      required this.crit,
-      required this.typ});
+  JWZHeader({
+    required this.alg,
+    required this.circuitId,
+    required this.crit,
+    required this.typ,
+  });
 
   factory JWZHeader.fromBase64(String data) =>
       JWZHeader.fromJson(jsonDecode(Base64Util.decode(data)));
