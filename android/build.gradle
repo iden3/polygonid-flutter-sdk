@@ -84,6 +84,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.a'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.annotation:annotation:1.6.0'
+
+    implementation "io.iden3:circomwitnesscalc:0.0.1-alpha.3"
 }
 
 // Maven
