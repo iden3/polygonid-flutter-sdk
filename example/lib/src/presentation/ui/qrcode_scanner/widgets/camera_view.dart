@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:polygonid_flutter_sdk_example/src/presentation/ui/qrcode_scanner/widgets/qrcode_scanner_overlay_shape.dart';
 import 'package:polygonid_flutter_sdk_example/utils/custom_button_style.dart';
 import 'package:polygonid_flutter_sdk_example/utils/custom_colors.dart';
-import 'package:scan/scan.dart';
 
 enum ScreenMode { liveFeed, gallery }
 
@@ -244,10 +243,8 @@ class _CameraViewState extends State<CameraView> {
     final pickedFile = await _imagePicker?.pickImage(source: source);
 
     if (pickedFile != null) {
-      String? str = await Scan.parse(pickedFile.path);
-      if (str != null) {
-        widget.onQrCodeScanned(str);
-      }
+      final inputImage = InputImage.fromFilePath(pickedFile.path);
+      widget.onImage(inputImage);
     }
     setState(() {});
   }
