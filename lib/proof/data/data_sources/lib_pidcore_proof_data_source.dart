@@ -1,16 +1,13 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/entities/env_config_entity.dart';
-import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_param.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/entities/generate_inputs_response.dart';
-import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_exceptions.dart';
 import 'package:polygonid_flutter_sdk/proof/libs/polygonidcore/pidcore_proof.dart';
 
 class LibPolygonIdCoreProofDataSource {
@@ -191,43 +188,17 @@ class LibPolygonIdCoreWrapper {
 
   Future<GenerateInputsResponse> getProofInputs(
     AtomicQueryInputsParam atomicQueryInputsParam,
-    EnvConfigEntity? atomicQueryInputsConfigParam,
+    EnvConfigEntity? config,
   ) async {
     try {
-      final result = await compute(
-        _computeAtomicQueryInputs,
-        {
-          "id": atomicQueryInputsParam.id,
-          "param": atomicQueryInputsParam.toJson(),
-          "config": atomicQueryInputsConfigParam?.toJson(),
-        },
+      final result = _polygonIdCoreProof.generateInputs(
+        jsonEncode(atomicQueryInputsParam.toJson()),
+        config != null ? jsonEncode(config.toJson()) : null,
       );
 
-      return GenerateInputsResponse.fromJson(result);
+      return result;
     } catch (e) {
       rethrow;
-    }
-  }
-
-  Future<Map<String, dynamic>> _computeAtomicQueryInputs(
-    Map<String, dynamic> parameters,
-  ) {
-    try {
-      final config = parameters["config"];
-
-      final result = _polygonIdCoreProof.generateInputs(
-        jsonEncode(parameters["param"]),
-        config != null ? jsonEncode(parameters["config"]) : null,
-      );
-
-      return Future.value(result.toJson());
-    } on PolygonIdSDKException catch (_) {
-      rethrow;
-    } catch (error) {
-      throw NullAtomicQueryInputsException(
-        id: parameters["id"],
-        errorMessage: "Error in _computeAtomicQueryInputs: $error",
-      );
     }
   }
 

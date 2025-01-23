@@ -760,10 +760,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
         ));
-    gh.factory<_i660.GetNonRevProofUseCase>(() => _i660.GetNonRevProofUseCase(
-          gh<_i309.CredentialRepository>(),
-          gh<_i267.StacktraceManager>(),
-        ));
     gh.factory<_i657.GetClaimsUseCase>(() => _i657.GetClaimsUseCase(
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
@@ -777,6 +773,10 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i267.StacktraceManager>(),
         ));
     gh.factory<_i503.RemoveAllClaimsUseCase>(() => _i503.RemoveAllClaimsUseCase(
+          gh<_i309.CredentialRepository>(),
+          gh<_i267.StacktraceManager>(),
+        ));
+    gh.factory<_i660.GetNonRevProofUseCase>(() => _i660.GetNonRevProofUseCase(
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
         ));
