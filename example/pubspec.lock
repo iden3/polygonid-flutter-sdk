@@ -221,10 +221,10 @@ packages:
     dependency: transitive
     description:
       name: circom_witnesscalc
-      sha256: "21b249acc2a15a46f4e3f516ce7835b6b2f98e920b02db326a0e8342d1dd4199"
+      sha256: "912d5b5840573ef77a2dd13d3fb9cd5b007491013f7f29a67e42834f478221a9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1-alpha.2"
+    version: "0.0.1-alpha.3"
   cli_util:
     dependency: transitive
     description:
