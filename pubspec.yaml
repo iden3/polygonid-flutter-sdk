@@ -44,7 +44,7 @@ dependencies:
   background_downloader: ^8.5.5
   poseidon: ^0.0.1
   flutter_rapidsnark: 0.0.1-beta.1
-  circom_witnesscalc: 0.0.1-alpha.2
+  circom_witnesscalc: 0.0.1-alpha.3
 
 dev_dependencies:
   flutter_test:
