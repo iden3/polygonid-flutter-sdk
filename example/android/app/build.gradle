@@ -29,6 +29,8 @@ android {
     compileSdkVersion 34
     ndkVersion = "26.3.11579264"
 
+    namespace "io.iden3.polygonid_flutter_sdk.example"
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
