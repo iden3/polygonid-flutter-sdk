@@ -43,42 +43,24 @@ class BarcodeDetectorPainter extends CustomPainter {
 
       final cornerPoints = barcode.cornerPoints;
       final boundingBox = barcode.boundingBox;
-      if (cornerPoints == null) {
-        if (boundingBox != null) {
-          left =
-              translateX(boundingBox.left, rotation, size, absoluteImageSize);
-          top = translateY(boundingBox.top, rotation, size, absoluteImageSize);
-          right =
-              translateX(boundingBox.right, rotation, size, absoluteImageSize);
-          bottom =
-              translateY(boundingBox.bottom, rotation, size, absoluteImageSize);
+      final List<Offset> offsetPoints = <Offset>[];
+      for (final point in cornerPoints) {
+        final double x =
+            translateX(point.x.toDouble(), rotation, size, absoluteImageSize);
+        final double y =
+            translateY(point.y.toDouble(), rotation, size, absoluteImageSize);
 
-          // Draw a bounding rectangle around the barcode
-          canvas.drawRect(
-            Rect.fromLTRB(left, top, right, bottom),
-            paint,
-          );
-        }
-      } else {
-        final List<Offset> offsetPoints = <Offset>[];
-        for (final point in cornerPoints) {
-          final double x =
-              translateX(point.x.toDouble(), rotation, size, absoluteImageSize);
-          final double y =
-              translateY(point.y.toDouble(), rotation, size, absoluteImageSize);
+        offsetPoints.add(Offset(x, y));
 
-          offsetPoints.add(Offset(x, y));
-
-          // Due to possible rotations we need to find the smallest and largest
-          top = min(top, y);
-          bottom = max(bottom, y);
-          left = min(left, x);
-          right = max(right, x);
-        }
-        // Add the first point to close the polygon
-        offsetPoints.add(offsetPoints.first);
-        canvas.drawPoints(PointMode.polygon, offsetPoints, paint);
+        // Due to possible rotations we need to find the smallest and largest
+        top = min(top, y);
+        bottom = max(bottom, y);
+        left = min(left, x);
+        right = max(right, x);
       }
+      // Add the first point to close the polygon
+      offsetPoints.add(offsetPoints.first);
+      canvas.drawPoints(PointMode.polygon, offsetPoints, paint);
 
       canvas.drawParagraph(
         builder.build()
