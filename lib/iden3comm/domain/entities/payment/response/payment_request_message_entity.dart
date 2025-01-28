@@ -113,9 +113,13 @@ class PaymentRequest {
       credentials: (json['credentials'] as List<dynamic>)
           .map((x) => CredentialInfo.fromJson(x))
           .toList(),
-      data: (json['data'] as List<dynamic>)
-          .map((x) => PaymentRequestDataFactory.fromJson(x))
-          .toList(),
+      data: json['data'] is List
+          ? (json['data'] as List<dynamic>)
+              .map((x) => PaymentRequestDataFactory.fromJson(x))
+              .toList()
+          : json['data'] is Map<String, dynamic>
+              ? [PaymentRequestDataFactory.fromJson(json['data'])]
+              : [],
     );
   }
 
@@ -189,6 +193,7 @@ class CredentialInfo {
 
 abstract class PaymentRequestData {
   String get type;
+
   PaymentRequestDataType get paymentRequestDataType;
 
   Map<String, dynamic> toJson();
