@@ -16,6 +16,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/inte
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/request/offer_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/self_issuance/self_issued_credential_params.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/did_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
@@ -1008,6 +1009,26 @@ class PolygonIdFlutterChannel
     required List<PublicStatesInfo> stateInfo,
   }) {
     // TODO: implement getCrosschainProofs
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ClaimEntity> getAnonAadhaarCredential({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  }) {
+    // TODO: implement getAnonAadhaarCredential
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ZKProofEntity> getAnonAadhaarProof({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  }) {
+    // TODO: implement getAnonAadhaarProof
     throw UnimplementedError();
   }
 }

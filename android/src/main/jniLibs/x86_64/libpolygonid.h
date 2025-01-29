@@ -240,6 +240,7 @@ extern GoUint8 PLGNCacheCredentials(char* in, char* cfg, PLGNStatus** status);
 // [README.md]: https://github.com/0xPolygonID/c-polygonid/blob/main/README.md#configuration
 //
 extern GoUint8 PLGNW3CCredentialFromOnchainHex(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNW3CCredentialFromAnonAadhaarInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
 
 // PLGNDescribeID parses ID and return it in different representations.
 // Request example:

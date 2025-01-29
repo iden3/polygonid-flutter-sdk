@@ -26,30 +26,30 @@ typedef struct { const char *p; ptrdiff_t n; } _GoString_;
 
 typedef enum
 {
-    PLGNSTATUSCODE_ERROR,
-    PLGNSTATUSCODE_NIL_POINTER,
-    // error extracting credential status from verifiable credential
-    PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
-    // error resolving credential status (e.g. getting the status from chain of DHS)
-    PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_RESOLVE_ERROR,
-    // error getting merkletree proof from credential status
-    PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
-    // merkletree proof is invalid
-    PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_STATE_ERROR,
-    // credential is revoked
-    PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_REVOKED_ERROR,
-    // the same as above but for issuer credential (for signature proofs)
-    PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
-    PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_RESOLVE_ERROR,
-    PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
-    PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_STATE_ERROR,
-    PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_REVOKED_ERROR,
+	PLGNSTATUSCODE_ERROR,
+	PLGNSTATUSCODE_NIL_POINTER,
+	// error extracting credential status from verifiable credential
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
+	// error resolving credential status (e.g. getting the status from chain of DHS)
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_RESOLVE_ERROR,
+	// error getting merkletree proof from credential status
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
+	// merkletree proof is invalid
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_MT_STATE_ERROR,
+	// credential is revoked
+	PLGNSTATUSCODE_USER_CREDENTIAL_STATUS_REVOKED_ERROR,
+	// the same as above but for issuer credential (for signature proofs)
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_EXTRACTION_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_RESOLVE_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_BUILD_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_MT_STATE_ERROR,
+	PLGNSTATUSCODE_ISSUER_CREDENTIAL_STATUS_REVOKED_ERROR,
 } PLGNStatusCode;
 
 typedef struct _PLGNStatus
 {
-    PLGNStatusCode status;
-    char *error_msg;
+	PLGNStatusCode status;
+	char *error_msg;
 } PLGNStatus;
 
 #line 1 "cgo-generated-wrapper"
@@ -240,6 +240,7 @@ extern GoUint8 PLGNCacheCredentials(char* in, char* cfg, PLGNStatus** status);
 // [README.md]: https://github.com/0xPolygonID/c-polygonid/blob/main/README.md#configuration
 //
 extern GoUint8 PLGNW3CCredentialFromOnchainHex(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
+extern GoUint8 PLGNW3CCredentialFromAnonAadhaarInputs(char** jsonResponse, char* in, char* cfg, PLGNStatus** status);
 
 // PLGNDescribeID parses ID and return it in different representations.
 // Request example:

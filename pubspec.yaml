@@ -65,6 +65,12 @@ ffigen:
   headers:
     entry-points:
       - 'ios/Frameworks/libpolygonid.xcframework/libpolygonid.h'
+  functions:
+    include:
+      - PLGN.*
+  structs:
+    include:
+      - PLGN.*
 
 flutter:
   plugin:

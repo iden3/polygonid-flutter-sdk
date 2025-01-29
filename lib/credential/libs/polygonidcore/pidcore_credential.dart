@@ -128,6 +128,15 @@ class PolygonIdCoreCredential extends PolygonIdCore {
     return result;
   }
 
+  String createCredentialFromAnonAadhaarInputs(String input, String? config) {
+    return callGenericCoreFunction(
+      input: () => input,
+      function: PolygonIdCore
+          .nativePolygonIdCoreLib.PLGNW3CCredentialFromAnonAadhaarInputs,
+      parse: (o) => o,
+    );
+  }
+
   void _trackError(ConsumedStatusResult consumedStatus, String methodName) {
     _stacktraceManager.addTrace(
         "libpolygonid - $methodName: [${consumedStatus.statusCode}] - ${consumedStatus.message}");

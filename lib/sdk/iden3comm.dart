@@ -18,9 +18,12 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/reque
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_base_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/response/iden3comm_proof_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/self_issuance/self_issued_credential_params.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/authenticate_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/clean_schema_cache_use_case.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_credential_use_case.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_proof_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_and_save_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_credentials_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_onchain_claims_use_case.dart';
@@ -37,6 +40,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/interaction/get
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/interaction/remove_interactions_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/interaction/update_interaction_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
+import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart';
 
 abstract class PolygonIdSdkIden3comm {
   /// Returns a [Iden3MessageEntity] from an iden3comm message string.
@@ -293,6 +297,18 @@ abstract class PolygonIdSdkIden3comm {
     String? blockchain,
     String? network,
   });
+
+  Future<ZKProofEntity> getAnonAadhaarProof({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  });
+
+  Future<ClaimEntity> getAnonAadhaarCredential({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  });
 }
 
 @injectable
@@ -319,6 +335,8 @@ class Iden3comm implements PolygonIdSdkIden3comm {
   final RemoveDidProfileInfoUseCase _removeDidProfileInfoUseCase;
   final GetAuthTokenUseCase _getAuthTokenUseCase;
   final FetchCredentialsUseCase _fetchCredentialsUseCase;
+  final CreateAnonAadhaarCredentialUseCase _createAnonAadhaarCredentialUseCase;
+  final CreateAnonAadhaarProofUseCase _createAnonAadhaarProofUseCase;
 
   Iden3comm(
     this._fetchAndSaveClaimsUseCase,
@@ -343,6 +361,8 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     this._removeDidProfileInfoUseCase,
     this._getAuthTokenUseCase,
     this._fetchCredentialsUseCase,
+    this._createAnonAadhaarCredentialUseCase,
+    this._createAnonAadhaarProofUseCase,
   );
 
   @override
@@ -705,6 +725,36 @@ class Iden3comm implements PolygonIdSdkIden3comm {
       profileNonce: profileNonce,
       blockchain: blockchain,
       network: network,
+    );
+  }
+
+  @override
+  Future<ZKProofEntity> getAnonAadhaarProof({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  }) async {
+    return _createAnonAadhaarProofUseCase.execute(
+      param: CreateAnonAadhaarProofParam(
+        qrData: qrData,
+        profileDid: profileDid,
+        selfIssuedCredentialParams: selfIssuedCredentialParams,
+      ),
+    );
+  }
+
+  @override
+  Future<ClaimEntity> getAnonAadhaarCredential({
+    required String qrData,
+    required String profileDid,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+  }) {
+    return _createAnonAadhaarCredentialUseCase.execute(
+      param: CreateAnonAadhaarCredentialParam(
+        qrData: qrData,
+        profileDid: profileDid,
+        selfIssuedCredentialParams: selfIssuedCredentialParams,
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:polygonid_flutter_sdk/common/utils/format_utils.dart';
 import 'package:polygonid_flutter_sdk/credential/data/dtos/claim_info_dto.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/self_issuance/self_issued_credential_params.dart';
 import 'package:polygonid_flutter_sdk/identity/data/dtos/circuit_type.dart';
 
 abstract class AtomicQueryInputsParam {
@@ -128,4 +129,55 @@ class GenericAtomicQueryInputsParam extends AtomicQueryInputsParam {
 
     return inputs;
   }
+}
+
+class AnonAadhaarInputsParam extends AtomicQueryInputsParam {
+  final String qrData;
+  final String credentialSubjectID;
+  final int revocationNonce;
+  final String credentialStatusID;
+  final String issuerDid;
+  final String publicKey;
+  final int nullifierSeed;
+  final int signalHash;
+
+  AnonAadhaarInputsParam({
+    required this.qrData,
+    required this.credentialSubjectID,
+    required this.revocationNonce,
+    required this.credentialStatusID,
+    required this.issuerDid,
+    required this.publicKey,
+    required this.nullifierSeed,
+    required this.signalHash,
+  });
+
+  AnonAadhaarInputsParam.fromSelfIssuedCredentialParams({
+    required this.qrData,
+    required this.credentialSubjectID,
+    required SelfIssuedCredentialParams params,
+  })  : revocationNonce = params.revocationNonce,
+        credentialStatusID = params.credentialStatusID,
+        issuerDid = params.issuerDid,
+        publicKey = params.publicKey,
+        nullifierSeed = params.nullifierSeed,
+        signalHash = params.signalHash;
+
+  @override
+  String get id => credentialSubjectID;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "qrData": qrData,
+        "credentialSubjectID": credentialSubjectID,
+        "credentialStatusRevocationNonce": revocationNonce,
+        "credentialStatusID": credentialStatusID,
+        "issuerID": issuerDid,
+        "pubKey": publicKey,
+        "nullifierSeed": nullifierSeed,
+        "signalHash": signalHash,
+        "request": {
+          "circuitId": "anonAadhaarV1",
+        },
+      };
 }
