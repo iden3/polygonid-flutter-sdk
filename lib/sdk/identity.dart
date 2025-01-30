@@ -70,10 +70,11 @@ abstract class PolygonIdSdkIdentity {
   /// using the credentials associated to the identity
   ///
   ///  The [encryptedDb] is an encrypted Identity's Database
-  Future<PrivateIdentityEntity> restoreIdentity(
-      {required String genesisDid,
-      required String privateKey,
-      String? encryptedDb});
+  Future<PrivateIdentityEntity> restoreIdentity({
+    required String genesisDid,
+    required String privateKey,
+    String? encryptedDb,
+  });
 
   /// Backup a previously stored [IdentityEntity] from a privateKey
   /// associated to the identity
@@ -107,8 +108,10 @@ abstract class PolygonIdSdkIdentity {
   /// in order to be compatible with the SDK. The following rules will be applied:
   /// - If the byte array is not 32 length, it will be padded with 0s.
   /// - If the byte array is longer than 32, an exception will be thrown.
-  Future<IdentityEntity> getIdentity(
-      {required String genesisDid, String? privateKey});
+  Future<IdentityEntity> getIdentity({
+    required String genesisDid,
+    String? privateKey,
+  });
 
   /// Get a list of public info of [IdentityEntity] associated
   /// to the identities stored in the Polygon ID Sdk.
@@ -130,8 +133,10 @@ abstract class PolygonIdSdkIdentity {
   ///
   /// Throws [IdentityException] if an error occurs.
   @override
-  Future<void> removeIdentity(
-      {required String genesisDid, required String privateKey});
+  Future<void> removeIdentity({
+    required String genesisDid,
+    required String privateKey,
+  });
 
   /// Returns the did identifier derived from a privateKey
   ///
@@ -149,11 +154,12 @@ abstract class PolygonIdSdkIdentity {
   /// to obtain the did identifier. Value must be greater than 0 and less than 2^248
   ///
   /// Return The Identity's [did] identifier
-  Future<String> getDidIdentifier(
-      {required String privateKey,
-      required String blockchain,
-      required String network,
-      BigInt? profileNonce});
+  Future<String> getDidIdentifier({
+    required String privateKey,
+    required String blockchain,
+    required String network,
+    BigInt? profileNonce,
+  });
 
   /// Returns the [DidEntity] from a did
   Future<DidEntity> getDidEntity({required String did});
@@ -205,10 +211,11 @@ abstract class PolygonIdSdkIdentity {
   /// to obtain the did identifier. Value must be greater than 0 and less than 2^248
   ///
   /// The profile will be removed using the current env set with [PolygonIdSdk.setEnv]
-  Future<void> removeProfile(
-      {required String genesisDid,
-      required String privateKey,
-      required BigInt profileNonce});
+  Future<void> removeProfile({
+    required String genesisDid,
+    required String privateKey,
+    required BigInt profileNonce,
+  });
 
   /// Gets a map of profile nonce as key and profile did as value associated
   /// to the identity derived from private key and stored in the Polygon ID Sdk.
@@ -221,8 +228,10 @@ abstract class PolygonIdSdkIdentity {
   /// Returns a map of <BigInt, String>.
   ///
   /// The returned profiles will come from the current env set with [PolygonIdSdk.setEnv]
-  Future<Map<BigInt, String>> getProfiles(
-      {required String genesisDid, required String privateKey});
+  Future<Map<BigInt, String>> getProfiles({
+    required String genesisDid,
+    required String privateKey,
+  });
 }
 
 @injectable

@@ -119,6 +119,13 @@ If you want to deploy your own State Contract, please check the [contract docume
 
 You can get the current env using [PolygonIdSdk.I.getEnv()](lib/sdk/polygon_id_sdk.dart#L76).
 
+4. Circuits download
+
+You can use `PolygonIdSdk.I.proof.initCircuitsDownloadAndGetInfoStream` to init circuits download and `PolygonIdSdk.I.proof.proofGenerationStepsStream` to track progress.
+It expects the downloaded file to .zip format. It will download the circuits from the server and extract them to the app's internal storage.
+`getApplicationDocumentsDirectory` is used to get the path to the internal storage.
+To check if the circuits are downloaded, you can use `PolygonIdSdk.I.proof.isAlreadyDownloadedCircuitsFromServer`.
+
 # Witness calculation
 
 To generate proofs, you need to use witness calculation data (.wcd) files. Common .wcd files are provided in the [assets](assets) folder.
@@ -140,25 +147,15 @@ For iOS only:
 post_install do |installer|  
   installer.pods_project.targets.each do |target|
     ...
-    end
     # polygonid-setup
-      target.build_configurations.each do |config|
-        cflags = config.build_settings['OTHER_CFLAGS'] || ['$(inherited)']
-        cflags << '-fembed-bitcode'
-        config.build_settings['OTHER_CFLAGS'] = cflags
-        config.build_settings['SWIFT_VERSION'] = '5.0'
-        config.build_settings['ENABLE_BITCODE'] = 'NO'
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
-        config.build_settings['STRIP_STYLE'] = 'non-global'
-      end
-    if target.name == "Pods-Runner"
-      puts "Updating #{target.name} OTHER_LDFLAGS"
-      target.build_configurations.each do |config|
-        xcconfig_path = config.base_configuration_reference.real_path
-        xcconfig = File.read(xcconfig_path)
-        new_xcconfig = xcconfig.sub('OTHER_LDFLAGS = $(inherited)', 'OTHER_LDFLAGS = $(inherited) -force_load "${PODS_ROOT}/../.symlinks/plugins/polygonid_flutter_sdk/ios/libwitnesscalc_authV2.a" -force_load "${PODS_ROOT}/../.symlinks/plugins/polygonid_flutter_sdk/ios/libwitnesscalc_credentialAtomicQueryMTPV2.a" -force_load "${PODS_ROOT}/../.symlinks/plugins/polygonid_flutter_sdk/ios/libwitnesscalc_credentialAtomicQuerySigV2.a" -force_load "${PODS_ROOT}/../.symlinks/plugins/polygonid_flutter_sdk/ios/libwitnesscalc_credentialAtomicQueryMTPV2OnChain.a" -force_load "${PODS_ROOT}/../.symlinks/plugins/polygonid_flutter_sdk/ios/libwitnesscalc_credentialAtomicQuerySigV2OnChain.a"')
-        File.open(xcconfig_path, "w") { |file| file << new_xcconfig }
-      end
+    target.build_configurations.each do |config|
+      cflags = config.build_settings['OTHER_CFLAGS'] || ['$(inherited)']
+      cflags << '-fembed-bitcode'
+      config.build_settings['OTHER_CFLAGS'] = cflags
+      config.build_settings['SWIFT_VERSION'] = '5.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      config.build_settings['STRIP_STYLE'] = 'non-global'
     end
   end
 end
