@@ -24,6 +24,8 @@ import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:web3dart/web3dart.dart';
 
 abstract class PolygonIdSdkProof {
+  /// Prove method to generate a ZKProof
+  /// [identifier] -
   Future<ZKProofEntity> prove({
     required String identifier,
     required BigInt profileNonce,
@@ -41,20 +43,33 @@ abstract class PolygonIdSdkProof {
     Map<String, dynamic>? config,
   });
 
+  /// Get crosschain proofs from the universal resolver
+  /// [universalResolverUrl] - the universal resolver URL
+  /// [stateInfo] - the public states info
+  /// Returns a list of [MessageWithSignature] - the crosschain proofs
   Future<List<MessageWithSignature>> getCrosschainProofs({
     required String universalResolverUrl,
     required List<PublicStatesInfo> stateInfo,
   });
 
+  /// Initialize the download of circuits and get the download info stream
+  /// [circuitsToDownload] - the circuits to download
+  /// Returns a [Stream] of [DownloadInfo] - the download info stream
   Stream<DownloadInfo> initCircuitsDownloadAndGetInfoStream({
     required List<CircuitsToDownloadParam> circuitsToDownload,
   });
 
-  Future<bool> isAlreadyDownloadedCircuitsFromServer(
-      {required String circuitsFileName});
+  /// Check if the circuits are already downloaded from the server
+  /// [circuitsFileName] - the circuits file name
+  /// Returns a [Future] of [bool] - true if the circuits are already downloaded, false otherwise
+  Future<bool> isAlreadyDownloadedCircuitsFromServer({
+    required String circuitsFileName,
+  });
 
+  /// Returns a [Stream] of [String] of proof generation steps
   Stream<String> proofGenerationStepsStream();
 
+  /// Cancel the download of circuits
   Future<void> cancelDownloadCircuits();
 }
 
@@ -133,17 +148,20 @@ class Proof implements PolygonIdSdkProof {
     );
   }
 
-  ///
+  /// Check if the circuits are already downloaded from the server
   @override
-  Future<bool> isAlreadyDownloadedCircuitsFromServer(
-      {required String circuitsFileName}) async {
+  Future<bool> isAlreadyDownloadedCircuitsFromServer({
+    required String circuitsFileName,
+  }) async {
     _stacktraceManager.clear();
     _stacktraceManager.addTrace(
         "PolygonIdSdk.Proof.isAlreadyDownloadedCircuitsFromServer called");
     return _circuitsFilesExistUseCase.execute(param: circuitsFileName);
   }
 
-  ///
+  /// Initialize the download of circuits and get the download info stream
+  /// [circuitsToDownload] - the circuits to download
+  /// Returns a [Stream] of [DownloadInfo] - the download info stream
   @override
   Stream<DownloadInfo> initCircuitsDownloadAndGetInfoStream({
     required List<CircuitsToDownloadParam> circuitsToDownload,

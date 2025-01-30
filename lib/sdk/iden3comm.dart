@@ -264,27 +264,43 @@ abstract class PolygonIdSdkIden3comm {
     required Map<String, dynamic> info,
   });
 
-  ///
+  /// Get info about a did we interacted with.
+  /// [did] is the did of the identity we used to interact
+  /// [privateKey] is the key used to access the sensitive info
+  /// [interactedWithDid] is the did of the identity we interacted with
   Future<Map<String, dynamic>> getDidProfileInfo({
     required String did,
     required String privateKey,
     required String interactedWithDid,
   });
 
-  ///
+  /// Get a list of info about dids we interacted with.
+  /// [did] is the did of the identity we used to interact
+  /// [privateKey] is the key used to access the sensitive info
+  /// [filters] is a list of filters to apply to the list
   Future<List<Map<String, dynamic>>> getDidProfileInfoList({
     required String did,
     required String privateKey,
     required List<FilterEntity>? filters,
   });
 
-  ///
+  /// Remove info about a did we interacted with
+  /// [did] is the did of the identity we used to interact
+  /// [privateKey] is the key used to access the sensitive info
+  /// [interactedWithDid] is the did of the identity we interacted with
   Future<void> removeDidProfileInfo({
     required String did,
     required String privateKey,
     required String interactedWithDid,
   });
 
+  /// Fetches credential using the [credentialOfferMessage] and returns it without saving.
+  /// [credentialOfferMessage] is the message received from the issuer
+  /// [privateKey] is the key used to access the sensitive info
+  /// [genesisDid] is the unique id of the identity
+  /// [profileNonce] is the nonce of the profile used from identity to create the did identifier
+  /// [blockchain] is optional param to specify the blockchain to fetch the credentials from
+  /// [network] is optional param to specify the network to fetch the credentials from
   Future<List<ClaimEntity>> fetchCredentials({
     required CredentialOfferMessageEntity credentialOfferMessage,
     required String privateKey,

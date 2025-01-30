@@ -98,36 +98,42 @@ class PolygonIdSdk {
 
   PolygonIdSdk._();
 
+  /// Set the environment for the SDK to operate
   Future<void> setEnv({required EnvEntity env}) {
     return getItSdk
         .getAsync<SetEnvUseCase>()
         .then((instance) => instance.execute(param: env));
   }
 
+  /// Get the current set environment for the SDK
   Future<EnvEntity> getEnv() {
     return getItSdk
         .getAsync<GetEnvUseCase>()
         .then((instance) => instance.execute());
   }
 
+  /// Get the current selected chain configuration
   Future<ChainConfigEntity> getSelectedChain() {
     return getItSdk
         .getAsync<GetSelectedChainUseCase>()
         .then((instance) => instance.execute());
   }
 
+  /// Get the current selected chain id
   Future<String?> getSelectedChainId() {
     return getItSdk
         .getAsync<ConfigRepository>()
         .then((instance) => instance.getSelectedChainId());
   }
 
+  /// Set the selected chain configuration by its id
   Future<void> setSelectedChain({required String chainConfigId}) {
     return getItSdk
         .getAsync<SetSelectedChainUseCase>()
         .then((instance) => instance.execute(param: chainConfigId));
   }
 
+  /// Switch the log on or off
   Future<void> switchLog({required bool enabled}) async {
     Domain.logEnabled = enabled;
   }
