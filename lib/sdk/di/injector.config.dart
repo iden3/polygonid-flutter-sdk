@@ -141,6 +141,10 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/check_profile_a
     as _i505;
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/clean_schema_cache_use_case.dart'
     as _i359;
+import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_credential_use_case.dart'
+    as _i352;
+import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_proof_use_case.dart'
+    as _i39;
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_and_save_claims_use_case.dart'
     as _i102;
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_credentials_use_case.dart'
@@ -790,6 +794,13 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i294.ClaimMapper>(),
               gh<_i267.StacktraceManager>(),
             ));
+    gh.factoryAsync<_i352.CreateAnonAadhaarCredentialUseCase>(
+        () async => _i352.CreateAnonAadhaarCredentialUseCase(
+              gh<_i758.LibPolygonIdCoreCredentialDataSource>(),
+              gh<_i409.RemoteIden3commDataSource>(),
+              await getAsync<_i626.GetEnvUseCase>(),
+              gh<_i294.ClaimMapper>(),
+            ));
     gh.factory<_i392.GetAuthClaimUseCase>(() => _i392.GetAuthClaimUseCase(
           gh<_i309.CredentialRepository>(),
           gh<_i267.StacktraceManager>(),
@@ -805,6 +816,12 @@ extension GetItInjectableX on _i174.GetIt {
           await getAsync<_i341.ProofRepository>(),
           gh<_i267.StacktraceManager>(),
         ));
+    gh.factoryAsync<_i39.CreateAnonAadhaarProofUseCase>(
+        () async => _i39.CreateAnonAadhaarProofUseCase(
+              await getAsync<_i626.GetEnvUseCase>(),
+              gh<_i41.LibPolygonIdCoreWrapper>(),
+              await getAsync<_i310.ProveUseCase>(),
+            ));
     gh.factoryAsync<_i746.GenerateZKProofUseCase>(
         () async => _i746.GenerateZKProofUseCase(
               await getAsync<_i341.ProofRepository>(),
@@ -1235,6 +1252,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i646.RemoveDidProfileInfoUseCase>(),
           await getAsync<_i871.GetAuthTokenUseCase>(),
           await getAsync<_i709.FetchCredentialsUseCase>(),
+          await getAsync<_i352.CreateAnonAadhaarCredentialUseCase>(),
+          await getAsync<_i39.CreateAnonAadhaarProofUseCase>(),
         ));
     return this;
   }
