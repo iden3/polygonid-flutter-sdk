@@ -39,11 +39,12 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_response.dart';
 import 'contract_function_call_body_tx_data_request.dart';
 
 class ContractFunctionCallResponseBody {
   final ContractFunctionCallBodyTxDataRequest transactionData;
-  final List<ProofScopeRequest> scope;
+  final List<ProofScopeResponse> scope;
   final Map<String, dynamic>? didDoc;
 
   ContractFunctionCallResponseBody({
@@ -60,8 +61,8 @@ class ContractFunctionCallResponseBody {
     ContractFunctionCallBodyTxDataRequest transactionData =
         ContractFunctionCallBodyTxDataRequest.fromJson(
             json['transaction_data']);
-    List<ProofScopeRequest> scope = (json['scope'] as List)
-        .map((item) => ProofScopeRequest.fromJson(item))
+    List<ProofScopeResponse> scope = (json['scope'] as List)
+        .map((item) => ProofScopeResponse.fromJson(item))
         .toList();
     return ContractFunctionCallResponseBody(
       transactionData: transactionData,
