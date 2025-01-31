@@ -38,7 +38,6 @@
 */
 
 import 'package:flutter/foundation.dart';
-import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_response.dart';
 import 'contract_function_call_body_tx_data_request.dart';
 
