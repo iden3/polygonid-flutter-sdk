@@ -41,12 +41,12 @@ import 'package:flutter/foundation.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/request/proof_scope_request.dart';
 import 'contract_function_call_body_tx_data_request.dart';
 
-class ContractFunctionCallBodyResponse {
+class ContractFunctionCallResponseBody {
   final ContractFunctionCallBodyTxDataRequest transactionData;
   final List<ProofScopeRequest> scope;
   final Map<String, dynamic>? didDoc;
 
-  ContractFunctionCallBodyResponse({
+  ContractFunctionCallResponseBody({
     required this.transactionData,
     required this.scope,
     this.didDoc,
@@ -56,14 +56,14 @@ class ContractFunctionCallBodyResponse {
   ///
   /// @param [Map<String, dynamic>] json
   /// @returns [ContractFunctionCallBodyRequest]
-  factory ContractFunctionCallBodyResponse.fromJson(Map<String, dynamic> json) {
+  factory ContractFunctionCallResponseBody.fromJson(Map<String, dynamic> json) {
     ContractFunctionCallBodyTxDataRequest transactionData =
         ContractFunctionCallBodyTxDataRequest.fromJson(
             json['transaction_data']);
     List<ProofScopeRequest> scope = (json['scope'] as List)
         .map((item) => ProofScopeRequest.fromJson(item))
         .toList();
-    return ContractFunctionCallBodyResponse(
+    return ContractFunctionCallResponseBody(
       transactionData: transactionData,
       scope: scope,
       didDoc: json['did_doc'],
@@ -83,7 +83,7 @@ class ContractFunctionCallBodyResponse {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ContractFunctionCallBodyResponse &&
+      other is ContractFunctionCallResponseBody &&
           runtimeType == other.runtimeType &&
           transactionData == other.transactionData &&
           didDoc == other.didDoc &&

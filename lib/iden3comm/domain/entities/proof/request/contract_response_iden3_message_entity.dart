@@ -41,7 +41,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/common/iden3_mes
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/request/contract_function_call_body_response.dart';
 
 class ContractResponseIden3MessageEntity
-    extends Iden3MessageEntity<ContractFunctionCallBodyResponse> {
+    extends Iden3MessageEntity<ContractFunctionCallResponseBody> {
   ContractResponseIden3MessageEntity({
     required super.id,
     String? typ,
@@ -63,7 +63,7 @@ class ContractResponseIden3MessageEntity
   /// @returns [ContractIden3MessageEntity]
   factory ContractResponseIden3MessageEntity.fromJson(
       Map<String, dynamic> json) {
-    final body = ContractFunctionCallBodyResponse.fromJson(json['body']);
+    final body = ContractFunctionCallResponseBody.fromJson(json['body']);
     return ContractResponseIden3MessageEntity(
       id: json['id'],
       typ: json['typ'] ?? '',
