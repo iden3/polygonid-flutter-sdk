@@ -15,6 +15,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/credential/respo
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/response/payment_request_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/payment/payment_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/request/contract_iden3_message_entity.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/proof/request/contract_response_iden3_message_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 
 class GetIden3MessageUseCase extends FutureUseCase<String, Iden3MessageEntity> {
@@ -45,6 +46,8 @@ class GetIden3MessageUseCase extends FutureUseCase<String, Iden3MessageEntity> {
           return FetchIden3MessageEntity.fromJson(json);
         case Iden3MessageType.proofContractInvokeRequest:
           return ContractIden3MessageEntity.fromJson(json);
+        case Iden3MessageType.proofContractInvokeResponse:
+          return ContractResponseIden3MessageEntity.fromJson(json);
         case Iden3MessageType.credentialRefresh:
           return CredentialRefreshIden3MessageEntity.fromJson(json);
         case Iden3MessageType.credentialStatusUpdate:
