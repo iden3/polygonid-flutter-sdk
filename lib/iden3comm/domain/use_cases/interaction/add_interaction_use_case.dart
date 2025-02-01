@@ -6,14 +6,14 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/inte
 import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/interaction_repository.dart';
 
 class AddInteractionParam {
-  final String? genesisDid;
-  final String? privateKey;
   final InteractionBaseEntity interaction;
+  final String genesisDid;
+  final String encryptionKey;
 
   AddInteractionParam({
-    this.genesisDid,
-    this.privateKey,
     required this.interaction,
+    required this.genesisDid,
+    required this.encryptionKey,
   });
 }
 
@@ -32,22 +32,11 @@ class AddInteractionUseCase
     required AddInteractionParam param,
   }) async {
     try {
-      // if genesisDid and privateKey are not provided we throw an exception
-      if (param.genesisDid == null || param.privateKey == null) {
-        _stacktraceManager.addTrace(
-            "[AddInteractionUseCase] GenesisDid and PrivateKey are required to add an interaction");
-        throw PolygonIdSDKException(
-          errorMessage:
-              "GenesisDid and PrivateKey are required to add an interaction",
-        );
-      }
-
       // we add the interaction and return it
-      InteractionBaseEntity addedInteraction =
-          await _interactionRepository.addInteraction(
+      final addedInteraction = await _interactionRepository.addInteraction(
         interaction: param.interaction,
         genesisDid: param.genesisDid,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       );
 
       logger().i("[AddInteractionUseCase] Interaction: $addedInteraction");

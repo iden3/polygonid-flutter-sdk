@@ -90,11 +90,11 @@ class _EncryptCodec extends Codec<Map<String, dynamic>, String> {
 
 // Salsa20 (16 length key required) or AES (32 length key required)
 SembastCodec getEncryptSembastCodec({
-  required String password,
+  required String encryptionKey,
   EncryptType signature = EncryptType.salsa20,
 }) {
   return SembastCodec(
     signature: signature.toString(),
-    codec: _EncryptCodec(password, signature),
+    codec: _EncryptCodec(encryptionKey, signature),
   );
 }

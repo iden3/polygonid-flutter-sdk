@@ -28,29 +28,31 @@ class GetProfilesUseCase
   );
 
   @override
-  Future<Map<BigInt, String>> execute({required GetProfilesParam param}) {
-    return _checkProfileAndDidCurrentEnvUseCase
-        .execute(
-            param: CheckProfileAndDidCurrentEnvParam(
-                did: param.genesisDid,
-                privateKey: param.privateKey,
-                profileNonce: BigInt.zero))
-        .then((_) => _getIdentityUseCase
-                .execute(param: GetIdentityParam(genesisDid: param.genesisDid))
-                .then((identity) => identity.profiles)
-                .then((profiles) {
-              _stacktraceManager.addTrace(
-                  "[GetProfilesUseCase] Profiles for $param are: $profiles");
-              logger()
-                  .i("[GetProfilesUseCase] Profiles for $param are: $profiles");
+  Future<Map<BigInt, String>> execute({required GetProfilesParam param}) async {
+    try {
+      await _checkProfileAndDidCurrentEnvUseCase.execute(
+        param: CheckProfileAndDidCurrentEnvParam.withPrivateKey(
+          did: param.genesisDid,
+          privateKey: param.privateKey,
+          profileNonce: BigInt.zero,
+        ),
+      );
 
-              return profiles;
-            }))
-        .catchError((error) {
+      final identity = await _getIdentityUseCase.execute(
+        param: GetIdentityParam(genesisDid: param.genesisDid),
+      );
+      final profiles = identity.profiles;
+
+      _stacktraceManager
+          .addTrace("[GetProfilesUseCase] Profiles for $param are: $profiles");
+      logger().i("[GetProfilesUseCase] Profiles for $param are: $profiles");
+
+      return profiles;
+    } catch (error) {
       _stacktraceManager.addTrace("[GetProfilesUseCase] Error: $error");
       _stacktraceManager.addError("[GetProfilesUseCase] Error: $error");
       logger().e("[GetProfilesUseCase] Error: $error");
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

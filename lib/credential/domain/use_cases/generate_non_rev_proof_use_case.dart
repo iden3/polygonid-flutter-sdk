@@ -31,45 +31,47 @@ class GenerateNonRevProofUseCase
   );
 
   @override
-  Future<Map<String, dynamic>> execute(
-      {required GenerateNonRevProofParam param}) {
-    return _credentialRepository
-        .getIssuerIdentifier(claim: param.claim)
-        .then((id) => _fetchIdentityStateUseCase.execute(param: id))
-        .then((identityState) {
-      if (param.nonRevProof != null &&
-          param.nonRevProof!.isNotEmpty &&
-          identityState == param.nonRevProof!["issuer"]["state"]) {
+  Future<Map<String, dynamic>> execute({
+    required GenerateNonRevProofParam param,
+  }) async {
+    try {
+      final issuerId =
+          await _credentialRepository.getIssuerIdentifier(claim: param.claim);
+      final identityState =
+          await _fetchIdentityStateUseCase.execute(param: issuerId);
+
+      final existingNonRevProof = param.nonRevProof;
+      if (existingNonRevProof != null &&
+          existingNonRevProof.isNotEmpty &&
+          identityState == existingNonRevProof["issuer"]["state"]) {
         _stacktraceManager
             .addTrace("[GenerateNonRevProofUseCase] Non rev proof");
         return param.nonRevProof!;
-      } else {
-        return Future.wait<dynamic>([
-          _credentialRepository.getRevocationNonce(
-              claim: param.claim, rhs: true),
-          _credentialRepository.getRevocationUrl(claim: param.claim, rhs: true),
-        ])
-            .then((values) => _identityRepository.getNonRevProof(
-                identityState: identityState,
-                nonce: BigInt.from(values[0]),
-                baseUrl: values[1],
-                cachedNonRevProof: param.nonRevProof))
-            .then((nonRevProof) {
-          _stacktraceManager
-              .addTrace("[GenerateNonRevProofUseCase] Non rev proof");
-          logger()
-              .i("[GenerateNonRevProofUseCase] Non rev proof: $nonRevProof");
-
-          return nonRevProof;
-        }).catchError((error) {
-          _stacktraceManager
-              .addTrace("[GenerateNonRevProofUseCase] Error: $error");
-          logger().e("[GenerateNonRevProofUseCase] Error: $error");
-          _stacktraceManager
-              .addError("[GenerateNonRevProofUseCase] Error: $error");
-          throw error;
-        });
       }
-    });
+
+      final nonceAndUrl = await Future.wait<dynamic>([
+        _credentialRepository.getRevocationNonce(claim: param.claim, rhs: true),
+        _credentialRepository.getRevocationUrl(claim: param.claim, rhs: true),
+      ]);
+      final nonce = BigInt.from(nonceAndUrl[0]);
+      final baseUrl = nonceAndUrl[1] as String;
+
+      final nonRevProof = await _identityRepository.getNonRevProof(
+        identityState: identityState,
+        nonce: nonce,
+        baseUrl: baseUrl,
+        cachedNonRevProof: param.nonRevProof,
+      );
+
+      _stacktraceManager.addTrace("[GenerateNonRevProofUseCase] Non rev proof");
+      logger().i("[GenerateNonRevProofUseCase] Non rev proof: $nonRevProof");
+
+      return nonRevProof;
+    } catch (error) {
+      _stacktraceManager.addTrace("[GenerateNonRevProofUseCase] Error: $error");
+      logger().e("[GenerateNonRevProofUseCase] Error: $error");
+      _stacktraceManager.addError("[GenerateNonRevProofUseCase] Error: $error");
+      rethrow;
+    }
   }
 }

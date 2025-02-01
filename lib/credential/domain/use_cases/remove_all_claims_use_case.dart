@@ -6,11 +6,11 @@ import '../repositories/credential_repository.dart';
 
 class RemoveAllClaimsParam {
   final String did;
-  final String privateKey;
+  final String encryptionKey;
 
   RemoveAllClaimsParam({
     required this.did,
-    required this.privateKey,
+    required this.encryptionKey,
   });
 }
 
@@ -25,20 +25,19 @@ class RemoveAllClaimsUseCase extends FutureUseCase<RemoveAllClaimsParam, void> {
 
   @override
   Future<void> execute({required RemoveAllClaimsParam param}) async {
-    return _credentialRepository
-        .removeAllClaims(
-      genesisDid: param.did,
-      privateKey: param.privateKey,
-    )
-        .then((_) {
+    try {
+      await _credentialRepository.removeAllClaims(
+        genesisDid: param.did,
+        encryptionKey: param.encryptionKey,
+      );
       logger().i("[RemoveAllClaimsUseCase] Claims have been removed: $param");
       _stacktraceManager.addTrace(
           "[RemoveAllClaimsUseCase] Claims have been removed: $param");
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[RemoveAllClaimsUseCase] Error: $error");
       _stacktraceManager.addTrace("[RemoveAllClaimsUseCase] Error: $error");
       _stacktraceManager.addError("[RemoveAllClaimsUseCase] Error: $error");
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

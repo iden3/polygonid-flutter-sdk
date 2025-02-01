@@ -42,21 +42,32 @@ class RestoreIdentityUseCase
   Future<PrivateIdentityEntity> execute({
     required RestoreIdentityParam param,
   }) async {
-    late PrivateIdentityEntity privateIdentity;
+    late IdentityEntity identity;
+    final encryptionKey = param.privateKey;
+    final publicKey = await _identityRepository.getPublicKeys(
+      bjjPrivateKey: param.privateKey,
+    );
 
     try {
-      final publicKey =
-          await _identityRepository.getPublicKeys(privateKey: param.privateKey);
       String genesisDid = await _getCurrentEnvDidIdentifierUseCase.execute(
-          param: GetCurrentEnvDidIdentifierParam(
-              publicKey: publicKey, profileNonce: GENESIS_PROFILE_NONCE));
-      privateIdentity = await _getIdentityUseCase.execute(
-          param: GetIdentityParam(
-              genesisDid: genesisDid,
-              privateKey: param.privateKey)) as PrivateIdentityEntity;
+        param: GetCurrentEnvDidIdentifierParam(
+          bjjPublicKey: publicKey,
+          profileNonce: GENESIS_PROFILE_NONCE,
+        ),
+      );
+      identity = await _getIdentityUseCase.execute(
+        param: GetIdentityParam(
+          genesisDid: genesisDid,
+          publicKey: publicKey,
+        ),
+      );
     } on UnknownIdentityException {
-      privateIdentity = await _addIdentityUseCase.execute(
-          param: AddIdentityParam(privateKey: param.privateKey));
+      identity = await _addIdentityUseCase.execute(
+        param: AddIdentityParam(
+          bjjPublicKey: publicKey,
+          encryptionKey: encryptionKey,
+        ),
+      );
     } catch (error) {
       logger().e("[RestoreIdentityUseCase] Error: $error");
 
@@ -66,20 +77,27 @@ class RestoreIdentityUseCase
     try {
       if (param.encryptedDb != null) {
         await _identityRepository.importIdentity(
-          did: privateIdentity.did,
-          privateKey: param.privateKey,
+          did: identity.did,
           encryptedDb: param.encryptedDb!,
+          encryptionKey: encryptionKey,
         );
         await _restoreProfilesUseCase.execute(
-            param: RestoreProfilesParam(
-          privateIdentity.did,
-          param.privateKey,
-        ));
+          param: RestoreProfilesParam(
+            genesisDid: identity.did,
+            encryptionKey: encryptionKey,
+          ),
+        );
       }
 
       logger().i(
-          "[RestoreIdentityUseCase] Identity restored with did: ${privateIdentity.did}, for key $param");
-      return privateIdentity;
+          "[RestoreIdentityUseCase] Identity restored with did: ${identity.did}, for key $param");
+
+      return PrivateIdentityEntity(
+        did: identity.did,
+        publicKey: identity.publicKey,
+        profiles: identity.profiles,
+        privateKey: param.privateKey,
+      );
     } catch (error) {
       logger().e("[RestoreIdentityUseCase] Error: $error");
 

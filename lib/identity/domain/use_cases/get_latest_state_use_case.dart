@@ -7,9 +7,12 @@ import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repositor
 
 class GetLatestStateParam {
   final String did;
-  final String privateKey;
+  final String encryptionKey;
 
-  GetLatestStateParam({required this.did, required this.privateKey});
+  GetLatestStateParam({
+    required this.did,
+    required this.encryptionKey,
+  });
 }
 
 class GetLatestStateUseCase
@@ -29,17 +32,17 @@ class GetLatestStateUseCase
         _smtRepository.getRoot(
           type: TreeType.claims,
           did: param.did,
-          privateKey: param.privateKey,
+          encryptionKey: param.encryptionKey,
         ),
         _smtRepository.getRoot(
           type: TreeType.revocation,
           did: param.did,
-          privateKey: param.privateKey,
+          encryptionKey: param.encryptionKey,
         ),
         _smtRepository.getRoot(
           type: TreeType.roots,
           did: param.did,
-          privateKey: param.privateKey,
+          encryptionKey: param.encryptionKey,
         ),
       ],
       eagerError: true,

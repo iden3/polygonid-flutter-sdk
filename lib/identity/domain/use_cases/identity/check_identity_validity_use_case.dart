@@ -7,13 +7,13 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_pri
 
 class CheckIdentityValidityUseCase extends FutureUseCase<String, void> {
   final GetPrivateKeyUseCase _getPrivateKeyUseCase;
-  final GetPublicKeysUseCase _getPublicKeysUseCase;
+  final GetPublicKeyUseCase _getPublicKeyUseCase;
   final GetCurrentEnvDidIdentifierUseCase _getCurrentEnvDidIdentifierUseCase;
   final StacktraceManager _stacktraceManager;
 
   CheckIdentityValidityUseCase(
     this._getPrivateKeyUseCase,
-    this._getPublicKeysUseCase,
+    this._getPublicKeyUseCase,
     this._getCurrentEnvDidIdentifierUseCase,
     this._stacktraceManager,
   );
@@ -22,10 +22,10 @@ class CheckIdentityValidityUseCase extends FutureUseCase<String, void> {
   Future<void> execute({required String param}) {
     return Future(() async {
       final privateKey = await _getPrivateKeyUseCase.execute(param: param);
-      final publicKey = await _getPublicKeysUseCase.execute(param: privateKey);
+      final publicKey = await _getPublicKeyUseCase.execute(param: privateKey);
       await _getCurrentEnvDidIdentifierUseCase.execute(
         param: GetCurrentEnvDidIdentifierParam(
-          publicKey: publicKey,
+          bjjPublicKey: publicKey,
           profileNonce: BigInt.zero,
         ),
       );

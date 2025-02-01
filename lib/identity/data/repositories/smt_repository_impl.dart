@@ -22,7 +22,7 @@ class SMTRepositoryImpl implements SMTRepository {
   //   required HashEntity value,
   //   required TreeType type,
   //   required String did,
-  //   required String privateKey}) async {
+  //   required String encryptionKey}) async {
   //   final keyHash = (key);
   //   final valueHash = (value);
   //   final oneHash = HashDTO.fromBigInt(BigInt.one);
@@ -37,7 +37,7 @@ class SMTRepositoryImpl implements SMTRepository {
   //       newNodeLeaf: newNodeLeaf,
   //       storeName: _treeTypeMapper.mapTo(type),
   //       did: did,
-  //       privateKey: privateKey)
+  //       encryptionKey: encryptionKey)
   //       .then((dto) => _hashMapper.mapFrom(dto)); // returns new root
   // }
 
@@ -45,13 +45,13 @@ class SMTRepositoryImpl implements SMTRepository {
     required NodeEntity leaf,
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _smtDataSource.addLeaf(
       newNodeLeaf: leaf,
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -60,13 +60,13 @@ class SMTRepositoryImpl implements SMTRepository {
     required HashEntity hash,
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _storageSMTDataSource.getNode(
       key: hash,
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -74,12 +74,12 @@ class SMTRepositoryImpl implements SMTRepository {
   Future<HashEntity> getRoot({
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _storageSMTDataSource.getRoot(
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -89,28 +89,29 @@ class SMTRepositoryImpl implements SMTRepository {
     required NodeEntity node,
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _storageSMTDataSource.addNode(
       key: hash,
       node: node,
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
   @override
-  Future<void> setRoot(
-      {required HashEntity root,
-      required TreeType type,
-      required String did,
-      required String privateKey}) {
+  Future<void> setRoot({
+    required HashEntity root,
+    required TreeType type,
+    required String did,
+    required String encryptionKey,
+  }) {
     return _storageSMTDataSource.setRoot(
       root: (root),
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -119,13 +120,13 @@ class SMTRepositoryImpl implements SMTRepository {
     required HashEntity key,
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) async {
     return _smtDataSource.generateProof(
       key: (key),
       storeName: type.storeName,
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -156,25 +157,25 @@ class SMTRepositoryImpl implements SMTRepository {
     required int maxLevels,
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _smtDataSource.createSMT(
         maxLevels: maxLevels,
         storeName: type.storeName,
         did: did,
-        privateKey: privateKey);
+        encryptionKey: encryptionKey);
   }
 
   @override
   Future<void> removeSMT({
     required TreeType type,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) async {
     await _smtDataSource.removeSMT(
-        storeName: type.storeName, did: did, privateKey: privateKey);
+        storeName: type.storeName, did: did, encryptionKey: encryptionKey);
     await _smtDataSource.removeRoot(
-        storeName: type.storeName, did: did, privateKey: privateKey);
+        storeName: type.storeName, did: did, encryptionKey: encryptionKey);
   }
 
   @override

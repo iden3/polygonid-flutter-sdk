@@ -1,7 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:hex/hex.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/private_key.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/public_key.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
 import 'package:poseidon/poseidon.dart';
+import 'package:web3dart/crypto.dart';
 
 import '../../../common/utils/hex_utils.dart';
 import '../../../common/utils/uint8_list_utils.dart';
@@ -10,19 +14,19 @@ import 'bjj.dart';
 typedef Point = ({BigInt x, BigInt y});
 
 /// Class representing EdDSA Baby Jub signature
-class Signature {
+class BjjSignature {
   late Point r8;
   late BigInt s;
 
   /// Create a Signature with the R8 point and S scalar
   /// @param {List[BigInt]} r8 - R8 point
   /// @param {BigInt} s - BigInt
-  Signature(this.r8, this.s);
+  BjjSignature(this.r8, this.s);
 
   /// Create a Signature from a compressed Signature Buffer
   /// @param {Uint8List} buf - Buffer containing a signature
   /// @returns {Signature} Object signature
-  static Signature newFromCompressed(Uint8List buf) {
+  static BjjSignature newFromCompressed(Uint8List buf) {
     if (buf.length != 64) {
       throw ArgumentError('buf must be 64 bytes');
     }
@@ -39,7 +43,7 @@ class Signature {
     // S is decoded manually
     BigInt s = Uint8ArrayUtils.beBuff2int(
         Uint8List.fromList(buf.sublist(32, 64).reversed.toList()));
-    return Signature((x: x, y: y), s);
+    return BjjSignature((x: x, y: y), s);
   }
 
   /// Compress the Signature
@@ -54,22 +58,21 @@ class Signature {
 }
 
 /// Class representing a EdDSA Baby Jub public key
-class PublicKey {
-  final String hex;
+class BjjPublicKey extends PublicKey {
   final Point p;
 
   /// Create a PublicKey from a curve point p
   /// @param {String} hex - hex representation
   /// @param {List[BigInt]} p - curve point
-  PublicKey._(this.hex, this.p);
+  BjjPublicKey._(String hex, this.p) : super(hex: hex);
 
-  factory PublicKey.hex(String hex) {
+  factory BjjPublicKey.hex(String hex) {
     BabyjubjubLib bjjLib = BabyjubjubLib();
     final p = bjjLib.uncompressPoint(hex);
     BigInt x = BigInt.parse(p[0]);
     BigInt y = BigInt.parse(p[1]);
 
-    return PublicKey._(hex, (x: x, y: y));
+    return BjjPublicKey._(hex, (x: x, y: y));
   }
 
   /// Compress the PublicKey
@@ -81,7 +84,7 @@ class PublicKey {
     );
   }
 
-  bool verify(String messageHash, Signature signature) {
+  bool verify(String messageHash, BjjSignature signature) {
     BabyjubjubLib bjjLib = BabyjubjubLib();
     return bjjLib.verifyPoseidon(
       hex,
@@ -89,39 +92,46 @@ class PublicKey {
       messageHash,
     );
   }
+
+  @override
+  KeyType get keyType => KeyType.BabyJubJub;
 }
 
 /// Class representing EdDSA Baby Jub private key
-class PrivateKey {
+class BjjPrivateKey extends PrivateKey {
   late Uint8List sk;
 
   /// Create a PrivateKey from a 32 byte Buffer
   /// @param {Uint8List} buf - private key
-  PrivateKey(Uint8List buf) {
-    if (buf.length != 32) {
+  BjjPrivateKey(Uint8List bytes) : super(hex: bytesToHex(bytes)) {
+    if (bytes.length != 32) {
       throw ArgumentError('buf must be 32 bytes');
     }
-    sk = buf;
+    sk = bytes;
   }
 
   /// Retrieve PublicKey of the PrivateKey
   /// @returns {PublicKey} PublicKey derived from PrivateKey
-  PublicKey public() {
+  BjjPublicKey publicKey() {
     BabyjubjubLib bjjLib = BabyjubjubLib();
     String publicKeyHex = bjjLib.prv2pub(HexUtils.bytesToHex(sk));
-    return PublicKey.hex(publicKeyHex);
+    return BjjPublicKey.hex(publicKeyHex);
   }
 
-  String sign(BigInt messageHash) {
+  @override
+  Uint8List sign(Uint8List message) {
+    final messageHashBytes = bytesToHex(message);
+
+    final messageHashBigInt = BigInt.parse(messageHashBytes, radix: 16);
+
     BabyjubjubLib bjjLib = BabyjubjubLib();
     String signature = bjjLib.signPoseidon(
       HexUtils.bytesToHex(sk),
-      messageHash.toString(),
+      messageHashBigInt.toString(),
     );
-    return signature;
-  }
 
-  String hex() => HexUtils.bytesToHex(sk);
+    return Uint8ArrayUtils.uint8ListfromString(signature);
+  }
 }
 
 String hashPoseidon(

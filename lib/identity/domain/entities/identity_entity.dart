@@ -10,8 +10,11 @@ class IdentityEntity extends Equatable {
   final List<String> publicKey;
   final Map<BigInt, String> profiles;
 
-  const IdentityEntity(
-      {required this.did, required this.publicKey, required this.profiles});
+  const IdentityEntity({
+    required this.did,
+    required this.publicKey,
+    required this.profiles,
+  });
 
   factory IdentityEntity.fromJson(Map<String, dynamic> json) =>
       _$IdentityEntityFromJson(json);

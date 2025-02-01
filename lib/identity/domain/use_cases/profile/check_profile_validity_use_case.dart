@@ -11,23 +11,22 @@ class CheckProfileValidityParam {
 class CheckProfileValidityUseCase
     extends FutureUseCase<CheckProfileValidityParam, void> {
   @override
-  Future<void> execute({required CheckProfileValidityParam param}) {
+  Future<void> execute({required CheckProfileValidityParam param}) async {
     BigInt base = BigInt.parse('2');
     int exponent = 248;
     final maxVal = base.pow(exponent) - BigInt.one;
-    return Future(() {
+
+    try {
       if (param.profileNonce.isNegative || (param.profileNonce >= maxVal)) {
         throw InvalidProfileException(
           profileNonce: param.profileNonce,
           errorMessage: "Profile nonce is invalid",
         );
       }
-    }).then((_) {
       logger().i("[CheckProfileValidityUseCase] Profile is valid");
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[CheckValidProfileUseCase] Error: $error");
-
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

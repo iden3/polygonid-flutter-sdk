@@ -59,7 +59,7 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required HashEntity key,
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) async {
     if (key.toBigInt() == BigInt.zero) {
       return NodeEntity(
@@ -68,8 +68,8 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
         type: NodeType.empty,
       );
     }
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => getTransact(
                 storeName: storeName, transaction: transaction, key: key))
             .then((snapshot) => NodeEntity.fromJson(snapshot!))
@@ -90,10 +90,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required NodeEntity node,
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => putTransact(
                 storeName: storeName,
                 transaction: transaction,
@@ -120,10 +120,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
   Future<HashEntity> getRoot({
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) =>
                 getRootTransact(transaction: transaction, storeName: storeName))
             .whenComplete(() => database.close()));
@@ -151,10 +151,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required HashEntity root,
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => setRootTransact(
                 transaction: transaction, storeName: storeName, root: root))
             .whenComplete(() => database.close()));
@@ -173,10 +173,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
   Future<int> getMaxLevels({
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => getMaxLevelsTransact(
                 transaction: transaction, storeName: storeName))
             .then((snapshot) => snapshot!["maxLevels"] as int)
@@ -195,10 +195,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
     required int maxLevels,
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => setMaxLevelsTransact(
                 transaction: transaction,
                 storeName: storeName,
@@ -219,10 +219,10 @@ class StorageSMTDataSource extends SecureIdentityStorageDataSource {
   Future<void> removeSMT({
     required String storeName,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => removeSMTTransact(
                 transaction: transaction, storeName: storeName))
             .whenComplete(() => database.close()));

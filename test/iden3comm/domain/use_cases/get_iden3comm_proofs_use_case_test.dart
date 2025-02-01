@@ -147,7 +147,7 @@ main() {
         getIden3commClaimsUseCase.execute(param: captureAnyNamed('param')));
     expect(verifyGetClaims.callCount, 1);
     expect(verifyGetClaims.captured.first.genesisDid, param.genesisDid);
-    expect(verifyGetClaims.captured.first.privateKey, param.privateKey);
+    expect(verifyGetClaims.captured.first.encryptionKey, param.privateKey);
 
     var verifyLoadCircuit =
         verify(proofRepository.loadCircuitFiles(captureAny));

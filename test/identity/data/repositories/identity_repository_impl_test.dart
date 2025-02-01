@@ -39,14 +39,14 @@ class FakeWallet extends Fake implements BjjWallet {
   Uint8List get privateKey => CommonMocks.aBytes;
 
   @override
-  List<String> get publicKey => CommonMocks.pubKeys;
+  List<String> get publicKey => CommonMocks.publicKey;
 }
 
 final mockWallet = FakeWallet();
 const otherIdentifier = "theOtherIdentifier";
 final mockDTO = IdentityEntity(
   did: CommonMocks.identifier,
-  publicKey: CommonMocks.pubKeys,
+  publicKey: CommonMocks.publicKey,
   profiles: CommonMocks.profiles,
 );
 
@@ -203,9 +203,12 @@ void main() {
         () async {
       // When
       expect(
-          await repository.signMessage(
-              privateKey: CommonMocks.privateKey, message: CommonMocks.message),
-          CommonMocks.signature);
+        await repository.signMessage(
+          privateKey: CommonMocks.privateKey,
+          message: CommonMocks.message,
+        ),
+        CommonMocks.signature,
+      );
 
       // Then
       var signCaptured = verify(walletDataSource.signMessage(
@@ -552,7 +555,7 @@ void main() {
     setUp(() {
       // Given
       when(storageIdentityDataSource.getIdentityDb(
-              did: anyNamed('did'), privateKey: anyNamed('privateKey')))
+              did: anyNamed('did'), encryptionKey: anyNamed('encryptionKey')))
           .thenAnswer((realInvocation) => Future.value(CommonMocks.aMap));
       when(encryptionDbDataSource.encryptData(
               data: anyNamed('data'), key: anyNamed('key')))
@@ -565,13 +568,13 @@ void main() {
       // When
       expect(
           await repository.exportIdentity(
-              did: CommonMocks.did, privateKey: CommonMocks.privateKey),
+              did: CommonMocks.did, encryptionKey: CommonMocks.privateKey),
           CommonMocks.message);
 
       // Then
       var captureIdentity = verify(storageIdentityDataSource.getIdentityDb(
               did: captureAnyNamed('did'),
-              privateKey: captureAnyNamed('privateKey')))
+              encryptionKey: captureAnyNamed('encryptionKey')))
           .captured;
       expect(captureIdentity[0], CommonMocks.did);
       expect(captureIdentity[1], CommonMocks.privateKey);
@@ -588,13 +591,13 @@ void main() {
         () async {
       // Given
       when(storageIdentityDataSource.getIdentityDb(
-              did: anyNamed('did'), privateKey: anyNamed('privateKey')))
+              did: anyNamed('did'), encryptionKey: anyNamed('encryptionKey')))
           .thenThrow(CommonMocks.exception);
 
       // When
       try {
         await repository.exportIdentity(
-            did: CommonMocks.did, privateKey: CommonMocks.privateKey);
+            did: CommonMocks.did, encryptionKey: CommonMocks.privateKey);
       } catch (error) {
         expect(error, CommonMocks.exception);
       }
@@ -602,7 +605,7 @@ void main() {
       // Then
       var captureIdentity = verify(storageIdentityDataSource.getIdentityDb(
               did: captureAnyNamed('did'),
-              privateKey: captureAnyNamed('privateKey')))
+              encryptionKey: captureAnyNamed('encryptionKey')))
           .captured;
       expect(captureIdentity[0], CommonMocks.did);
       expect(captureIdentity[1], CommonMocks.privateKey);
@@ -623,7 +626,7 @@ void main() {
       when(storageIdentityDataSource.saveIdentityDb(
               exportableDb: anyNamed('exportableDb'),
               destinationPath: anyNamed('destinationPath'),
-              privateKey: anyNamed('privateKey')))
+              encryptionKey: anyNamed('encryptionKey')))
           .thenAnswer((realInvocation) => Future.value());
     });
 
@@ -634,7 +637,7 @@ void main() {
       await expectLater(
           repository.importIdentity(
               did: CommonMocks.did,
-              privateKey: CommonMocks.privateKey,
+              encryptionKey: CommonMocks.privateKey,
               encryptedDb: CommonMocks.message),
           completes);
 
@@ -649,7 +652,7 @@ void main() {
       var captureSave = verify(storageIdentityDataSource.saveIdentityDb(
               exportableDb: captureAnyNamed('exportableDb'),
               destinationPath: captureAnyNamed('destinationPath'),
-              privateKey: captureAnyNamed('privateKey')))
+              encryptionKey: captureAnyNamed('encryptionKey')))
           .captured;
       expect(captureSave[0], CommonMocks.aMap);
       expect(captureSave[1], CommonMocks.name);
@@ -667,7 +670,7 @@ void main() {
       try {
         await repository.importIdentity(
             did: CommonMocks.did,
-            privateKey: CommonMocks.privateKey,
+            encryptionKey: CommonMocks.privateKey,
             encryptedDb: CommonMocks.message);
       } catch (error) {
         expect(error, CommonMocks.exception);
@@ -684,7 +687,7 @@ void main() {
       verifyNever(storageIdentityDataSource.saveIdentityDb(
           exportableDb: captureAnyNamed('exportableDb'),
           destinationPath: captureAnyNamed('destinationPath'),
-          privateKey: captureAnyNamed('privateKey')));
+          encryptionKey: captureAnyNamed('encryptionKey')));
     });
   });
 }

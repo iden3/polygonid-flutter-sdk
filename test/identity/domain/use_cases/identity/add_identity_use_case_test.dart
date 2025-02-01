@@ -15,7 +15,10 @@ import 'add_identity_use_case_test.mocks.dart';
 // Data
 var exception = Exception();
 var param = AddIdentityParam(
-    privateKey: CommonMocks.privateKey, profiles: CommonMocks.bigIntValues);
+  bjjPublicKey: CommonMocks.publicKey,
+  profiles: CommonMocks.bigIntValues,
+  encryptionKey: CommonMocks.encryptionKey,
+);
 
 // Dependencies
 MockIdentityRepository identityRepository = MockIdentityRepository();
@@ -69,7 +72,7 @@ void main() {
         verify(createIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(captureCreate.privateKey, CommonMocks.privateKey);
+    expect(captureCreate.bjjPublicKey, CommonMocks.publicKey);
     expect(captureCreate.profiles, CommonMocks.bigIntValues);
 
     expect(
@@ -91,7 +94,7 @@ void main() {
     for (int i = 0; i < CommonMocks.profiles.values.length; i++) {
       expect(
           verifyState.captured[i].did, CommonMocks.profiles.values.toList()[i]);
-      expect(verifyState.captured[i].privateKey, CommonMocks.privateKey);
+      expect(verifyState.captured[i].bjjPublicKey, CommonMocks.publicKey);
     }
   });
 
@@ -114,7 +117,7 @@ void main() {
         verify(createIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(captureCreate.privateKey, CommonMocks.privateKey);
+    expect(captureCreate.bjjPublicKey, CommonMocks.publicKey);
     expect(captureCreate.profiles, CommonMocks.bigIntValues);
 
     expect(
@@ -146,7 +149,7 @@ void main() {
         verify(createIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(captureCreate.privateKey, CommonMocks.privateKey);
+    expect(captureCreate.bjjPublicKey, CommonMocks.publicKey);
     expect(captureCreate.profiles, CommonMocks.bigIntValues);
 
     verifyNever(identityRepository.getIdentity(

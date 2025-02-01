@@ -41,37 +41,51 @@ class RemoveIdentityUseCase extends FutureUseCase<RemoveIdentityParam, void> {
 
   @override
   Future<void> execute({required RemoveIdentityParam param}) async {
+    final encryptionKey = param.privateKey;
     try {
       await _checkProfileAndDidCurrentEnvUseCase.execute(
-          param: CheckProfileAndDidCurrentEnvParam(
-              did: param.genesisDid,
-              privateKey: param.privateKey,
-              profileNonce: GENESIS_PROFILE_NONCE));
+        param: CheckProfileAndDidCurrentEnvParam.withPrivateKey(
+          did: param.genesisDid,
+          privateKey: param.privateKey,
+          profileNonce: GENESIS_PROFILE_NONCE,
+        ),
+      );
 
       Map<BigInt, String> profilesMap = await _getProfilesUseCase.execute(
-          param: GetProfilesParam(
-              genesisDid: param.genesisDid, privateKey: param.privateKey));
+        param: GetProfilesParam(
+          genesisDid: param.genesisDid,
+          privateKey: param.privateKey,
+        ),
+      );
 
       // remove identity state and claims for each profile did
       if (profilesMap.isNotEmpty) {
         for (BigInt profileNonce in profilesMap.keys) {
           if (profileNonce > GENESIS_PROFILE_NONCE) {
             await _removeProfileUseCase.execute(
-                param: RemoveProfileParam(
-                    genesisDid: param.genesisDid,
-                    profileNonce: profileNonce,
-                    privateKey: param.privateKey));
+              param: RemoveProfileParam(
+                genesisDid: param.genesisDid,
+                profileNonce: profileNonce,
+                privateKey: param.privateKey,
+              ),
+            );
           }
         }
       }
       // Remove genesisId identity state and claims
       await _removeIdentityStateUseCase.execute(
-          param: RemoveIdentityStateParam(
-              did: param.genesisDid, privateKey: param.privateKey));
+        param: RemoveIdentityStateParam(
+          did: param.genesisDid,
+          encryptionKey: encryptionKey,
+        ),
+      );
 
       await _removeAllClaimsUseCase.execute(
-          param: RemoveAllClaimsParam(
-              did: param.genesisDid, privateKey: param.privateKey));
+        param: RemoveAllClaimsParam(
+          did: param.genesisDid,
+          encryptionKey: encryptionKey,
+        ),
+      );
 
       // Remove the identity
       await _identityRepository.removeIdentity(genesisDid: param.genesisDid);

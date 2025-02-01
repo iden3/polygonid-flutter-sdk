@@ -34,7 +34,7 @@ void main() {
     'Given a param, when I call execute, then I expect an list of String to be returned',
     () async {
       // When
-      expect(await useCase.execute(param: CommonMocks.pubKeys),
+      expect(await useCase.execute(param: CommonMocks.publicKey),
           CredentialMocks.authClaim);
 
       expect(
@@ -42,7 +42,7 @@ void main() {
                   publicKey: captureAnyNamed('publicKey')))
               .captured
               .first,
-          CommonMocks.pubKeys);
+          CommonMocks.publicKey);
     },
   );
 }

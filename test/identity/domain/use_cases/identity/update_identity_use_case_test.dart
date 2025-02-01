@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/entities/identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/create_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
@@ -15,9 +14,10 @@ import 'update_identity_use_case_test.mocks.dart';
 // Data
 var exception = Exception();
 var param = UpdateIdentityParam(
-    privateKey: CommonMocks.privateKey,
-    genesisDid: CommonMocks.did,
-    profiles: CommonMocks.profiles);
+  encryptionKey: CommonMocks.encryptionKey,
+  genesisDid: CommonMocks.did,
+  profiles: CommonMocks.profiles,
+);
 
 // Dependencies
 MockIdentityRepository identityRepository = MockIdentityRepository();
@@ -52,7 +52,7 @@ void main() {
       "Given a param with a valid private key, when I call execute, then I expect an updated PrivateIdentityEntity to be returned",
       () async {
     // When
-    PrivateIdentityEntity result = await useCase.execute(param: param);
+    IdentityEntity result = await useCase.execute(param: param);
 
     // Then
     expect(result, IdentityMocks.privateIdentity);
@@ -61,38 +61,12 @@ void main() {
         verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedGet.privateKey, param.privateKey);
     expect(capturedGet.genesisDid, param.genesisDid);
 
     var capturedStore = verify(identityRepository.storeIdentity(
             identity: captureAnyNamed('identity')))
         .captured;
     expect(capturedStore[0], IdentityMocks.privateIdentity);
-  });
-
-  test(
-      "Given a param with an invalid private key, when I call execute, then I expect an InvalidPrivateKeyException to be thrown",
-      () async {
-    // Given
-    when(getIdentityUseCase.execute(param: anyNamed('param')))
-        .thenAnswer((realInvocation) => Future.value(IdentityMocks.identity));
-
-    // When
-    await useCase.execute(param: param).then((_) => null).catchError((error) {
-      expect(error, isA<InvalidPrivateKeyException>());
-      expect(error.privateKey, param.privateKey);
-    });
-
-    // Then
-    var capturedGet =
-        verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
-            .captured
-            .first;
-    expect(capturedGet.privateKey, param.privateKey);
-    expect(capturedGet.genesisDid, param.genesisDid);
-
-    verifyNever(identityRepository.storeIdentity(
-        identity: captureAnyNamed('identity')));
   });
 
   test(
@@ -110,7 +84,6 @@ void main() {
         verify(getIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedGet.privateKey, param.privateKey);
     expect(capturedGet.genesisDid, param.genesisDid);
 
     verifyNever(identityRepository.storeIdentity(

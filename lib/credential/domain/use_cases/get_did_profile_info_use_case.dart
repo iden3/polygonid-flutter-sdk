@@ -3,13 +3,13 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/did_profile_
 
 class GetDidProfileInfoParam {
   final String genesisDid;
-  final String privateKey;
   final String interactedWithDid;
+  final String encryptionKey;
 
   GetDidProfileInfoParam({
     required this.genesisDid,
-    required this.privateKey,
     required this.interactedWithDid,
+    required this.encryptionKey,
   });
 }
 
@@ -22,12 +22,13 @@ class GetDidProfileInfoUseCase
   );
 
   @override
-  Future<Map<String, dynamic>> execute(
-      {required GetDidProfileInfoParam param}) {
+  Future<Map<String, dynamic>> execute({
+    required GetDidProfileInfoParam param,
+  }) {
     return _didProfileInfoRepository.getDidProfileInfoByInteractedWithDid(
       interactedWithDid: param.interactedWithDid,
       genesisDid: param.genesisDid,
-      privateKey: param.privateKey,
+      encryptionKey: param.encryptionKey,
     );
   }
 }

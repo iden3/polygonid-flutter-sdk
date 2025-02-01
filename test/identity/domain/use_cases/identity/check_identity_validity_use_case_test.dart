@@ -12,7 +12,7 @@ import 'check_identity_validity_use_case_test.mocks.dart';
 
 // Dependencies
 MockGetPrivateKeyUseCase getPrivateKeyUseCase = MockGetPrivateKeyUseCase();
-MockGetPublicKeysUseCase getPublicKeysUseCase = MockGetPublicKeysUseCase();
+MockGetPublicKeyUseCase getPublicKeysUseCase = MockGetPublicKeyUseCase();
 MockGetCurrentEnvDidIdentifierUseCase getCurrentEnvDidIdentifierUseCase =
     MockGetCurrentEnvDidIdentifierUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
@@ -27,7 +27,7 @@ CheckIdentityValidityUseCase useCase = CheckIdentityValidityUseCase(
 
 @GenerateMocks([
   GetPrivateKeyUseCase,
-  GetPublicKeysUseCase,
+  GetPublicKeyUseCase,
   GetCurrentEnvDidIdentifierUseCase,
   StacktraceManager,
 ])
@@ -37,7 +37,7 @@ void main() {
     when(getPrivateKeyUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.privateKey));
     when(getPublicKeysUseCase.execute(param: anyNamed('param')))
-        .thenAnswer((realInvocation) => Future.value(CommonMocks.pubKeys));
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
     when(getCurrentEnvDidIdentifierUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.did));
   });
@@ -59,8 +59,8 @@ void main() {
                 param: captureAnyNamed('param')))
             .captured
             .first
-            .publicKey,
-        CommonMocks.pubKeys);
+            .bjjPublicKey,
+        CommonMocks.publicKey);
   });
 
   test(

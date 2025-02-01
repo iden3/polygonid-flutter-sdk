@@ -32,6 +32,9 @@ void main() {
     // Given
     when(identityRepository.getPrivateKey(secret: anyNamed('secret')))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.privateKey));
+    when(identityRepository.getPublicKeys(
+            bjjPrivateKey: anyNamed('bjjPrivateKey')))
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
     when(addIdentityUseCase.execute(param: anyNamed('param'))).thenAnswer(
         (realInvocation) => Future.value(IdentityMocks.privateIdentity));
   });
@@ -53,7 +56,7 @@ void main() {
         verify(addIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedCreate.privateKey, CommonMocks.privateKey);
+    expect(capturedCreate.bjjPublicKey, CommonMocks.publicKey);
   });
 
   test(
@@ -72,7 +75,7 @@ void main() {
         verify(addIdentityUseCase.execute(param: captureAnyNamed('param')))
             .captured
             .first;
-    expect(capturedCreate.privateKey, CommonMocks.privateKey);
+    expect(capturedCreate.bjjPublicKey, CommonMocks.publicKey);
   });
 
   test(

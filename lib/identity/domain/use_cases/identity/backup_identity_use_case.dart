@@ -1,17 +1,16 @@
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 
 class BackupIdentityParam {
   final String genesisDid;
-  final String privateKey;
+  final String encryptionKey;
 
   BackupIdentityParam({
     required this.genesisDid,
-    required this.privateKey,
+    required this.encryptionKey,
   });
 }
 
@@ -28,27 +27,27 @@ class BackupIdentityUseCase extends FutureUseCase<BackupIdentityParam, String> {
 
   @override
   Future<String> execute({required BackupIdentityParam param}) async {
-    PrivateIdentityEntity identity = await _getIdentityUseCase.execute(
-        param: GetIdentityParam(
-            genesisDid: param.genesisDid,
-            privateKey: param.privateKey)) as PrivateIdentityEntity;
+    final identity = await _getIdentityUseCase.execute(
+      param: GetIdentityParam(
+        genesisDid: param.genesisDid,
+      ),
+    );
 
-    return _identityRepository
-        .exportIdentity(
-      did: identity.did,
-      privateKey: identity.privateKey,
-    )
-        .then((export) {
+    try {
+      final export = await _identityRepository.exportIdentity(
+        did: identity.did,
+        encryptionKey: param.encryptionKey,
+      );
       logger().i(
           "[BackupIdentityUseCase] Identity backed up with did: ${identity.did}, for key $param");
       _stacktraceManager.addTrace(
           "[BackupIdentityUseCase] Identity backed up with did: ${identity.did}, for key $param");
       return export;
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[BackupIdentityUseCase] Error: $error");
       _stacktraceManager.addTrace("[BackupIdentityUseCase] Error: $error");
       _stacktraceManager.addError("[BackupIdentityUseCase] Error: $error");
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

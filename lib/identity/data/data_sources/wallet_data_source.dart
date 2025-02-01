@@ -33,22 +33,17 @@ class WalletLibWrapper {
   Future<String> signMessage({
     required Uint8List privateKey,
     required String message,
-  }) {
-    BigInt? messHash;
+  }) async {
+    Uint8List messHash;
     if (message.toLowerCase().startsWith("0x")) {
       message = strip0x(message);
-      messHash = BigInt.tryParse(message, radix: 16);
+      messHash = hexToBytes(message);
     } else {
-      messHash = BigInt.tryParse(message, radix: 10);
+      messHash = hexToBytes(BigInt.parse(message, radix: 10).toRadixString(16));
     }
-    final bjjKey = PrivateKey(privateKey);
-    if (messHash != null) {
-      final signature = bjjKey.sign(messHash);
-      return Future.value(signature);
-    } else {
-      throw const FormatException(
-          "message string couldn't be parsed as BigInt");
-    }
+    final bjjKey = BjjPrivateKey(privateKey);
+    final signature = bjjKey.sign(messHash);
+    return bytesToHex(signature);
   }
 }
 

@@ -15,19 +15,20 @@ class GetIdentitiesUseCase extends FutureUseCase<void, List<IdentityEntity>> {
   );
 
   @override
-  Future<List<IdentityEntity>> execute({void param}) {
-    return _identityRepository.getIdentities().then((identities) {
+  Future<List<IdentityEntity>> execute({void param}) async {
+    try {
+      final identities = await _identityRepository.getIdentities();
       logger().i("[GetIdentitiesUseCase] identities: $identities");
       _stacktraceManager
           .addTrace("[GetIdentitiesUseCase] identities: $identities");
 
       return identities;
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[GetIdentitiesUseCase] Error: $error");
       _stacktraceManager.addTrace("[GetIdentitiesUseCase] Error: $error");
       _stacktraceManager.addError("[GetIdentitiesUseCase] Error: $error");
 
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

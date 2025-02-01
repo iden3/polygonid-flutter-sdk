@@ -42,6 +42,7 @@ dependencies:
   ed25519_edwards: ^0.3.1
   secp256k1: ^0.3.0
   background_downloader: ^8.5.5
+  meta: ^1.15.0
   poseidon: ^0.0.1
   flutter_rapidsnark: 0.0.1-beta.1
   circom_witnesscalc: 0.0.1-alpha.3

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/data/data_sources/secure_identity_storage_data_source.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
@@ -50,22 +51,29 @@ class StorageClaimDataSource extends SecureIdentityStorageDataSource {
 
   /// Store all claims in a single transaction
   /// If one storing fails, they will all be reverted
-  Future<void> storeClaims(
-      {required List<ClaimDTO> claims,
-      required String did,
-      required String privateKey}) {
+  Future<void> storeClaims({
+    required List<ClaimDTO> claims,
+    required String did,
+    required String encryptionKey,
+  }) async {
     // TODO check if identifiers inside each claim are from privateKey
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
-            .transaction((transaction) =>
-                storeClaimsTransact(transaction: transaction, claims: claims))
-            .whenComplete(() => database.close()));
+    Database? database;
+    try {
+      database = await getDatabase(did: did, encryptionKey: encryptionKey);
+      await database.transaction(
+        (t) => storeClaimsTransact(transaction: t, claims: claims),
+      );
+    } finally {
+      database?.close();
+    }
   }
 
   // For UT purpose
-  Future<void> storeClaimsTransact(
-      {required DatabaseClient transaction,
-      required List<ClaimDTO> claims}) async {
+  @visibleForTesting
+  Future<void> storeClaimsTransact({
+    required DatabaseClient transaction,
+    required List<ClaimDTO> claims,
+  }) async {
     for (ClaimDTO claim in claims) {
       await _storeRefWrapper.put(transaction, claim.id, claim.toJson());
     }
@@ -73,21 +81,28 @@ class StorageClaimDataSource extends SecureIdentityStorageDataSource {
 
   /// Remove all claims in a single transaction
   /// If one removing fails, they will all be reverted
-  Future<void> removeClaims(
-      {required List<String> claimIds,
-      required String did,
-      required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
-            .transaction((transaction) => removeClaimsTransact(
-                transaction: transaction, claimIds: claimIds))
-            .whenComplete(() => database.close()));
+  Future<void> removeClaims({
+    required List<String> claimIds,
+    required String did,
+    required String encryptionKey,
+  }) async {
+    Database? database;
+    try {
+      database = await getDatabase(did: did, encryptionKey: encryptionKey);
+      await database.transaction(
+        (t) => removeClaimsTransact(transaction: t, claimIds: claimIds),
+      );
+    } finally {
+      await database?.close();
+    }
   }
 
   // For UT purpose
-  Future<void> removeClaimsTransact(
-      {required DatabaseClient transaction,
-      required List<String> claimIds}) async {
+  @visibleForTesting
+  Future<void> removeClaimsTransact({
+    required DatabaseClient transaction,
+    required List<String> claimIds,
+  }) async {
     for (String claimId in claimIds) {
       // TODO check if identifiers inside each claim are from privateKey
       await _storeRefWrapper.remove(transaction, claimId);
@@ -96,28 +111,36 @@ class StorageClaimDataSource extends SecureIdentityStorageDataSource {
 
   /// Remove all claims in a single transaction
   /// If one removing fails, they will all be reverted
-  Future<void> removeAllClaims(
-      {required String did, required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
-            .transaction((transaction) =>
-                removeAllClaimsTransact(transaction: transaction))
-            .whenComplete(() => database.close()));
+  Future<void> removeAllClaims({
+    required String did,
+    required String encryptionKey,
+  }) async {
+    Database? database;
+    try {
+      database = await getDatabase(did: did, encryptionKey: encryptionKey);
+      await database.transaction(
+        (t) => removeAllClaimsTransact(transaction: t),
+      );
+    } finally {
+      database?.close();
+    }
   }
 
   // For UT purpose
-  Future<void> removeAllClaimsTransact(
-      {required DatabaseClient transaction}) async {
+  Future<void> removeAllClaimsTransact({
+    required DatabaseClient transaction,
+  }) async {
     await _storeRefWrapper.removeAll(transaction);
   }
 
   Future<List<ClaimDTO>> getClaims({
     Filter? filter,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
     List<CredentialSortOrder> credentialSortOrderList = const [],
   }) async {
-    Database database = await getDatabase(did: did, privateKey: privateKey);
+    Database database =
+        await getDatabase(did: did, encryptionKey: encryptionKey);
 
     List<SortOrder> sortOrders = [];
 
@@ -158,32 +181,38 @@ class StorageClaimDataSource extends SecureIdentityStorageDataSource {
 
   Future<List<ClaimDTO>> getCredentialByPartialId({
     required String did,
-    required String privateKey,
     required String partialId,
-  }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        _storeRefWrapper
-            .find(database,
-                finder: Finder(
-                    filter: Filter.custom((record) =>
-                        (record.value as Map<String, Object?>)['id']
-                            ?.toString()
-                            .contains(partialId) ??
-                        false)))
-            .then((snapshots) {
-          return snapshots.map((snapshot) {
-            return ClaimDTO.fromJson(snapshot.value);
-          }).toList();
-        }).whenComplete(() => database.close()));
+    required String encryptionKey,
+  }) async {
+    final database = await getDatabase(did: did, encryptionKey: encryptionKey);
+
+    try {
+      final partialIdFiler = Filter.custom((record) =>
+          (record.value as Map<String, Object?>)['id']
+              ?.toString()
+              .contains(partialId) ??
+          false);
+
+      final snapshots = await _storeRefWrapper.find(
+        database,
+        finder: Finder(filter: partialIdFiler),
+      );
+
+      return snapshots.map((snapshot) {
+        return ClaimDTO.fromJson(snapshot.value);
+      }).toList();
+    } finally {
+      database.close();
+    }
   }
 
   /// Get a [ClaimDTO] filtered by id associated to the identity previously stored
   Future<ClaimDTO> getClaim({
     required String credentialId,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) async {
-    Database db = await getDatabase(did: did, privateKey: privateKey);
+    Database db = await getDatabase(did: did, encryptionKey: encryptionKey);
 
     Map<String, Object?>? credential =
         await _storeRefWrapper.get(db, credentialId);

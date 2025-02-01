@@ -5,12 +5,12 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_ide
 
 class RemoveInteractionsParam {
   final String? genesisDid;
-  final String? privateKey;
+  final String? encryptionKey;
   final List<String> ids;
 
   RemoveInteractionsParam({
     this.genesisDid,
-    this.privateKey,
+    this.encryptionKey,
     required this.ids,
   });
 }
@@ -27,17 +27,21 @@ class RemoveInteractionsUseCase
 
   @override
   Future<void> execute({required RemoveInteractionsParam param}) async {
-    // we check if identity is existing
-    if (param.genesisDid != null && param.privateKey != null) {
+    // we check if identity exists
+    if (param.genesisDid != null && param.encryptionKey != null) {
       await _getIdentityUseCase.execute(
-          param: GetIdentityParam(
-              genesisDid: param.genesisDid!, privateKey: param.privateKey));
+        param: GetIdentityParam(
+          genesisDid: param.genesisDid!,
+          privateKey: null,
+        ),
+      );
     }
     return _interactionRepository
         .removeInteractions(
-            ids: param.ids,
-            genesisDid: param.genesisDid,
-            privateKey: param.privateKey)
+          ids: param.ids,
+          genesisDid: param.genesisDid,
+          encryptionKey: param.encryptionKey,
+        )
         .then((_) => logger().i(
             "[RemoveInteractionUseCase] Interactions with ids ${param.ids} have been removed"))
         .catchError((error) {

@@ -13,10 +13,12 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_use_case
 class GetIdentityParam {
   final String genesisDid;
   final String? privateKey;
+  final List<String>? publicKey;
 
   GetIdentityParam({
     required this.genesisDid,
     this.privateKey,
+    this.publicKey,
   });
 }
 
@@ -35,48 +37,68 @@ class GetIdentityUseCase
   );
 
   @override
-  Future<IdentityEntity> execute({required GetIdentityParam param}) async {
+  Future<IdentityEntity> execute({
+    required GetIdentityParam param,
+  }) async {
+    final bjjPrivateKey = param.privateKey;
+
     try {
-      IdentityEntity identity;
-
-      // Check if we want [PrivateIdentityEntity] or [IdentityEntity]
-      if (param.privateKey != null) {
-        // Check if the did from param matches the did from the privateKey
-        DidEntity did = await _getDidUseCase.execute(param: param.genesisDid);
-
-        String genesisDid = await _getDidIdentifierUseCase.execute(
-          param: GetDidIdentifierParam.withPrivateKey(
-            privateKey: param.privateKey!,
-            blockchain: did.blockchain,
-            network: did.network,
-            profileNonce: GENESIS_PROFILE_NONCE,
-            method: did.method,
-          ),
+      // Return [IdentityEntity] with no profiles and no checks
+      if (bjjPrivateKey == null) {
+        final identity = await _identityRepository.getIdentity(
+          genesisDid: param.genesisDid,
         );
+        logger().i("[GetIdentityUseCase] Identity: $identity");
+        _stacktraceManager.addTrace(
+            "[GetIdentityUseCase] Identity DID: ${identity.did}, public key: ${identity.publicKey}, profiles: ${identity.profiles}");
 
-        if (did.did != genesisDid) {
-          throw InvalidPrivateKeyException(
-            privateKey: param.privateKey!,
-            errorMessage:
-                "the did from the private key does not match the genesis did from the param",
-          );
-        }
-
-        final publicIdentity = await _identityRepository.getIdentity(
-          genesisDid: genesisDid,
-        );
-
-        // Get the [PrivateIdentityEntity]
-        identity = PrivateIdentityEntity(
-          did: param.genesisDid,
-          publicKey: publicIdentity.publicKey,
-          profiles: publicIdentity.profiles,
-          privateKey: param.privateKey!,
-        );
-      } else {
-        identity =
-            await _identityRepository.getIdentity(genesisDid: param.genesisDid);
+        return identity;
       }
+
+      // Here we're checking genesis DID against DID generated from private key
+
+      // Check if the did from param matches the did from the privateKey
+      DidEntity did = await _getDidUseCase.execute(param: param.genesisDid);
+
+      final List<String> publicKey;
+      final pbKey = param.publicKey;
+      if (pbKey != null) {
+        publicKey = pbKey;
+      } else {
+        publicKey = await _identityRepository.getPublicKeys(
+          bjjPrivateKey: bjjPrivateKey,
+        );
+      }
+
+      String genesisDid = await _getDidIdentifierUseCase.execute(
+        param: GetDidIdentifierParam(
+          bjjPublicKey: publicKey,
+          blockchain: did.blockchain,
+          network: did.network,
+          method: did.method,
+          profileNonce: GENESIS_PROFILE_NONCE,
+        ),
+      );
+
+      if (did.did != genesisDid) {
+        throw InvalidPrivateKeyException(
+          privateKey: bjjPrivateKey,
+          errorMessage:
+              "the did from the private key does not match the genesis did from the param",
+        );
+      }
+
+      final publicIdentity = await _identityRepository.getIdentity(
+        genesisDid: genesisDid,
+      );
+
+      // Get the [PrivateIdentityEntity]
+      final identity = PrivateIdentityEntity(
+        did: param.genesisDid,
+        publicKey: publicIdentity.publicKey,
+        profiles: publicIdentity.profiles,
+        privateKey: bjjPrivateKey,
+      );
 
       logger().i("[GetIdentityUseCase] Identity: $identity");
       _stacktraceManager.addTrace(

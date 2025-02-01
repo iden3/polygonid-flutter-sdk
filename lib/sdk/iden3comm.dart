@@ -212,8 +212,8 @@ abstract class PolygonIdSdkIden3comm {
   /// to obtain the did identifier
   Future<InteractionBaseEntity> addInteraction({
     required InteractionBaseEntity interaction,
-    String? genesisDid,
-    String? privateKey,
+    required String genesisDid,
+    required String privateKey,
   });
 
   /// Removes a list of [InteractionEntity] from the Polygon ID Sdk by their ids
@@ -441,7 +441,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
       message: message,
       genesisDid: genesisDid,
       profileNonce: profileNonce ?? GENESIS_PROFILE_NONCE,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
       nonRevocationProofs: nonRevocationProofs ?? {},
       credentialSortOrderList: sortOrder,
     ));
@@ -460,7 +460,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
       message: message,
       genesisDid: genesisDid,
       profileNonce: profileNonce ?? GENESIS_PROFILE_NONCE,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
     ));
   }
 
@@ -585,22 +585,28 @@ class Iden3comm implements PolygonIdSdkIden3comm {
   }) {
     _stacktraceManager.clearStacktrace();
     return _removeInteractionsUseCase.execute(
-        param: RemoveInteractionsParam(
-            genesisDid: genesisDid, privateKey: privateKey, ids: ids));
+      param: RemoveInteractionsParam(
+        genesisDid: genesisDid,
+        encryptionKey: privateKey,
+        ids: ids,
+      ),
+    );
   }
 
   @override
   Future<InteractionBaseEntity> addInteraction({
     required InteractionBaseEntity interaction,
-    String? genesisDid,
-    String? privateKey,
+    required String genesisDid,
+    required String privateKey,
   }) {
     _stacktraceManager.clearStacktrace();
     return _addInteractionUseCase.execute(
-        param: AddInteractionParam(
-            genesisDid: genesisDid,
-            privateKey: privateKey,
-            interaction: interaction));
+      param: AddInteractionParam(
+        genesisDid: genesisDid,
+        encryptionKey: privateKey,
+        interaction: interaction,
+      ),
+    );
   }
 
   @override
@@ -616,7 +622,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
         param: UpdateInteractionParam(
       genesisDid: genesisDid,
       profileNonce: profileNonce ?? GENESIS_PROFILE_NONCE,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
       id: id,
       state: state,
     ));
@@ -637,9 +643,9 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     return _addDidProfileInfoUseCase.execute(
       param: AddDidProfileInfoParam(
         genesisDid: did,
-        privateKey: privateKey,
         interactedWithDid: interactedWithDid,
         didProfileInfo: info,
+        encryptionKey: privateKey,
       ),
     );
   }
@@ -653,8 +659,8 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     return _getDidProfileInfoUseCase.execute(
       param: GetDidProfileInfoParam(
         genesisDid: did,
-        privateKey: privateKey,
         interactedWithDid: interactedWithDid,
+        encryptionKey: privateKey,
       ),
     );
   }
@@ -668,8 +674,8 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     return _getDidProfileInfoListUseCase.execute(
       param: GetDidProfileInfoListParam(
         genesisDid: did,
-        privateKey: privateKey,
         filters: filters,
+        encryptionKey: privateKey,
       ),
     );
   }
@@ -683,8 +689,8 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     return _removeDidProfileInfoUseCase.execute(
       param: RemoveDidProfileInfoParam(
         genesisDid: did,
-        privateKey: privateKey,
         interactedWithDid: interactedWithDid,
+        encryptionKey: privateKey,
       ),
     );
   }

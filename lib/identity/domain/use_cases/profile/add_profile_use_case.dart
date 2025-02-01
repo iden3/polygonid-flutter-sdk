@@ -2,8 +2,8 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/check_profile_and_did_current_env.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/entities/private_identity_entity.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/update_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/profile/create_profiles_use_case.dart';
@@ -28,6 +28,7 @@ class AddProfileUseCase extends FutureUseCase<AddProfileParam, void> {
   final CheckProfileAndDidCurrentEnvUseCase
       _checkProfileAndDidCurrentEnvUseCase;
   final CreateProfilesUseCase _createProfilesUseCase;
+  final GetPublicKeyUseCase _getPublicKeyUseCase;
   final LibPolygonIdCoreIdentityDataSource _libPolygonIdCoreIdentityDataSource;
   final StacktraceManager _stacktraceManager;
 
@@ -36,19 +37,24 @@ class AddProfileUseCase extends FutureUseCase<AddProfileParam, void> {
     this._updateIdentityUseCase,
     this._checkProfileAndDidCurrentEnvUseCase,
     this._createProfilesUseCase,
+    this._getPublicKeyUseCase,
     this._libPolygonIdCoreIdentityDataSource,
     this._stacktraceManager,
   );
 
   @override
   Future<void> execute({required AddProfileParam param}) async {
+    final encryptionKey = param.privateKey;
+    final bjjPublicKey =
+        await _getPublicKeyUseCase.execute(param: param.privateKey);
+
     var existingProfileDid = param.existingProfileDid;
     if (existingProfileDid == null) {
       await _checkProfileAndDidCurrentEnvUseCase.execute(
         param: CheckProfileAndDidCurrentEnvParam(
           did: param.genesisDid,
           profileNonce: param.profileNonce,
-          privateKey: param.privateKey,
+          publicKey: bjjPublicKey,
           excludeGenesisProfile: true,
         ),
       );
@@ -57,21 +63,9 @@ class AddProfileUseCase extends FutureUseCase<AddProfileParam, void> {
     final identityEntity = await _getIdentityUseCase.execute(
       param: GetIdentityParam(
         genesisDid: param.genesisDid,
-        privateKey: param.privateKey,
+        privateKey: null,
       ),
     );
-
-    if (identityEntity is! PrivateIdentityEntity) {
-      // Private key missing
-      _stacktraceManager
-          .addTrace('InvalidPrivateKeyException: ${param.privateKey}');
-      _stacktraceManager
-          .addError('InvalidPrivateKeyException: ${param.privateKey}');
-      throw InvalidPrivateKeyException(
-        privateKey: param.privateKey,
-        errorMessage: 'The provided private key is not valid',
-      );
-    }
 
     Map<BigInt, String> profiles = identityEntity.profiles;
     if (profiles.containsKey(param.profileNonce)) {
@@ -93,7 +87,7 @@ class AddProfileUseCase extends FutureUseCase<AddProfileParam, void> {
       // Create new profile for selected network
       Map<BigInt, String> newProfiles = await _createProfilesUseCase.execute(
         param: CreateProfilesParam(
-          privateKey: param.privateKey,
+          bjjPublicKey: bjjPublicKey,
           profiles: [param.profileNonce],
         ),
       );
@@ -138,10 +132,11 @@ class AddProfileUseCase extends FutureUseCase<AddProfileParam, void> {
 
     // Update Identity
     await _updateIdentityUseCase.execute(
-        param: UpdateIdentityParam(
-      privateKey: param.privateKey,
-      genesisDid: param.genesisDid,
-      profiles: profiles,
-    ));
+      param: UpdateIdentityParam(
+        genesisDid: param.genesisDid,
+        profiles: profiles,
+        encryptionKey: encryptionKey,
+      ),
+    );
   }
 }

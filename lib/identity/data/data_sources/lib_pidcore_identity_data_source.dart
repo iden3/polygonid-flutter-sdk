@@ -33,6 +33,29 @@ class LibPolygonIdCoreIdentityDataSource {
     return jsonDecode(output)["did"];
   }
 
+  String calculateGenesisIdFromEth({
+    required String ethAddress,
+    required String blockchain,
+    required String network,
+    required Map<String, dynamic> config,
+    String? method,
+  }) {
+    String input = jsonEncode({
+      "ethAddress": ethAddress,
+      "blockchain": blockchain,
+      "network": network,
+      if (method != null) "method": method,
+    });
+
+    String cfg = jsonEncode(config);
+
+    String output =
+        _polygonIdCoreIdentity.calculateGenesisIdFromEth(input, cfg);
+    logger().d("calculateGenesisId: $output");
+
+    return jsonDecode(output)["did"];
+  }
+
   String calculateProfileId(String genesisDid, BigInt profileNonce) {
     String input = jsonEncode({
       "genesisDID": genesisDid,

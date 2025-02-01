@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:polygonid_flutter_sdk/common/kms/keys/private_key.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/public_key.dart';
 import 'package:polygonid_flutter_sdk/common/kms/kms.dart';
-import 'package:polygonid_flutter_sdk/common/kms/provider_helpers.dart';
 import 'package:polygonid_flutter_sdk/common/kms/store/abstract_key_store.dart';
-import 'package:polygonid_flutter_sdk/common/kms/store/types.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
 
@@ -12,7 +13,7 @@ import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
 /// @class Ed25519Provider
 /// @implements IKeyProvider interface
 class Ed25519Provider implements IKeyProvider {
-  final KmsKeyType keyType;
+  final KeyType keyType;
   final AbstractPrivateKeyStore _keyStore;
 
   /// Creates an instance of Ed25519Provider.
@@ -24,33 +25,31 @@ class Ed25519Provider implements IKeyProvider {
   /// @param {Uint8List} seed - byte array seed
   /// @returns {Future<KmsKeyId>} kms key identifier
   @override
-  Future<KmsKeyId> newPrivateKeyFromSeed(Uint8List seed) async {
+  Future<KeyId> newPrivateKeyFromSeed(Uint8List seed) async {
     if (seed.length != 32) {
       throw Exception('Seed should be 32 bytes');
     }
-    final publicKey = ed25519.PublicKey(seed);
-    final kmsId = KmsKeyId(
-      type: keyType,
-      id: keyPath(keyType, bytesToHex(publicKey.bytes)),
-    );
+    final edPrivateKey = ed25519.newKeyFromSeed(seed);
+    final privateKey = Ed25519PrivateKey(edPrivateKey);
+
+    final publicKey = privateKey.publicKey();
 
     await _keyStore.importKey(
-      alias: kmsId.id,
-      key: bytesToHex(seed),
+      alias: publicKey.keyId.id,
+      key: bytesToHex(edPrivateKey.bytes),
     );
 
-    return kmsId;
+    return publicKey.keyId;
   }
 
   /// Gets public key by kmsKeyId
   /// @param {KmsKeyId} keyId - key identifier
   /// @returns {Future<String>} Public key as a hex String
   @override
-  Future<String> publicKey(KmsKeyId keyId) async {
-    final privateKeyHex = await _privateKey(keyId);
-    final privateKey = ed25519.newKeyFromSeed(hexToBytes(privateKeyHex));
-    final publicKey = ed25519.public(privateKey);
-    return bytesToHex(publicKey.bytes);
+  Future<PublicKey> publicKey(KeyId keyId) async {
+    final privateKey = await _privateKey(keyId);
+
+    return privateKey.publicKey();
   }
 
   /// signs prepared payload of size,
@@ -60,14 +59,12 @@ class Ed25519Provider implements IKeyProvider {
   /// @returns {Future<Uint8List>} signature
   @override
   Future<Uint8List> sign(
-    KmsKeyId keyId,
+    KeyId keyId,
     Uint8List digest, [
     Map<String, dynamic>? opts,
   ]) async {
-    final privateKeyHex = await _privateKey(keyId);
-    final privateKey = ed25519.newKeyFromSeed(hexToBytes(privateKeyHex));
-
-    return ed25519.sign(privateKey, digest);
+    final privateKey = await _privateKey(keyId);
+    return privateKey.sign(digest);
   }
 
   /// Verifies a signature for the given message and key identifier.
@@ -76,21 +73,53 @@ class Ed25519Provider implements IKeyProvider {
   /// @param keyId - The key identifier to use for verification.
   /// @returns A Future that resolves to a boolean indicating whether the signature is valid.
   Future<bool> verify(
-      Uint8List digest, String signatureHex, KmsKeyId keyId) async {
-    final publicKeyHex = await this.publicKey(keyId);
-    final publicKey = ed25519.PublicKey(hexToBytes(publicKeyHex));
+      Uint8List digest, String signatureHex, KeyId keyId) async {
+    final publicKey = await this.publicKey(keyId);
+    final edPublicKey = ed25519.PublicKey(hexToBytes(publicKey.hex));
 
     return ed25519.verify(
-      publicKey,
+      edPublicKey,
       digest,
       hexToBytes(signatureHex),
     );
   }
 
+  @override
+  Future<PrivateKey> privateKey(KeyId keyId) async {
+    return _privateKey(keyId);
+  }
+
   /// Retrieves the private key for a given keyId from the key store.
   /// @param {KmsKeyId} keyId - The identifier of the key to retrieve.
   /// @returns {Future<String>} The private key associated with the keyId.
-  Future<String> _privateKey(KmsKeyId keyId) async {
-    return _keyStore.get(alias: keyId.id);
+  Future<Ed25519PrivateKey> _privateKey(KeyId keyId) async {
+    final privateKeyHex = await _keyStore.get(alias: keyId.id);
+
+    return Ed25519PrivateKey(ed25519.PrivateKey(hexToBytes(privateKeyHex)));
+  }
+}
+
+class Ed25519PublicKey extends PublicKey {
+  final ed25519.PublicKey publicKey;
+
+  Ed25519PublicKey(this.publicKey) : super(hex: bytesToHex(publicKey.bytes));
+
+  @override
+  KeyType get keyType => KeyType.Ed25519;
+}
+
+class Ed25519PrivateKey extends PrivateKey {
+  final ed25519.PrivateKey privateKey;
+
+  Ed25519PrivateKey(this.privateKey) : super(hex: bytesToHex(privateKey.bytes));
+
+  @override
+  PublicKey publicKey() {
+    return Ed25519PublicKey(ed25519.public(privateKey));
+  }
+
+  @override
+  Uint8List sign(Uint8List message) {
+    return ed25519.sign(privateKey, message);
   }
 }

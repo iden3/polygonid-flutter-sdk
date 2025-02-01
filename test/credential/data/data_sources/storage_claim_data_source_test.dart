@@ -170,7 +170,7 @@ void main() {
       // When
       expect(
           await dataSource.getClaims(
-              did: identifiers[0], privateKey: privateKey),
+              did: identifiers[0], encryptionKey: privateKey),
           isA<List<ClaimDTO>>());
 
       // Then
@@ -197,7 +197,7 @@ void main() {
       // When
       expect(
           await dataSource.getClaims(
-              filter: filter, did: identifiers[0], privateKey: privateKey),
+              filter: filter, did: identifiers[0], encryptionKey: privateKey),
           isA<List<ClaimDTO>>());
 
       // Then
@@ -224,7 +224,7 @@ void main() {
       // When
       await expectLater(
           dataSource.getClaims(
-              filter: filter, did: identifiers[0], privateKey: privateKey),
+              filter: filter, did: identifiers[0], encryptionKey: privateKey),
           throwsA(exception));
 
       // Then

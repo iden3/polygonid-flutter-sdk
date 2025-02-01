@@ -46,7 +46,7 @@ class GetInteractionsUseCase
           await _interactionRepository.getInteractions(
         filters: param.filters,
         genesisDid: param.genesisDid,
-        privateKey: param.privateKey,
+        encryptionKey: param.privateKey,
       );
 
       /// Shortcut to filter by type

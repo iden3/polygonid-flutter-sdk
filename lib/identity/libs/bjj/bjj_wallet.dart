@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:web3dart/credentials.dart';
 
-import 'eddsa_babyjub.dart' as eddsaBabyJub;
+import 'eddsa_babyjub.dart';
 import 'package:bip32/bip32.dart' as bip32;
 
 // TODO: move impl to a DS and transform this class to an entity
@@ -22,8 +22,8 @@ class BjjWallet {
       throw ArgumentError('buf must be 32 bytes');
     }
 
-    final priv = eddsaBabyJub.PrivateKey(privateKey);
-    final eddsaBabyJub.PublicKey publicKey = priv.public();
+    final priv = BjjPrivateKey(privateKey);
+    final BjjPublicKey publicKey = priv.publicKey();
     this.publicKey = [publicKey.p.x.toString(), publicKey.p.y.toString()];
   }
 
@@ -59,9 +59,11 @@ class BjjWallet {
   /// @param [String] messageStr - message to hash
   /// @returns [String] - hash poseidon
   String hashMessage(
-      String claimsTreeRoot, String revocationTree, String rootsTreeRoot) {
-    final hash = eddsaBabyJub.hashPoseidon(
-        claimsTreeRoot, revocationTree, rootsTreeRoot);
+    String claimsTreeRoot,
+    String revocationTree,
+    String rootsTreeRoot,
+  ) {
+    final hash = hashPoseidon(claimsTreeRoot, revocationTree, rootsTreeRoot);
     return hash;
   }
 }

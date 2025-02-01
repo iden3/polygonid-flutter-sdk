@@ -10,12 +10,12 @@ import 'common_mocks.dart';
 class IdentityMocks {
   static IdentityEntity identityDTO = IdentityEntity(
       did: CommonMocks.did,
-      publicKey: CommonMocks.pubKeys,
+      publicKey: CommonMocks.publicKey,
       profiles: CommonMocks.profiles);
 
   static IdentityEntity identity = IdentityEntity(
       did: CommonMocks.did,
-      publicKey: CommonMocks.pubKeys,
+      publicKey: CommonMocks.publicKey,
       profiles: CommonMocks.profiles);
 
   static List<PrivateIdentityEntity> privateIdentityList = [
@@ -25,7 +25,7 @@ class IdentityMocks {
 
   static PrivateIdentityEntity privateIdentity = PrivateIdentityEntity(
       did: CommonMocks.did,
-      publicKey: CommonMocks.pubKeys,
+      publicKey: CommonMocks.publicKey,
       privateKey: CommonMocks.privateKey,
       profiles: CommonMocks.profiles);
 

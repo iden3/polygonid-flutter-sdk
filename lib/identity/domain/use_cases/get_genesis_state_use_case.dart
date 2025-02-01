@@ -8,7 +8,7 @@ import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repo
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_identity_auth_claim_use_case.dart';
 
-/// Get the genesis state of the tree, [param] - private key.
+/// Get the genesis state of the tree, [param] - baby jub jub public key.
 class GetGenesisStateUseCase
     extends FutureUseCase<List<String>, TreeStateEntity> {
   final IdentityRepository _identityRepository;

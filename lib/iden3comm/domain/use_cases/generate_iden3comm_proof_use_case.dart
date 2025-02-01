@@ -99,6 +99,8 @@ class GenerateIden3commProofUseCase
   Future<Iden3commProofEntity> execute({
     required GenerateIden3commProofParam param,
   }) async {
+    final encryptionKey = param.privateKey;
+
     List<String>? authClaim;
     MTProofEntity? incProof;
     MTProofEntity? nonRevProof;
@@ -160,18 +162,20 @@ class GenerateIden3commProofUseCase
           "GENERATION PROOF getAuthClaimNode executed in ${stopwatch.elapsed}");
 
       incProof = await _smtRepository.generateProof(
-          key: authClaimNode.hash,
-          type: TreeType.claims,
-          did: param.did,
-          privateKey: param.privateKey!);
+        key: authClaimNode.hash,
+        type: TreeType.claims,
+        did: param.did,
+        encryptionKey: encryptionKey!,
+      );
       _stacktraceManager.addTrace("[GenerateIden3commProofUseCase] incProof");
       logger().i("GENERATION PROOF incProof executed in ${stopwatch.elapsed}");
 
       nonRevProof = await _smtRepository.generateProof(
-          key: authClaimNode.hash,
-          type: TreeType.revocation,
-          did: param.did,
-          privateKey: param.privateKey!);
+        key: authClaimNode.hash,
+        type: TreeType.revocation,
+        did: param.did,
+        encryptionKey: encryptionKey,
+      );
       _stacktraceManager
           .addTrace("[GenerateIden3commProofUseCase] nonRevProof");
       logger()
@@ -179,8 +183,11 @@ class GenerateIden3commProofUseCase
 
       // hash of clatr, revtr, rootr
       treeState = await _getLatestStateUseCase.execute(
-          param: GetLatestStateParam(
-              did: param.did, privateKey: param.privateKey!));
+        param: GetLatestStateParam(
+          did: param.did,
+          encryptionKey: param.privateKey!,
+        ),
+      );
       _stacktraceManager.addTrace("[GenerateIden3commProofUseCase] treeState");
       logger().i("GENERATION PROOF treeState executed in ${stopwatch.elapsed}");
 
@@ -189,7 +196,11 @@ class GenerateIden3commProofUseCase
       logger().i("GENERATION PROOF gistProof executed in ${stopwatch.elapsed}");
 
       signature = await _signMessageUseCase.execute(
-          param: SignMessageParam(param.privateKey!, param.challenge!));
+        param: SignMessageParam(
+          param.privateKey!,
+          param.challenge!,
+        ),
+      );
       _stacktraceManager.addTrace("[GenerateIden3commProofUseCase] signature");
       //onchain end
       logger().i("GENERATION PROOF signature executed in ${stopwatch.elapsed}");

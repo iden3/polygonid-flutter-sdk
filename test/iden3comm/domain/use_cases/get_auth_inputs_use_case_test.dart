@@ -31,8 +31,13 @@ MockGetEnvUseCase getEnvUseCase = MockGetEnvUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 // Data
-GetAuthInputsParam param = GetAuthInputsParam(CommonMocks.challenge,
-    CommonMocks.did, CommonMocks.nonce, CommonMocks.privateKey);
+GetAuthInputsParam param = GetAuthInputsParam(
+  challenge: CommonMocks.challenge,
+  genesisDid: CommonMocks.did,
+  profileNonce: CommonMocks.nonce,
+  privateKey: CommonMocks.privateKey,
+  encryptionKey: CommonMocks.privateKey,
+);
 var claims = [CommonMocks.authClaim, CommonMocks.authClaim];
 var getAuthInputsException = GetAuthInputsException(errorMessage: "error");
 
@@ -92,7 +97,7 @@ void main() {
             key: anyNamed('key'),
             type: anyNamed('type'),
             did: anyNamed('did'),
-            privateKey: anyNamed('privateKey')))
+            encryptionKey: anyNamed('encryptionKey')))
         .thenAnswer((realInvocation) => Future.value(ProofMocks.mtProof));
     when(getLatestStateUseCase.execute(param: anyNamed('param')))
         .thenAnswer((realInvocation) => Future.value(CommonMocks.aMap));

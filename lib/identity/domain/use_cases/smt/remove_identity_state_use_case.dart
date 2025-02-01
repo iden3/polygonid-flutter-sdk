@@ -7,11 +7,11 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 
 class RemoveIdentityStateParam {
   final String did;
-  final String privateKey;
+  final String encryptionKey;
 
   RemoveIdentityStateParam({
     required this.did,
-    required this.privateKey,
+    required this.encryptionKey,
   });
 }
 
@@ -31,17 +31,17 @@ class RemoveIdentityStateUseCase
       _smtRepository.removeSMT(
         type: TreeType.claims,
         did: param.did,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       ),
       _smtRepository.removeSMT(
         type: TreeType.revocation,
         did: param.did,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       ),
       _smtRepository.removeSMT(
         type: TreeType.roots,
         did: param.did,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       ),
     ]).then((did) {
       _stacktraceManager.addTrace(

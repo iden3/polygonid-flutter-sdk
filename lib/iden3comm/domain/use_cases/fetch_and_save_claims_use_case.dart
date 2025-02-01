@@ -89,17 +89,19 @@ class FetchAndSaveClaimsUseCase
 
     try {
       await _checkProfileAndDidCurrentEnvUseCase.execute(
-          param: CheckProfileAndDidCurrentEnvParam(
-              did: param.genesisDid,
-              privateKey: param.privateKey,
-              profileNonce: param.profileNonce));
+        param: CheckProfileAndDidCurrentEnvParam.withPrivateKey(
+          did: param.genesisDid,
+          privateKey: param.privateKey,
+          profileNonce: param.profileNonce,
+        ),
+      );
 
       final env = await _getEnvUseCase.execute();
       final chain = await _getSelectedChainUseCase.execute();
 
       final profileDid = await _getDidIdentifierUseCase.execute(
         param: GetDidIdentifierParam.withPrivateKey(
-          privateKey: param.privateKey,
+          bjjPrivateKey: param.privateKey,
           blockchain: chain.blockchain,
           network: chain.network,
           profileNonce: param.profileNonce,
@@ -124,7 +126,7 @@ class FetchAndSaveClaimsUseCase
         param: SaveClaimsParam(
           claims: claims,
           genesisDid: param.genesisDid,
-          privateKey: param.privateKey,
+          encryptionKey: param.privateKey,
         ),
       );
 

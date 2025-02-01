@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:polygonid_flutter_sdk/common/kms/index.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
+import 'package:polygonid_flutter_sdk/common/kms/store/memory_key_store.dart';
 import 'package:polygonid_flutter_sdk/common/utils/big_int_extension.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -48,13 +50,12 @@ void main() {
     "should signatures be valid and equal for the same data and private key",
     () async {
       final keyStore = InMemoryPrivateKeyStore();
-      final ed25519Provider = Ed25519Provider(KmsKeyType.Ed25519, keyStore);
-      final secp256k1Provider =
-          Sec256k1Provider(KmsKeyType.Secp256k1, keyStore);
+      final ed25519Provider = Ed25519Provider(KeyType.Ed25519, keyStore);
+      final secp256k1Provider = Sec256k1Provider(KeyType.Secp256k1, keyStore);
 
       // BJJ uses platform based implementation
       // ignore: unused_local_variable
-      final bjjProvider = BjjProvider(KmsKeyType.BabyJubJub, keyStore);
+      final bjjProvider = BjjProvider(KeyType.BabyJubJub, keyStore);
       await Future.wait([
         // testFlow(bjjProvider),
         testFlow(ed25519Provider),

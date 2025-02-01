@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:polygonid_flutter_sdk/common/kms/keys/private_key.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/public_key.dart';
 import 'package:polygonid_flutter_sdk/common/kms/kms.dart';
 import 'package:polygonid_flutter_sdk/common/kms/provider_helpers.dart';
 import 'package:polygonid_flutter_sdk/common/kms/store/abstract_key_store.dart';
-import 'package:polygonid_flutter_sdk/common/kms/store/types.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:secp256k1/secp256k1.dart' as secp256k1;
 
@@ -14,30 +16,30 @@ import 'package:secp256k1/secp256k1.dart' as secp256k1;
 class Sec256k1Provider implements IKeyProvider {
   /// key type that is handled by BJJ Provider
   /// @type {KmsKeyType}
-  final KmsKeyType keyType;
+  final KeyType keyType;
   final AbstractPrivateKeyStore _keyStore;
 
   /// Creates an instance of Sec256k1Provider.
   /// @param {KmsKeyType} keyType - kms key type
   /// @param {AbstractPrivateKeyStore} keyStore - key store for kms
   Sec256k1Provider(this.keyType, this._keyStore) {
-    if (keyType != KmsKeyType.Secp256k1) {
+    if (keyType != KeyType.Secp256k1) {
       throw Exception('Key type must be Secp256k1');
     }
   }
 
-  /// generates a baby jub jub key from a seed phrase
+  /// generates a sec256k1 key from a seed phrase
   /// @param {Uint8List} seed - byte array seed
   /// @returns kms key identifier
   @override
-  Future<KmsKeyId> newPrivateKeyFromSeed(Uint8List seed) async {
+  Future<KeyId> newPrivateKeyFromSeed(Uint8List seed) async {
     if (seed.length != 32) {
       throw Exception('Seed should be 32 bytes');
     }
     final privateKey = secp256k1.PrivateKey.fromHex(bytesToHex(seed));
     final publicKey = privateKey.publicKey;
 
-    final kmsId = KmsKeyId(
+    final kmsId = KeyId(
       type: keyType,
       id: keyPath(keyType, publicKey.toHex()),
     );
@@ -54,11 +56,9 @@ class Sec256k1Provider implements IKeyProvider {
   ///
   /// @param {KmsKeyId} keyId - key identifier
   @override
-  Future<String> publicKey(KmsKeyId keyId) async {
-    final privateKeyHex = await _privateKey(keyId);
-    final privateKey = secp256k1.PrivateKey.fromHex(privateKeyHex);
-    final publicKey = privateKey.publicKey;
-    return publicKey.toHex(); // 04 + x + y (uncompressed key)
+  Future<Secp256k1PublicKey> publicKey(KeyId keyId) async {
+    final privateKey = await _privateKey(keyId);
+    return privateKey.publicKey();
   }
 
   /// Signs the given data using the private key associated with the specified key identifier.
@@ -68,29 +68,12 @@ class Sec256k1Provider implements IKeyProvider {
   /// @returns A Future that resolves to the signature as a Uint8List.
   @override
   Future<Uint8List> sign(
-    KmsKeyId keyId,
+    KeyId keyId,
     Uint8List data, [
     Map<String, dynamic>? opts,
   ]) async {
-    final privateKeyHex = await _privateKey(keyId);
-    final privateKey = secp256k1.PrivateKey.fromHex(privateKeyHex);
-
-    final signature = privateKey.signature(bytesToHex(data));
-
-    final signatureBytes = Uint8List(64);
-    final rBytes = hexToBytes(signature.R.toRadixString(16).padLeft(32, '0'));
-    signatureBytes.setRange(0, 32, rBytes);
-    final sBytes = hexToBytes(signature.S.toRadixString(16).padLeft(32, '0'));
-    signatureBytes.setRange(32, 64, sBytes);
-
-    // final signatureBase64 = await ES256KSigner(
-    //     hexToBytes(privateKeyHex), opts?["alg"] == 'ES256K-R')(data);
-    //
-    // if (signatureBase64.runtimeType != String) {
-    //   throw Exception('signatureBase64 must be a String');
-    // }
-
-    return signatureBytes;
+    final privateKey = await _privateKey(keyId);
+    return privateKey.sign(data);
   }
 
   /// Verifies a signature for the given message and key identifier.
@@ -102,11 +85,9 @@ class Sec256k1Provider implements IKeyProvider {
   Future<bool> verify(
     Uint8List message,
     String signatureHex,
-    KmsKeyId keyId,
+    KeyId keyId,
   ) async {
-    final publicKeyHex = await this.publicKey(keyId);
-
-    final publicKey = secp256k1.PublicKey.fromHex(publicKeyHex);
+    final publicKey = await this.publicKey(keyId);
 
     final signature = secp256k1.Signature.fromHexes(
       signatureHex.substring(0, signatureHex.length ~/ 2),
@@ -114,12 +95,52 @@ class Sec256k1Provider implements IKeyProvider {
     );
 
     return signature.verify(
-      publicKey,
+      publicKey.publicKey,
       bytesToHex(message),
     );
   }
 
-  Future<String> _privateKey(KmsKeyId keyId) async {
-    return _keyStore.get(alias: keyId.id);
+  @override
+  Future<Secp256k1PrivateKey> privateKey(KeyId keyId) async {
+    return _privateKey(keyId);
+  }
+
+  Future<Secp256k1PrivateKey> _privateKey(KeyId keyId) async {
+    final privateKeyHex = await _keyStore.get(alias: keyId.id);
+    final privateKey = secp256k1.PrivateKey.fromHex(privateKeyHex);
+    return Secp256k1PrivateKey(privateKey);
+  }
+}
+
+class Secp256k1PublicKey extends PublicKey {
+  final secp256k1.PublicKey publicKey;
+
+  Secp256k1PublicKey(this.publicKey) : super(hex: publicKey.toHex());
+
+  @override
+  KeyType get keyType => KeyType.Secp256k1;
+}
+
+class Secp256k1PrivateKey extends PrivateKey {
+  final secp256k1.PrivateKey privateKey;
+
+  Secp256k1PrivateKey(this.privateKey) : super(hex: privateKey.toHex());
+
+  @override
+  Secp256k1PublicKey publicKey() {
+    return Secp256k1PublicKey(privateKey.publicKey);
+  }
+
+  @override
+  Uint8List sign(Uint8List message) {
+    final signature = privateKey.signature(bytesToHex(message));
+
+    final signatureBytes = Uint8List(64);
+    final rBytes = hexToBytes(signature.R.toRadixString(16).padLeft(32, '0'));
+    signatureBytes.setRange(0, 32, rBytes);
+    final sBytes = hexToBytes(signature.S.toRadixString(16).padLeft(32, '0'));
+    signatureBytes.setRange(32, 64, sBytes);
+
+    return signatureBytes;
   }
 }

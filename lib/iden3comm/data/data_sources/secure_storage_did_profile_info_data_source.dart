@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/data/data_sources/secure_identity_storage_data_source.dart';
 import 'package:sembast/sembast.dart';
@@ -49,9 +50,9 @@ class SecureStorageDidProfileInfoDataSource
     required Map<String, dynamic> didProfileInfo,
     required String interactedDid,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey)
+    return getDatabase(did: did, encryptionKey: encryptionKey)
         .then((database) => database
             .transaction(
               (transaction) => storeDidProfileInfoTransact(
@@ -63,6 +64,7 @@ class SecureStorageDidProfileInfoDataSource
             .whenComplete(() => database.close()));
   }
 
+  @visibleForTesting
   Future<void> storeDidProfileInfoTransact({
     required DatabaseClient transaction,
     required Map<String, dynamic> didProfileInfo,
@@ -74,25 +76,29 @@ class SecureStorageDidProfileInfoDataSource
   Future<void> removeDidProfileInfo({
     required String interactedDid,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database.transaction((transaction) => removeDidProfileInfoTransact(
-              transaction: transaction,
-              interactedDid: interactedDid,
-            )));
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) =>
+            database.transaction((transaction) => removeDidProfileInfoTransact(
+                  transaction: transaction,
+                  interactedDid: interactedDid,
+                )));
   }
 
-  // For UT purpose
-  Future<void> removeDidProfileInfoTransact(
-      {required DatabaseClient transaction,
-      required String interactedDid}) async {
+  @visibleForTesting
+  Future<void> removeDidProfileInfoTransact({
+    required DatabaseClient transaction,
+    required String interactedDid,
+  }) async {
     await _storeRefWrapper.remove(transaction, interactedDid);
   }
 
-  Future<void> removeAllDidProfileInfo(
-      {required String did, required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then(
+  Future<void> removeAllDidProfileInfo({
+    required String did,
+    required String encryptionKey,
+  }) {
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
       (database) => database.transaction(
         (transaction) =>
             removeAllDidProfileInfoTransact(transaction: transaction),
@@ -100,19 +106,20 @@ class SecureStorageDidProfileInfoDataSource
     );
   }
 
-  // For UT purpose
-  Future<void> removeAllDidProfileInfoTransact(
-      {required DatabaseClient transaction}) async {
+  @visibleForTesting
+  Future<void> removeAllDidProfileInfoTransact({
+    required DatabaseClient transaction,
+  }) async {
     await _storeRefWrapper.removeAll(transaction);
   }
 
   Future<Map<String, dynamic>> getDidProfileInfosByInteractedWithDid({
     required String did,
-    required String privateKey,
     required String interactedWithDid,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        _storeRefWrapper
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => _storeRefWrapper
             .get(database, interactedWithDid)
             .then((value) => value ?? {}));
     //.whenComplete(() => database.close()));
@@ -121,10 +128,10 @@ class SecureStorageDidProfileInfoDataSource
   Future<List<Map<String, dynamic>>> getDidProfileInfos({
     Filter? filter,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        _storeRefWrapper
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => _storeRefWrapper
             .find(database, finder: Finder(filter: filter))
             .then((snapshots) =>
                 snapshots.map((snapshot) => snapshot.value).toList())

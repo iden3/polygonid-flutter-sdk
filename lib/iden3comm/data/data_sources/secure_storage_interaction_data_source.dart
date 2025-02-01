@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/data/data_sources/secure_identity_storage_data_source.dart';
 import 'package:polygonid_flutter_sdk/constants.dart';
@@ -51,21 +52,23 @@ class SecureStorageInteractionDataSource
   /// If one storing fails, they will all be reverted
   ///
   /// Return the stored interactions
-  Future<List<Map<String, dynamic>>> storeInteractions(
-      {required List<Map<String, dynamic>> interactions,
-      required String did,
-      required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+  Future<List<Map<String, dynamic>>> storeInteractions({
+    required List<Map<String, dynamic>> interactions,
+    required String did,
+    required String encryptionKey,
+  }) {
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) => storeInteractionsTransact(
                 transaction: transaction, interactions: interactions))
             .whenComplete(() => database.close()));
   }
 
-  // For UT purpose
-  Future<List<Map<String, dynamic>>> storeInteractionsTransact(
-      {required DatabaseClient transaction,
-      required List<Map<String, dynamic>> interactions}) async {
+  @visibleForTesting
+  Future<List<Map<String, dynamic>>> storeInteractionsTransact({
+    required DatabaseClient transaction,
+    required List<Map<String, dynamic>> interactions,
+  }) async {
     List<Map<String, dynamic>> storedInteractions = [];
 
     for (Map<String, dynamic> interaction in interactions) {
@@ -90,20 +93,23 @@ class SecureStorageInteractionDataSource
 
   /// Remove all interactions in a single transaction
   /// If one removing fails, they will all be reverted
-  Future<void> removeInteractions(
-      {required List<String> ids,
-      required String did,
-      required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+  Future<void> removeInteractions({
+    required List<String> ids,
+    required String did,
+    required String encryptionKey,
+  }) {
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) =>
                 removeInteractionsTransact(transaction: transaction, ids: ids))
             .whenComplete(() => database.close()));
   }
 
-  // For UT purpose
-  Future<void> removeInteractionsTransact(
-      {required DatabaseClient transaction, required List<String> ids}) async {
+  @visibleForTesting
+  Future<void> removeInteractionsTransact({
+    required DatabaseClient transaction,
+    required List<String> ids,
+  }) async {
     for (String interactionId in ids) {
       await _storeRefWrapper.remove(transaction, interactionId);
     }
@@ -111,25 +117,31 @@ class SecureStorageInteractionDataSource
 
   /// Remove all interactions in a single transaction
   /// If one removing fails, they will all be reverted
-  Future<void> removeAllInteractions(
-      {required String did, required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        database
+  Future<void> removeAllInteractions({
+    required String did,
+    required String encryptionKey,
+  }) {
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => database
             .transaction((transaction) =>
                 removeAllInteractionsTransact(transaction: transaction))
             .whenComplete(() => database.close()));
   }
 
-  // For UT purpose
-  Future<void> removeAllInteractionsTransact(
-      {required DatabaseClient transaction}) async {
+  @visibleForTesting
+  Future<void> removeAllInteractionsTransact({
+    required DatabaseClient transaction,
+  }) async {
     await _storeRefWrapper.removeAll(transaction);
   }
 
-  Future<List<Map<String, dynamic>>> getInteractions(
-      {Filter? filter, required String did, required String privateKey}) {
-    return getDatabase(did: did, privateKey: privateKey).then((database) =>
-        _storeRefWrapper
+  Future<List<Map<String, dynamic>>> getInteractions({
+    Filter? filter,
+    required String did,
+    required String encryptionKey,
+  }) {
+    return getDatabase(did: did, encryptionKey: encryptionKey).then(
+        (database) => _storeRefWrapper
             .find(database, finder: Finder(filter: filter))
             .then((snapshots) =>
                 snapshots.map((snapshot) => snapshot.value).toList())

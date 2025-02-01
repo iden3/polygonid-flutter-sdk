@@ -5,6 +5,7 @@ import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_ma
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/check_profile_and_did_current_env.dart';
 import 'package:polygonid_flutter_sdk/identity/data/data_sources/lib_pidcore_identity_data_source.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/exceptions/identity_exceptions.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/update_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/profile/add_profile_use_case.dart';
@@ -46,6 +47,7 @@ MockUpdateIdentityUseCase updateIdentityUseCase = MockUpdateIdentityUseCase();
 MockCreateProfilesUseCase createProfilesUseCase = MockCreateProfilesUseCase();
 MockCheckProfileAndDidCurrentEnvUseCase checkProfileAndDidCurrentEnvUseCase =
     MockCheckProfileAndDidCurrentEnvUseCase();
+MockGetPublicKeyUseCase getPublicKeyUseCase = MockGetPublicKeyUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 MockLibPolygonIdCoreIdentityDataSource libPolygonIdCoreIdentityDataSource =
     MockLibPolygonIdCoreIdentityDataSource();
@@ -56,6 +58,7 @@ AddProfileUseCase useCase = AddProfileUseCase(
   updateIdentityUseCase,
   checkProfileAndDidCurrentEnvUseCase,
   createProfilesUseCase,
+  getPublicKeyUseCase,
   libPolygonIdCoreIdentityDataSource,
   stacktraceManager,
 );
@@ -65,6 +68,7 @@ AddProfileUseCase useCase = AddProfileUseCase(
   UpdateIdentityUseCase,
   CheckProfileAndDidCurrentEnvUseCase,
   CreateProfilesUseCase,
+  GetPublicKeyUseCase,
   LibPolygonIdCoreIdentityDataSource,
   StacktraceManager,
 ])
@@ -74,6 +78,7 @@ void main() {
     reset(updateIdentityUseCase);
     reset(createProfilesUseCase);
     reset(checkProfileAndDidCurrentEnvUseCase);
+    reset(getPublicKeyUseCase);
 
     // Given
     when(checkProfileAndDidCurrentEnvUseCase.execute(param: anyNamed('param')))
@@ -85,6 +90,8 @@ void main() {
             {param.profileNonce: CommonMocks.did + "${param.profileNonce}"}));
     when(updateIdentityUseCase.execute(param: anyNamed('param'))).thenAnswer(
         (realInvocation) => Future.value(IdentityMocks.privateIdentity));
+    when(getPublicKeyUseCase.execute(param: anyNamed('param')))
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
   });
 
   test(
@@ -99,7 +106,7 @@ void main() {
           .captured
           .first;
       expect(captureCheck.did, CommonMocks.did);
-      expect(captureCheck.privateKey, CommonMocks.privateKey);
+      expect(captureCheck.publicKey, CommonMocks.publicKey);
       expect(captureCheck.profileNonce, BigInt.two);
 
       var getIdentityCapture =
@@ -112,7 +119,7 @@ void main() {
           verify(updateIdentityUseCase.execute(param: captureAnyNamed('param')))
               .captured
               .first;
-      expect(capturedUpdate.privateKey, CommonMocks.privateKey);
+      expect(capturedUpdate.encryptionKey, CommonMocks.privateKey);
       expect(capturedUpdate.profiles[1], CommonMocks.profiles[1]);
     },
   );
@@ -138,7 +145,7 @@ void main() {
         .captured
         .first;
     expect(captureCheck.did, CommonMocks.did);
-    expect(captureCheck.privateKey, CommonMocks.privateKey);
+    expect(captureCheck.publicKey, CommonMocks.publicKey);
     expect(captureCheck.profileNonce, CommonMocks.nonce);
 
     var captureGetIdentity =
@@ -146,7 +153,6 @@ void main() {
             .captured
             .first;
     expect(captureGetIdentity.genesisDid, CommonMocks.did);
-    expect(captureGetIdentity.privateKey, CommonMocks.privateKey);
 
     verifyNever(updateIdentityUseCase.execute(param: captureAnyNamed('param')));
   });
@@ -167,7 +173,7 @@ void main() {
         .captured
         .first;
     expect(captureCheck.did, CommonMocks.did);
-    expect(captureCheck.privateKey, CommonMocks.privateKey);
+    expect(captureCheck.publicKey, CommonMocks.publicKey);
     expect(captureCheck.profileNonce, BigInt.two);
 
     var captureGetIdentity =
@@ -175,7 +181,6 @@ void main() {
             .captured
             .first;
     expect(captureGetIdentity.genesisDid, CommonMocks.did);
-    expect(captureGetIdentity.privateKey, CommonMocks.privateKey);
 
     verifyNever(updateIdentityUseCase.execute(param: captureAnyNamed('param')));
   });

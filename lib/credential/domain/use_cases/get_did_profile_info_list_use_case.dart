@@ -4,13 +4,13 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/did_profile_
 
 class GetDidProfileInfoListParam {
   final String genesisDid;
-  final String privateKey;
   final List<FilterEntity>? filters;
+  final String encryptionKey;
 
   GetDidProfileInfoListParam({
     required this.genesisDid,
-    required this.privateKey,
     required this.filters,
+    required this.encryptionKey,
   });
 }
 
@@ -23,12 +23,13 @@ class GetDidProfileInfoListUseCase
   );
 
   @override
-  Future<List<Map<String, dynamic>>> execute(
-      {required GetDidProfileInfoListParam param}) {
+  Future<List<Map<String, dynamic>>> execute({
+    required GetDidProfileInfoListParam param,
+  }) {
     return _didProfileInfoRepository.getDidProfileInfoList(
       filters: param.filters,
       genesisDid: param.genesisDid,
-      privateKey: param.privateKey,
+      encryptionKey: param.encryptionKey,
     );
   }
 }

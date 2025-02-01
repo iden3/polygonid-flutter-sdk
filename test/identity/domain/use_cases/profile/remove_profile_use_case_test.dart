@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/remove_all_claims_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/check_profile_and_did_current_env.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/get_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/update_identity_use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/profile/create_profiles_use_case.dart';
@@ -23,6 +24,7 @@ MockRemoveAllClaimsUseCase removeAllClaimsUseCase =
 MockUpdateIdentityUseCase updateIdentityUseCase = MockUpdateIdentityUseCase();
 MockCheckProfileAndDidCurrentEnvUseCase checkProfileAndDidCurrentEnvUseCase =
     MockCheckProfileAndDidCurrentEnvUseCase();
+MockGetPublicKeyUseCase getPublicKeyUseCase = MockGetPublicKeyUseCase();
 MockStacktraceManager stacktraceManager = MockStacktraceManager();
 
 RemoveProfileParam param = RemoveProfileParam(
@@ -51,6 +53,7 @@ RemoveProfileUseCase useCase = RemoveProfileUseCase(
   createProfilesUseCase,
   removeIdentityStateUseCase,
   removeAllClaimsUseCase,
+  getPublicKeyUseCase,
   stacktraceManager,
 );
 
@@ -61,6 +64,7 @@ RemoveProfileUseCase useCase = RemoveProfileUseCase(
   RemoveAllClaimsUseCase,
   UpdateIdentityUseCase,
   CheckProfileAndDidCurrentEnvUseCase,
+  GetPublicKeyUseCase,
   StacktraceManager,
 ])
 void main() {
@@ -70,6 +74,7 @@ void main() {
     reset(removeIdentityStateUseCase);
     reset(removeAllClaimsUseCase);
     reset(updateIdentityUseCase);
+    reset(getPublicKeyUseCase);
 
     // Given
     when(checkProfileAndDidCurrentEnvUseCase.execute(param: anyNamed('param')))
@@ -84,6 +89,8 @@ void main() {
         .thenAnswer((realInvocation) => Future.value());
     when(updateIdentityUseCase.execute(param: anyNamed('param'))).thenAnswer(
         (realInvocation) => Future.value(IdentityMocks.privateIdentity));
+    when(getPublicKeyUseCase.execute(param: anyNamed('param')))
+        .thenAnswer((realInvocation) => Future.value(CommonMocks.publicKey));
   });
 
   test(
@@ -99,7 +106,7 @@ void main() {
           .captured
           .first;
       expect(captureCheck.did, CommonMocks.did);
-      expect(captureCheck.privateKey, CommonMocks.privateKey);
+      expect(captureCheck.publicKey, CommonMocks.publicKey);
       expect(captureCheck.profileNonce, CommonMocks.genesisNonce);
 
       var getIdentityCapture =
@@ -112,7 +119,7 @@ void main() {
           verify(updateIdentityUseCase.execute(param: captureAnyNamed('param')))
               .captured
               .first;
-      expect(capturedUpdate.privateKey, CommonMocks.privateKey);
+      expect(capturedUpdate.encryptionKey, CommonMocks.privateKey);
       expect(capturedUpdate.profiles[1], CommonMocks.profiles[1]);
     },
   );
@@ -134,7 +141,7 @@ void main() {
           .captured
           .first;
       expect(captureCheck.did, CommonMocks.did);
-      expect(captureCheck.privateKey, CommonMocks.privateKey);
+      expect(captureCheck.publicKey, CommonMocks.publicKey);
       expect(captureCheck.profileNonce, CommonMocks.genesisNonce);
 
       var getIdentityCapture =

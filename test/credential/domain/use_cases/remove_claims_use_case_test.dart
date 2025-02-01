@@ -12,7 +12,10 @@ const identifier = "theIdentifier";
 const privateKey = "thePrivateKey";
 const ids = ["theId", "theId1", "theId2"];
 final param = RemoveClaimsParam(
-    claimIds: ids, genesisDid: identifier, privateKey: privateKey);
+  claimIds: ids,
+  genesisDid: identifier,
+  encryptionKey: privateKey,
+);
 final exception = Exception();
 
 // Dependencies
@@ -34,7 +37,7 @@ void main() {
       // Given
       when(credentialRepository.removeClaims(
               genesisDid: identifier,
-              privateKey: privateKey,
+              encryptionKey: privateKey,
               claimIds: anyNamed("claimIds")))
           .thenAnswer((realInvocation) => Future.value());
     });
@@ -48,7 +51,7 @@ void main() {
       // Then
       var capturedRemove = verify(credentialRepository.removeClaims(
               genesisDid: captureAnyNamed('genesisDid'),
-              privateKey: captureAnyNamed('privateKey'),
+              encryptionKey: captureAnyNamed('encryptionKey'),
               claimIds: captureAnyNamed('claimIds')))
           .captured;
       expect(capturedRemove[0], identifier);
@@ -62,7 +65,7 @@ void main() {
       // Given
       when(credentialRepository.removeClaims(
               genesisDid: identifier,
-              privateKey: privateKey,
+              encryptionKey: privateKey,
               claimIds: anyNamed("claimIds")))
           .thenAnswer((realInvocation) => Future.error(exception));
 
@@ -72,7 +75,7 @@ void main() {
       // Then
       var capturedRemove = verify(credentialRepository.removeClaims(
               genesisDid: captureAnyNamed('genesisDid'),
-              privateKey: captureAnyNamed('privateKey'),
+              encryptionKey: captureAnyNamed('encryptionKey'),
               claimIds: captureAnyNamed('claimIds')))
           .captured;
       expect(capturedRemove[0], identifier);

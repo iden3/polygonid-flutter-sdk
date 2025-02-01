@@ -14,13 +14,14 @@ class GetPrivateKeyUseCase extends FutureUseCase<String, String> {
 
   @override
   Future<String> execute({required String param}) async {
-    return _identityRepository.getPrivateKey(secret: param).then((privateKey) {
+    try {
+      final privateKey = await _identityRepository.getPrivateKey(secret: param);
       return privateKey;
-    }).catchError((error) {
+    } catch (error) {
       logger().e("[GetPrivateKeyUseCase] Error: $error");
       _stacktraceManager.addTrace("[GetPrivateKeyUseCase] Error: $error");
       _stacktraceManager.addError("[GetPrivateKeyUseCase] Error: $error");
-      throw error;
-    });
+      rethrow;
+    }
   }
 }

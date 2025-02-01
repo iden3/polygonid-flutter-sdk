@@ -22,8 +22,13 @@ class AddNewIdentityUseCase
   Future<PrivateIdentityEntity> execute({String? param}) {
     return Future(() async {
       final privateKey = await _identityRepository.getPrivateKey(secret: param);
+      final publicKeys =
+          await _identityRepository.getPublicKeys(bjjPrivateKey: privateKey);
       final identity = await _addIdentityUseCase.execute(
-        param: AddIdentityParam(privateKey: privateKey),
+        param: AddIdentityParam(
+          bjjPublicKey: publicKeys,
+          encryptionKey: privateKey,
+        ),
       );
 
       logger().i(
@@ -31,7 +36,12 @@ class AddNewIdentityUseCase
       _stacktraceManager.addTrace(
           "[AddNewIdentityUseCase] New Identity created and saved with did: ${identity.did}, for key $param");
 
-      return identity;
+      return PrivateIdentityEntity(
+        did: identity.did,
+        publicKey: identity.publicKey,
+        profiles: identity.profiles,
+        privateKey: privateKey,
+      );
     }).catchError((error) {
       logger().e("[AddNewIdentityUseCase] Error: $error");
       _stacktraceManager.addTrace("[AddNewIdentityUseCase] Error: $error");

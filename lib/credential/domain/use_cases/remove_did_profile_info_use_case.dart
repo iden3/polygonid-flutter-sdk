@@ -3,13 +3,13 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/repositories/did_profile_
 
 class RemoveDidProfileInfoParam {
   final String genesisDid;
-  final String privateKey;
   final String interactedWithDid;
+  final String encryptionKey;
 
   RemoveDidProfileInfoParam({
     required this.genesisDid,
-    required this.privateKey,
     required this.interactedWithDid,
+    required this.encryptionKey,
   });
 }
 
@@ -26,7 +26,7 @@ class RemoveDidProfileInfoUseCase
     return _didProfileInfoRepository.removeDidProfileInfo(
       interactedDid: param.interactedWithDid,
       genesisDid: param.genesisDid,
-      privateKey: param.privateKey,
+      encryptionKey: param.encryptionKey,
     );
   }
 }

@@ -46,9 +46,9 @@ class SecureStorageProfilesDataSource extends SecureIdentityStorageDataSource {
   Future<void> storeProfiles({
     required Map<BigInt, String> profiles,
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey)
+    return getDatabase(did: did, encryptionKey: encryptionKey)
         .then((database) => database
             .transaction(
               (transaction) => storeProfilesTransact(
@@ -74,9 +74,9 @@ class SecureStorageProfilesDataSource extends SecureIdentityStorageDataSource {
 
   Future<Map<BigInt, String>> getProfiles({
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   }) {
-    return getDatabase(did: did, privateKey: privateKey)
+    return getDatabase(did: did, encryptionKey: encryptionKey)
         .then((database) => _storeRefWrapper.find(database).then((snapshots) {
               if (snapshots.isEmpty) {
                 return {BigInt.zero: did};

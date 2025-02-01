@@ -1,12 +1,16 @@
 import "dart:typed_data";
 
 import "package:encrypt/encrypt.dart";
+import "package:flutter/foundation.dart";
 import "package:polygonid_flutter_sdk/common/kms/index.dart";
+import "package:polygonid_flutter_sdk/common/kms/keys/private_key.dart";
+import "package:polygonid_flutter_sdk/common/kms/keys/public_key.dart";
+import "package:polygonid_flutter_sdk/common/kms/keys/types.dart";
+import "package:polygonid_flutter_sdk/common/kms/store/abstract_key_store.dart";
 import "package:polygonid_flutter_sdk/common/utils/big_int_extension.dart";
 import "package:polygonid_flutter_sdk/common/utils/uint8_list_utils.dart";
+import "package:polygonid_flutter_sdk/identity/libs/bjj/eddsa_babyjub.dart";
 import "package:web3dart/crypto.dart";
-
-import "../../../identity/libs/bjj/eddsa_babyjub.dart";
 
 /// Provider for Baby Jub Jub keys
 /// @public
@@ -15,15 +19,15 @@ import "../../../identity/libs/bjj/eddsa_babyjub.dart";
 class BjjProvider implements IKeyProvider {
   /// key type that is handled by BJJ Provider
   /// @type {KmsKeyType}
-  KmsKeyType get keyType => KmsKeyType.BabyJubJub;
+  KeyType get keyType => KeyType.BabyJubJub;
 
-  AbstractPrivateKeyStore keyStore;
+  AbstractPrivateKeyStore _keyStore;
 
   /// Creates an instance of BjjProvider.
   /// @param {KmsKeyType} keyType - kms key type
   /// @param {AbstractPrivateKeyStore} keyStore - key store for kms
-  BjjProvider(KmsKeyType keyType, this.keyStore) {
-    if (keyType != KmsKeyType.BabyJubJub) {
+  BjjProvider(KeyType keyType, this._keyStore) {
+    if (keyType != KeyType.BabyJubJub) {
       throw Exception('Key type must be BabyJubJub');
     }
   }
@@ -32,16 +36,16 @@ class BjjProvider implements IKeyProvider {
   /// @param {Uint8List} seed - byte array seed
   /// @returns kms key identifier
   @override
-  Future<KmsKeyId> newPrivateKeyFromSeed(Uint8List seed) async {
-    final privateKey = PrivateKey(seed);
+  Future<KeyId> newPrivateKeyFromSeed(Uint8List seed) async {
+    final privateKey = BjjPrivateKey(seed);
 
-    final publicKey = privateKey.public();
+    final publicKey = privateKey.publicKey();
 
-    final kmsId = KmsKeyId(
+    final kmsId = KeyId(
       type: keyType,
       id: keyPath(keyType, publicKey.hex),
     );
-    await keyStore.importKey(alias: kmsId.id, key: privateKey.hex());
+    await _keyStore.importKey(alias: publicKey.keyId.id, key: privateKey.hex);
 
     return kmsId;
   }
@@ -50,9 +54,9 @@ class BjjProvider implements IKeyProvider {
   ///
   /// @param {KmsKeyId} keyId - key identifier
   @override
-  Future<String> publicKey(KmsKeyId keyId) async {
+  Future<PublicKey> publicKey(KeyId keyId) async {
     final privateKey = await _privateKey(keyId);
-    return privateKey.public().hex;
+    return privateKey.publicKey();
   }
 
   /// signs prepared payload of size,
@@ -63,7 +67,7 @@ class BjjProvider implements IKeyProvider {
   /// @returns Uint8List signature
   @override
   Future<Uint8List> sign(
-    KmsKeyId keyId,
+    KeyId keyId,
     Uint8List data, [
     Map<String, dynamic>? opts,
   ]) async {
@@ -77,27 +81,33 @@ class BjjProvider implements IKeyProvider {
     }
     final privateKey = await _privateKey(keyId);
 
-    final signature = privateKey.sign(i);
+    final signature = privateKey.sign(data);
 
-    return Uint8ArrayUtils.uint8ListfromString(signature);
+    return signature;
   }
 
   @override
   Future<bool> verify(
-      Uint8List message, String signatureHex, KmsKeyId keyId) async {
-    final publicKey = await this.publicKey(keyId);
+    Uint8List message,
+    String signatureHex,
+    KeyId keyId,
+  ) async {
+    final publicKey = (await this.publicKey(keyId)) as BjjPublicKey;
 
-    final pbkey = PublicKey.hex(publicKey);
-
-    return pbkey.verify(
+    return publicKey.verify(
       Uint8ArrayUtils.uint8ListToString(message),
-      Signature.newFromCompressed(hexToBytes(signatureHex)),
+      BjjSignature.newFromCompressed(hexToBytes(signatureHex)),
     );
   }
 
-  Future<PrivateKey> _privateKey(KmsKeyId keyId) async {
-    final privateKeyHex = await keyStore.get(alias: keyId.id);
+  @override
+  Future<PrivateKey> privateKey(KeyId keyId) async {
+    return _privateKey(keyId);
+  }
 
-    return PrivateKey(decodeHexString(privateKeyHex));
+  Future<BjjPrivateKey> _privateKey(KeyId keyId) async {
+    final privateKeyHex = await _keyStore.get(alias: keyId.id);
+
+    return BjjPrivateKey(decodeHexString(privateKeyHex));
   }
 }

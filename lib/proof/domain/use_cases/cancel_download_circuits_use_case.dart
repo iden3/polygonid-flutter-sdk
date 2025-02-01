@@ -8,9 +8,8 @@ class CancelDownloadCircuitsUseCase extends FutureUseCase<void, void> {
   CancelDownloadCircuitsUseCase(this._proofRepository);
 
   @override
-  Future<void> execute({void param}) {
-    return _proofRepository.cancelDownloadCircuits().then((value) {
-      logger().i("[CancelDownloadCircuitsUseCase] circuits download cancelled");
-    });
+  Future<void> execute({void param}) async {
+    await _proofRepository.cancelDownloadCircuits();
+    logger().i("[CancelDownloadCircuitsUseCase] circuits download cancelled");
   }
 }

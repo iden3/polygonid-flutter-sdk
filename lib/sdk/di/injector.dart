@@ -9,10 +9,14 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
+import 'package:polygonid_flutter_sdk/common/kms/index.dart';
+import 'package:polygonid_flutter_sdk/common/kms/keys/types.dart';
+import 'package:polygonid_flutter_sdk/common/kms/store/memory_key_store.dart';
 import 'package:polygonid_flutter_sdk/common/utils/encrypt_sembast_codec.dart';
 import 'package:polygonid_flutter_sdk/constants.dart';
 import 'package:polygonid_flutter_sdk/credential/data/credential_repository_impl.dart';
@@ -99,8 +103,10 @@ abstract class NetworkModule {
   /// like Dio: https://pub.dev/packages/dio
   Client get client => Client();
 
+  @factory
   Dio get dio => Dio();
 
+  @factory
   Web3Client web3client(@factoryParam String rpcUrl) {
     return Web3Client(
       rpcUrl,
@@ -122,19 +128,21 @@ abstract class DatabaseModule {
   }
 
   @Named(identityDatabaseName)
-  Future<Database> identityDatabase(@factoryParam String? identifier,
-      @factoryParam String? privateKey) async {
+  Future<Database> identityDatabase(
+    @factoryParam String? identifier,
+    @factoryParam String? encryptionKey,
+  ) async {
     final dir = await getApplicationDocumentsDirectory();
     await dir.create(recursive: true);
     final path = join(dir.path, identityDatabasePrefix + identifier! + '.db');
-    // Initialize the encryption codec with the privateKey
-    final codec = getItSdk.get<SembastCodec>(param1: privateKey!);
+    // Initialize the encryption codec with the encryptionKey
+    final codec = getItSdk.get<SembastCodec>(param1: encryptionKey!);
     final database = await databaseFactoryIo.openDatabase(path, codec: codec);
     return database;
   }
 
-  SembastCodec getCodec(@factoryParam String privateKey) {
-    return getEncryptSembastCodec(password: privateKey);
+  SembastCodec getCodec(@factoryParam String encryptionKey) {
+    return getEncryptSembastCodec(encryptionKey: encryptionKey);
   }
 
   // Identity
@@ -233,4 +241,23 @@ abstract class FilesManagerModule {
 
   Future<Directory> get applicationDocumentsDirectory async =>
       await getApplicationDocumentsDirectory();
+}
+
+@module
+abstract class KMSModule {
+  @singleton
+  KMS get kms {
+    final kms = KMS();
+
+    final keyStore = InMemoryPrivateKeyStore();
+
+    kms.registerKeyProvider(
+        KeyType.BabyJubJub, BjjProvider(KeyType.BabyJubJub, keyStore));
+    kms.registerKeyProvider(
+        KeyType.Secp256k1, Sec256k1Provider(KeyType.Secp256k1, keyStore));
+    kms.registerKeyProvider(
+        KeyType.Ed25519, Ed25519Provider(KeyType.Ed25519, keyStore));
+
+    return kms;
+  }
 }

@@ -7,28 +7,28 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 
 class GetDidIdentifierParam {
-  final String privateKey;
-  final List<String> publicKey;
+  final String bjjPrivateKey;
+  final List<String> bjjPublicKey;
   final String blockchain;
   final String network;
   final BigInt profileNonce;
   final String? method;
 
   GetDidIdentifierParam({
-    required this.publicKey,
+    required this.bjjPublicKey,
     required this.blockchain,
     required this.network,
     required this.profileNonce,
     this.method,
-  }) : privateKey = "";
+  }) : bjjPrivateKey = "";
 
   GetDidIdentifierParam.withPrivateKey({
-    required this.privateKey,
+    required this.bjjPrivateKey,
     required this.blockchain,
     required this.network,
     required this.profileNonce,
     this.method,
-  }) : publicKey = const <String>[];
+  }) : bjjPublicKey = const <String>[];
 }
 
 class GetDidIdentifierUseCase
@@ -50,11 +50,12 @@ class GetDidIdentifierUseCase
     return Future(() async {
       final env = await _getEnvUseCase.execute();
       final List<String> publicKey;
-      if (param.publicKey.isNotEmpty) {
-        publicKey = param.publicKey;
+      if (param.bjjPublicKey.isNotEmpty) {
+        publicKey = param.bjjPublicKey;
       } else {
         publicKey = await _identityRepository.getPublicKeys(
-            privateKey: param.privateKey);
+          bjjPrivateKey: param.bjjPrivateKey,
+        );
       }
 
       final genesisState = await _getGenesisStateUseCase.execute(

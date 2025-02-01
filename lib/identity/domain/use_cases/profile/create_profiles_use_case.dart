@@ -1,28 +1,25 @@
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_current_env_did_identifier_use_case.dart';
-import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 
 class CreateProfilesParam {
-  final String privateKey;
+  final List<String> bjjPublicKey;
   final List<BigInt> profiles;
 
   CreateProfilesParam({
-    required this.privateKey,
+    required this.bjjPublicKey,
     this.profiles = const [],
   });
 }
 
 class CreateProfilesUseCase
     extends FutureUseCase<CreateProfilesParam, Map<BigInt, String>> {
-  final GetPublicKeysUseCase _getPublicKeysUseCase;
   final GetCurrentEnvDidIdentifierUseCase _getCurrentEnvDidIdentifierUseCase;
   final StacktraceManager _stacktraceManager;
 
   CreateProfilesUseCase(
-    this._getPublicKeysUseCase,
     this._getCurrentEnvDidIdentifierUseCase,
     this._stacktraceManager,
   );
@@ -32,12 +29,9 @@ class CreateProfilesUseCase
     required CreateProfilesParam param,
   }) async {
     return Future(() async {
-      final publicKey =
-          await _getPublicKeysUseCase.execute(param: param.privateKey);
-
       String didIdentifier = await _getCurrentEnvDidIdentifierUseCase.execute(
         param: GetCurrentEnvDidIdentifierParam(
-          publicKey: publicKey,
+          bjjPublicKey: param.bjjPublicKey,
           profileNonce: BigInt.zero,
         ),
       );
@@ -46,7 +40,7 @@ class CreateProfilesUseCase
       for (BigInt profile in param.profiles) {
         String profileDid = await _getCurrentEnvDidIdentifierUseCase.execute(
           param: GetCurrentEnvDidIdentifierParam(
-            publicKey: publicKey,
+            bjjPublicKey: param.bjjPublicKey,
             profileNonce: profile,
           ),
         );

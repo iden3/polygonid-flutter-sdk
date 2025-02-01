@@ -5,9 +5,14 @@ import 'package:sembast/sembast.dart';
 
 abstract class SecureIdentityStorageDataSource {
   @protected
-  Future<Database> getDatabase(
-      {required String did, required String privateKey}) {
+  Future<Database> getDatabase({
+    required String did,
+    required String encryptionKey,
+  }) {
     return getItSdk.getAsync<Database>(
-        instanceName: identityDatabaseName, param1: did, param2: privateKey);
+      instanceName: identityDatabaseName,
+      param1: did,
+      param2: encryptionKey,
+    );
   }
 }

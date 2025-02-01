@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:polygonid_flutter_sdk/common/data/data_sources/secure_identity_storage_data_source.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
@@ -76,16 +77,20 @@ class StorageIdentityDataSource extends SecureIdentityStorageDataSource {
 
   /// As we support only one identity at the moment, we need to maintain
   /// the stored current did up to date
-  Future<void> storeIdentity(
-      {required String did, required IdentityEntity identity}) {
+  Future<void> storeIdentity({
+    required String did,
+    required IdentityEntity identity,
+  }) {
     return _database.transaction((transaction) => storeIdentityTransact(
         transaction: transaction, did: did, identity: identity));
   }
 
-  Future<void> storeIdentityTransact(
-      {required DatabaseClient transaction,
-      required String did,
-      required IdentityEntity identity}) async {
+  @visibleForTesting
+  Future<void> storeIdentityTransact({
+    required DatabaseClient transaction,
+    required String did,
+    required IdentityEntity identity,
+  }) async {
     await _storeRefWrapper.put(transaction, did, identity.toJson());
   }
 
@@ -98,17 +103,21 @@ class StorageIdentityDataSource extends SecureIdentityStorageDataSource {
   }
 
   // For UT purpose
-  Future<void> removeIdentityTransact(
-      {required DatabaseClient transaction, required String did}) async {
+  Future<void> removeIdentityTransact({
+    required DatabaseClient transaction,
+    required String did,
+  }) async {
     await _storeRefWrapper.remove(transaction, did);
   }
 
   /// Export identity database
-  Future<Map<String, Object?>> getIdentityDb(
-      {required String did, required String privateKey}) async {
+  Future<Map<String, Object?>> getIdentityDb({
+    required String did,
+    required String encryptionKey,
+  }) async {
     Database db = await getDatabase(
       did: did,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
 
     Map<String, Object?> exportableDb = await exportDatabase(db);
@@ -119,9 +128,9 @@ class StorageIdentityDataSource extends SecureIdentityStorageDataSource {
   Future<void> saveIdentityDb({
     required Map<String, Object?> exportableDb,
     required String destinationPath,
-    required String privateKey,
+    required String encryptionKey,
   }) async {
-    SembastCodec codec = getEncryptSembastCodec(password: privateKey);
+    SembastCodec codec = getEncryptSembastCodec(encryptionKey: encryptionKey);
 
     await importDatabase(
       exportableDb,

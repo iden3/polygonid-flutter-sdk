@@ -15,7 +15,7 @@ class FakeWallet extends Fake implements BjjWallet {
   Uint8List get privateKey => walletPrivateKey;
 
   @override
-  List<String> get publicKey => CommonMocks.pubKeys;
+  List<String> get publicKey => CommonMocks.publicKey;
 }
 
 final walletPrivateKey =

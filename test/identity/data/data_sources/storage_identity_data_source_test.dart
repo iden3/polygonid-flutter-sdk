@@ -15,12 +15,12 @@ import 'storage_identity_data_source_test.mocks.dart';
 // Data
 final mockGet = {
   'did': CommonMocks.did,
-  'publicKey': CommonMocks.pubKeys,
+  'publicKey': CommonMocks.publicKey,
   'profiles': {'0': "${CommonMocks.did}0", '1': "${CommonMocks.did}1"}
 };
 final identityDTO = IdentityEntity(
     did: CommonMocks.did,
-    publicKey: CommonMocks.pubKeys,
+    publicKey: CommonMocks.publicKey,
     profiles: CommonMocks.profiles);
 final exception = Exception();
 

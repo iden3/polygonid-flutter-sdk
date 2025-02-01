@@ -10,7 +10,9 @@ abstract class IdentityRepository {
     required String? secret,
   });
 
-  Future<List<String>> getPublicKeys({required String privateKey});
+  Future<List<String>> getPublicKeys({
+    required String bjjPrivateKey,
+  });
 
   Future<void> storeIdentity({required IdentityEntity identity});
 
@@ -26,9 +28,18 @@ abstract class IdentityRepository {
   });
 
   Future<String> getDidIdentifier({
+    required String claimsRoot,
     required String blockchain,
     required String network,
-    required String claimsRoot,
+    required BigInt profileNonce,
+    required EnvConfigEntity config,
+    String? method,
+  });
+
+  Future<String> getEthDidIdentifier({
+    required String ethAddress,
+    required String blockchain,
+    required String network,
     required BigInt profileNonce,
     required EnvConfigEntity config,
     String? method,
@@ -40,14 +51,17 @@ abstract class IdentityRepository {
   });
 
   // RHS
-  Future<Map<String, dynamic>> getNonRevProof(
-      {required String identityState,
-      required BigInt nonce,
-      required String baseUrl,
-      Map<String, dynamic>? cachedNonRevProof});
+  Future<Map<String, dynamic>> getNonRevProof({
+    required String identityState,
+    required BigInt nonce,
+    required String baseUrl,
+    Map<String, dynamic>? cachedNonRevProof,
+  });
 
-  Future<String> getState(
-      {required String identifier, required String contractAddress});
+  Future<String> getState({
+    required String identifier,
+    required String contractAddress,
+  });
 
   Future<String> convertIdToBigInt({required String id});
 
@@ -60,23 +74,23 @@ abstract class IdentityRepository {
 
   Future<String> exportIdentity({
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   });
 
   Future<void> importIdentity({
     required String did,
-    required String privateKey,
+    required String encryptionKey,
     required String encryptedDb,
   });
 
   Future<void> putProfiles({
     required String did,
-    required String privateKey,
+    required String encryptionKey,
     required Map<BigInt, String> profiles,
   });
 
   Future<Map<BigInt, String>> getProfiles({
     required String did,
-    required String privateKey,
+    required String encryptionKey,
   });
 }

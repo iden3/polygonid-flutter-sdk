@@ -21,7 +21,7 @@ GetLatestStateUseCase useCase = GetLatestStateUseCase(
 // Data
 GetLatestStateParam param = GetLatestStateParam(
   did: CommonMocks.did,
-  privateKey: CommonMocks.privateKey,
+  encryptionKey: CommonMocks.privateKey,
 );
 
 @GenerateMocks([SMTRepository, StacktraceManager])
@@ -36,7 +36,7 @@ void main() {
         when(smtRepository.getRoot(
                 type: anyNamed('type'),
                 did: anyNamed('did'),
-                privateKey: anyNamed('privateKey')))
+                encryptionKey: anyNamed('encryptionKey')))
             .thenAnswer((realInvocation) => Future.value(IdentityMocks.hash));
 
         when(smtRepository.hashState(
@@ -59,7 +59,7 @@ void main() {
           var verifyRoot = verify(smtRepository.getRoot(
               type: captureAnyNamed('type'),
               did: captureAnyNamed('did'),
-              privateKey: captureAnyNamed('privateKey')));
+              encryptionKey: captureAnyNamed('encryptionKey')));
           expect(verifyRoot.callCount, 3);
           expect(verifyRoot.captured[0], TreeType.claims);
           expect(verifyRoot.captured[1], CommonMocks.did);
@@ -96,7 +96,7 @@ void main() {
           when(smtRepository.getRoot(
                   type: anyNamed('type'),
                   did: anyNamed('did'),
-                  privateKey: anyNamed('privateKey')))
+                  encryptionKey: anyNamed('encryptionKey')))
               .thenAnswer(
                   (realInvocation) => Future.error(CommonMocks.exception));
 
@@ -108,7 +108,7 @@ void main() {
           var verifyRoot = verify(smtRepository.getRoot(
               type: captureAnyNamed('type'),
               did: captureAnyNamed('did'),
-              privateKey: captureAnyNamed('privateKey')));
+              encryptionKey: captureAnyNamed('encryptionKey')));
           expect(verifyRoot.callCount, 3);
           expect(verifyRoot.captured[0], TreeType.claims);
           expect(verifyRoot.captured[1], CommonMocks.did);

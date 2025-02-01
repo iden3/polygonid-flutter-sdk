@@ -26,13 +26,15 @@ class GetAuthInputsParam {
   final String genesisDid;
   final BigInt profileNonce;
   final String privateKey;
+  final String encryptionKey;
 
-  GetAuthInputsParam(
-    this.challenge,
-    this.genesisDid,
-    this.profileNonce,
-    this.privateKey,
-  );
+  GetAuthInputsParam({
+    required this.challenge,
+    required this.genesisDid,
+    required this.profileNonce,
+    required this.privateKey,
+    required this.encryptionKey,
+  });
 }
 
 class GetAuthInputsUseCase
@@ -68,8 +70,11 @@ class GetAuthInputsUseCase
     final stopwatch = Stopwatch()..start();
     try {
       IdentityEntity identity = await _getIdentityUseCase.execute(
-          param: GetIdentityParam(
-              genesisDid: param.genesisDid, privateKey: param.privateKey));
+        param: GetIdentityParam(
+          genesisDid: param.genesisDid,
+          privateKey: param.privateKey,
+        ),
+      );
 
       logger().i(
           'GetAuthInputsUseCase: got identity at: ${stopwatch.elapsedMilliseconds} ms');
@@ -89,7 +94,7 @@ class GetAuthInputsUseCase
         key: authClaimNode.hash,
         type: TreeType.claims,
         did: param.genesisDid,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       );
       _stacktraceManager
           .addTrace("[GetAuthInputsUseCase] Inc proof: ${incProof.toString()}");
@@ -101,7 +106,7 @@ class GetAuthInputsUseCase
         key: authClaimNode.hash,
         type: TreeType.revocation,
         did: param.genesisDid,
-        privateKey: param.privateKey,
+        encryptionKey: param.encryptionKey,
       );
       _stacktraceManager.addTrace("[GetAuthInputsUseCase] Non rev proof");
 
@@ -110,8 +115,11 @@ class GetAuthInputsUseCase
 
       // hash of clatr, revtr, rootr
       Map<String, dynamic> treeState = await _getLatestStateUseCase.execute(
-          param: GetLatestStateParam(
-              did: param.genesisDid, privateKey: param.privateKey));
+        param: GetLatestStateParam(
+          did: param.genesisDid,
+          encryptionKey: param.encryptionKey,
+        ),
+      );
 
       _stacktraceManager.addTrace(
           "[GetAuthInputsUseCase][MainFlow] Tree state: ${jsonEncode(treeState)}");

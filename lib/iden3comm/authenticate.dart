@@ -66,6 +66,7 @@ import 'package:polygonid_flutter_sdk/identity/domain/entities/tree_type.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/smt_repository.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_did_identifier_use_case.dart';
+import 'package:polygonid_flutter_sdk/identity/domain/use_cases/get_public_keys_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/circuits_files_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/gist_mtproof_data_source.dart';
 import 'package:polygonid_flutter_sdk/proof/data/data_sources/lib_pidcore_proof_data_source.dart';
@@ -147,9 +148,12 @@ class Authenticate {
       GetDidIdentifierUseCase getDidIdentifierUseCase =
           await getItSdk.getAsync<GetDidIdentifierUseCase>();
 
+      final getPubKeyUseCase = await getItSdk.getAsync<GetPublicKeyUseCase>();
+      final bjjPublicKey = await getPubKeyUseCase.execute(param: privateKey);
+
       String profileDid = await getDidIdentifierUseCase.execute(
-        param: GetDidIdentifierParam.withPrivateKey(
-          privateKey: privateKey,
+        param: GetDidIdentifierParam(
+          bjjPublicKey: bjjPublicKey,
           blockchain: chain.blockchain,
           network: chain.network,
           profileNonce: profileNonce,
@@ -551,7 +555,7 @@ class Authenticate {
       List<ClaimDTO> claimDTO = await storageClaimDataSource.getClaims(
         filter: filter,
         did: genesisDid,
-        privateKey: privateKey,
+        encryptionKey: privateKey,
         credentialSortOrderList: [CredentialSortOrder.IssuanceDateDescending],
       );
       ClaimMapper claimMapper = getItSdk<ClaimMapper>();
@@ -586,7 +590,7 @@ class Authenticate {
         List<ClaimDTO> claimDTO = await storageClaimDataSource.getClaims(
           filter: filter,
           did: genesisDid,
-          privateKey: privateKey,
+          encryptionKey: privateKey,
           credentialSortOrderList: [CredentialSortOrder.IssuanceDateDescending],
         );
         ClaimMapper claimMapper = getItSdk<ClaimMapper>();
@@ -858,8 +862,10 @@ class Authenticate {
   }
 
   /// SIGN MESSAGE WITH BJJ KEY
-  Future<String> signMessage(
-      {required Uint8List privateKey, required String message}) async {
+  Future<String> signMessage({
+    required Uint8List privateKey,
+    required String message,
+  }) async {
     final walletDs = getItSdk<WalletDataSource>();
     return walletDs.signMessage(privateKey: privateKey, message: message);
   }
@@ -935,7 +941,7 @@ class Authenticate {
     if (publicKeyResponse.statusCode == 200 ||
         publicKeyResponse.statusCode == 304) {
       String publicKeyPem = publicKeyResponse.data;
-      var publicKey = RSAKeyParser().parse(publicKeyPem) as RSAPublicKey;
+      final publicKey = RSAKeyParser().parse(publicKeyPem) as RSAPublicKey;
       final encrypter =
           OAEPEncoding.withCustomDigest(() => SHA512Digest(), RSAEngine());
       encrypter.init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
@@ -1087,7 +1093,8 @@ class Authenticate {
         getItSdk<LibPolygonIdCoreCredentialDataSource>();
 
     final identityRepo = await getItSdk.getAsync<IdentityRepository>();
-    final publicKey = await identityRepo.getPublicKeys(privateKey: privateKey);
+    final publicKey =
+        await identityRepo.getPublicKeys(bjjPrivateKey: privateKey);
 
     String authClaimSchema = AUTH_CLAIM_SCHEMA;
     String issuedAuthClaim = libPolygonIdCredential.issueClaim(
@@ -1129,7 +1136,7 @@ class Authenticate {
       key: authClaimNode.hash,
       type: TreeType.claims,
       did: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
     );
 
     // NON REV PROOF
@@ -1137,7 +1144,7 @@ class Authenticate {
       key: authClaimNode.hash,
       type: TreeType.revocation,
       did: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
     );
 
     // TREE STATE
@@ -1146,17 +1153,17 @@ class Authenticate {
         smtRepository.getRoot(
           type: TreeType.claims,
           did: genesisDid,
-          privateKey: privateKey,
+          encryptionKey: privateKey,
         ),
         smtRepository.getRoot(
           type: TreeType.revocation,
           did: genesisDid,
-          privateKey: privateKey,
+          encryptionKey: privateKey,
         ),
         smtRepository.getRoot(
           type: TreeType.roots,
           did: genesisDid,
-          privateKey: privateKey,
+          encryptionKey: privateKey,
         ),
       ],
       eagerError: true,

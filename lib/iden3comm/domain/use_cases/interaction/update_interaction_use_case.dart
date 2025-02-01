@@ -1,4 +1,4 @@
-import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
+import 'package:polygonid_flutter_sdk/common/domain/error_exception.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_base_entity.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/interaction/interaction_entity.dart';
@@ -10,14 +10,14 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/profile/check_pr
 class UpdateInteractionParam {
   final String? genesisDid;
   final BigInt? profileNonce;
-  final String? privateKey;
+  final String? encryptionKey;
   final String id;
   final InteractionState? state;
 
   UpdateInteractionParam({
     this.genesisDid,
     this.profileNonce,
-    this.privateKey,
+    this.encryptionKey,
     required this.id,
     this.state,
   });
@@ -38,20 +38,21 @@ class UpdateInteractionUseCase
   );
 
   @override
-  Future<InteractionBaseEntity> execute(
-      {required UpdateInteractionParam param}) async {
-    // we check if profile is valid and identity is existing
-    if (param.genesisDid != null &&
-        param.profileNonce != null &&
-        param.privateKey != null) {
-      await _checkProfileValidityUseCase
-          .execute(
-              param:
-                  CheckProfileValidityParam(profileNonce: param.profileNonce!))
-          .then((_) => _getIdentityUseCase.execute(
-              param: GetIdentityParam(
-                  genesisDid: param.genesisDid!,
-                  privateKey: param.privateKey)));
+  Future<InteractionBaseEntity> execute({
+    required UpdateInteractionParam param,
+  }) async {
+    final genesisDid = param.genesisDid;
+    final profileNonce = param.profileNonce;
+    final encryptionKey = param.encryptionKey;
+
+    // we check if profile is valid and identity exists
+    if (genesisDid != null && profileNonce != null && encryptionKey != null) {
+      await _checkProfileValidityUseCase.execute(
+        param: CheckProfileValidityParam(profileNonce: profileNonce),
+      );
+      await _getIdentityUseCase.execute(
+        param: GetIdentityParam(genesisDid: genesisDid, privateKey: null),
+      );
 
       InteractionBaseEntity interactionToBeUpdated;
       try {
@@ -61,9 +62,10 @@ class UpdateInteractionUseCase
         await _interactionRepository.removeInteractions(ids: [param.id]);
       } catch (e) {
         interactionToBeUpdated = await _interactionRepository.getInteraction(
-            id: param.id,
-            genesisDid: param.genesisDid,
-            privateKey: param.privateKey);
+          id: param.id,
+          genesisDid: param.genesisDid,
+          encryptionKey: param.encryptionKey,
+        );
       }
 
       InteractionEntity updatedInteraction = InteractionEntity(
@@ -78,32 +80,17 @@ class UpdateInteractionUseCase
         to: interactionToBeUpdated.to,
       );
       return _addInteractionUseCase.execute(
-          param: AddInteractionParam(
-              genesisDid: param.genesisDid,
-              privateKey: param.privateKey,
-              interaction: updatedInteraction));
+        param: AddInteractionParam(
+          genesisDid: genesisDid,
+          encryptionKey: encryptionKey,
+          interaction: updatedInteraction,
+        ),
+      );
     } else {
-      return _interactionRepository
-          .getInteraction(id: param.id)
-          .then((interactionToBeUpdated) => InteractionBaseEntity(
-                id: interactionToBeUpdated.id,
-                from: interactionToBeUpdated.from,
-                type: interactionToBeUpdated.type,
-                timestamp: interactionToBeUpdated.timestamp,
-                message: interactionToBeUpdated.message,
-                state: param.state ?? interactionToBeUpdated.state,
-                to: interactionToBeUpdated.to,
-              ))
-          .then((interaction) => _addInteractionUseCase.execute(
-              param: AddInteractionParam(interaction: interaction)))
-          .then((interaction) {
-        logger().i("[UpdateInteractionUseCase] Interaction: $interaction");
-
-        return interaction;
-      }).catchError((error) {
-        logger().e("[UpdateNotificationUseCase] Error: $error");
-        throw error;
-      });
+      throw PolygonIdSDKException(
+        errorMessage:
+            "GenesisDid and PrivateKey are required to add an interaction",
+      );
     }
   }
 }

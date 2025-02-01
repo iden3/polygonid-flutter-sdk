@@ -6,6 +6,7 @@ import 'package:polygonid_flutter_sdk/credential/domain/entities/claim_entity.da
 import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_repository.dart';
 import 'package:polygonid_flutter_sdk/credential/domain/use_cases/update_claim_use_case.dart';
 
+import '../../../common/common_mocks.dart';
 import 'update_claim_use_case_test.mocks.dart';
 
 // Data
@@ -13,7 +14,6 @@ const id = "theId";
 const issuer = "theIssuer";
 const otherIssuer = "theOtherIssuer";
 const identifier = "theIdentifier";
-const privateKey = "thePrivateKey";
 const state = ClaimState.active;
 const expiration = "theExpiration";
 const otherExpiration = "theOtherExpiration";
@@ -26,7 +26,7 @@ const credentialRawValue = "theCredentialRawValue";
 final UpdateClaimParam param = UpdateClaimParam(
     id: id,
     genesisDid: identifier,
-    privateKey: privateKey,
+    encryptionKey: CommonMocks.encryptionKey,
     issuer: otherIssuer,
     expiration: otherExpiration,
     data: otherData);
@@ -72,12 +72,12 @@ void main() {
       // Given
       when(credentialRepository.getClaim(
               genesisDid: anyNamed('genesisDid'),
-              privateKey: anyNamed('privateKey'),
+              encryptionKey: anyNamed('encryptionKey'),
               claimId: anyNamed('claimId')))
           .thenAnswer((realInvocation) => Future.value(claimEntity));
       when(credentialRepository.saveClaims(
               genesisDid: anyNamed('genesisDid'),
-              privateKey: anyNamed('privateKey'),
+              encryptionKey: anyNamed('encryptionKey'),
               claims: anyNamed('claims')))
           .thenAnswer((realInvocation) => Future.value(null));
     });
@@ -91,20 +91,20 @@ void main() {
       // Then
       var capturedGet = verify(credentialRepository.getClaim(
               genesisDid: captureAnyNamed('genesisDid'),
-              privateKey: captureAnyNamed('privateKey'),
+              encryptionKey: captureAnyNamed('encryptionKey'),
               claimId: captureAnyNamed('claimId')))
           .captured;
       expect(capturedGet[0], identifier);
-      expect(capturedGet[1], privateKey);
+      expect(capturedGet[1], CommonMocks.encryptionKey);
       expect(capturedGet[2], id);
 
       var capturedSave = verify(credentialRepository.saveClaims(
               genesisDid: captureAnyNamed('genesisDid'),
-              privateKey: captureAnyNamed('privateKey'),
+              encryptionKey: captureAnyNamed('encryptionKey'),
               claims: captureAnyNamed('claims')))
           .captured;
       expect(capturedSave[0], identifier);
-      expect(capturedSave[1], privateKey);
+      expect(capturedSave[1], CommonMocks.encryptionKey);
       expect(capturedSave[2], [otherClaimEntity]);
     });
 
@@ -114,7 +114,7 @@ void main() {
       // Given
       when(credentialRepository.getClaim(
               genesisDid: anyNamed('genesisDid'),
-              privateKey: anyNamed('privateKey'),
+              encryptionKey: anyNamed('encryptionKey'),
               claimId: anyNamed('claimId')))
           .thenAnswer((realInvocation) => Future.error(exception));
 
@@ -124,16 +124,16 @@ void main() {
       // Then
       var capturedGet = verify(credentialRepository.getClaim(
               genesisDid: captureAnyNamed('genesisDid'),
-              privateKey: captureAnyNamed('privateKey'),
+              encryptionKey: captureAnyNamed('encryptionKey'),
               claimId: captureAnyNamed('claimId')))
           .captured;
       expect(capturedGet[0], identifier);
-      expect(capturedGet[1], privateKey);
+      expect(capturedGet[1], CommonMocks.encryptionKey);
       expect(capturedGet[2], id);
 
       verifyNever(credentialRepository.saveClaims(
           genesisDid: captureAnyNamed('genesisDid'),
-          privateKey: captureAnyNamed('privateKey'),
+          encryptionKey: captureAnyNamed('encryptionKey'),
           claims: captureAnyNamed('claims')));
     });
   });

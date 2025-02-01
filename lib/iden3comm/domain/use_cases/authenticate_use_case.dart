@@ -82,10 +82,12 @@ class AuthenticateUseCase
       logger().i("stopwatch started");
 
       await _checkProfileAndDidCurrentEnvUseCase.execute(
-          param: CheckProfileAndDidCurrentEnvParam(
-              did: param.genesisDid,
-              privateKey: param.privateKey,
-              profileNonce: param.profileNonce));
+        param: CheckProfileAndDidCurrentEnvParam.withPrivateKey(
+          did: param.genesisDid,
+          privateKey: param.privateKey,
+          profileNonce: param.profileNonce,
+        ),
+      );
       _stacktraceManager.addTrace(
           "[AuthenticateUseCase] _checkProfileAndDidCurrentEnvUseCase success");
       logger().i(
@@ -101,7 +103,7 @@ class AuthenticateUseCase
 
       String profileDid = await _getDidIdentifierUseCase.execute(
         param: GetDidIdentifierParam.withPrivateKey(
-          privateKey: param.privateKey,
+          bjjPrivateKey: param.privateKey,
           blockchain: chain.blockchain,
           network: chain.network,
           profileNonce: param.profileNonce,

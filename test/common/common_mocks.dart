@@ -13,6 +13,7 @@ class CommonMocks {
   static String id = "theId";
   static String identifier = "theIdentifier";
   static String privateKey = "000000";
+  static String encryptionKey = "004200";
   static Map<BigInt, String> profiles = {
     BigInt.zero: "${did}0",
     BigInt.one: "${did}1"
@@ -20,7 +21,7 @@ class CommonMocks {
   static String walletPrivateKey = "theWalletPrivateKey";
   static String pubX = "thePubX";
   static String pubY = "thePubY";
-  static List<String> pubKeys = [pubX, pubY];
+  static List<String> publicKey = [pubX, pubY];
   static String message = "theMessage";
   static String signature = "theSignature";
   static String challenge = "theChallenge";

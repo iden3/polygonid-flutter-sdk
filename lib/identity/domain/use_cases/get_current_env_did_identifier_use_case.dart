@@ -6,11 +6,11 @@ import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 
 class GetCurrentEnvDidIdentifierParam {
-  final List<String> publicKey;
+  final List<String> bjjPublicKey;
   final BigInt profileNonce;
 
   GetCurrentEnvDidIdentifierParam({
-    required this.publicKey,
+    required this.bjjPublicKey,
     required this.profileNonce,
   });
 }
@@ -34,7 +34,7 @@ class GetCurrentEnvDidIdentifierUseCase
 
       final did = await _getDidIdentifierUseCase.execute(
         param: GetDidIdentifierParam(
-          publicKey: param.publicKey,
+          bjjPublicKey: param.bjjPublicKey,
           blockchain: chain.blockchain,
           network: chain.network,
           profileNonce: param.profileNonce,

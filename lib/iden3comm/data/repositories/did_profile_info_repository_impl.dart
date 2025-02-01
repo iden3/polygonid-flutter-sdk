@@ -18,51 +18,38 @@ class DidProfileInfoRepositoryImpl implements DidProfileInfoRepository {
     required Map<String, dynamic> didProfileInfo,
     required String interactedDid,
     required String genesisDid,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _secureStorageDidProfileInfoDataSource.storeDidProfileInfo(
       didProfileInfo: didProfileInfo,
       interactedDid: interactedDid,
       did: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
-  }
-
-  @override
-  Future<Map<String, dynamic>> getDidProfileInfo({
-    required String genesisDid,
-    required String privateKey,
-  }) {
-    return _secureStorageDidProfileInfoDataSource
-        .getDidProfileInfos(
-          did: genesisDid,
-          privateKey: privateKey,
-        )
-        .then((infos) => infos.isEmpty ? {} : infos.first);
   }
 
   @override
   Future<List<Map<String, dynamic>>> getDidProfileInfoList({
     List<FilterEntity>? filters,
     required String genesisDid,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _secureStorageDidProfileInfoDataSource.getDidProfileInfos(
         filter: filters == null ? null : _filtersMapper.mapTo(filters),
         did: genesisDid,
-        privateKey: privateKey);
+        encryptionKey: encryptionKey);
   }
 
   @override
   Future<void> removeDidProfileInfo({
     required String interactedDid,
     required String genesisDid,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _secureStorageDidProfileInfoDataSource.removeDidProfileInfo(
       interactedDid: interactedDid,
       did: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
     );
   }
 
@@ -70,12 +57,12 @@ class DidProfileInfoRepositoryImpl implements DidProfileInfoRepository {
   Future<Map<String, dynamic>> getDidProfileInfoByInteractedWithDid({
     required String interactedWithDid,
     required String genesisDid,
-    required String privateKey,
+    required String encryptionKey,
   }) {
     return _secureStorageDidProfileInfoDataSource
         .getDidProfileInfosByInteractedWithDid(
       did: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: encryptionKey,
       interactedWithDid: interactedWithDid,
     );
   }

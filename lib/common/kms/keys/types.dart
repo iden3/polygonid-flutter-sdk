@@ -1,30 +1,30 @@
 /// Key type that can be used in the key management system
 ///
 /// @enum {number}
-enum KmsKeyType {
+enum KeyType {
   BabyJubJub('BJJ'),
   Secp256k1('Secp256k1'),
   Ed25519('Ed25519');
 
   final String name;
 
-  const KmsKeyType(this.name);
+  const KeyType(this.name);
 }
 
 /// ID of the key that describe contain key type
 ///
 /// @public
-/// @interface   KmsKeyId
-class KmsKeyId {
-  final KmsKeyType type;
+/// @interface   KeyId
+class KeyId {
+  final KeyType type;
   final String id;
 
-  KmsKeyId({required this.type, required this.id});
+  KeyId({required this.type, required this.id});
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is KmsKeyId &&
+      other is KeyId &&
           runtimeType == other.runtimeType &&
           type == other.type &&
           id == other.id;

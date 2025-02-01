@@ -3,11 +3,11 @@ import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 import 'package:polygonid_flutter_sdk/common/infrastructure/stacktrace_stream_manager.dart';
 import 'package:polygonid_flutter_sdk/identity/domain/repositories/identity_repository.dart';
 
-class GetPublicKeysUseCase extends FutureUseCase<String, List<String>> {
+class GetPublicKeyUseCase extends FutureUseCase<String, List<String>> {
   final IdentityRepository _identityRepository;
   final StacktraceManager _stacktraceManager;
 
-  GetPublicKeysUseCase(
+  GetPublicKeyUseCase(
     this._identityRepository,
     this._stacktraceManager,
   );
@@ -16,7 +16,7 @@ class GetPublicKeysUseCase extends FutureUseCase<String, List<String>> {
   Future<List<String>> execute({required String param}) {
     return Future(() async {
       final publicKeys =
-          await _identityRepository.getPublicKeys(privateKey: param);
+          await _identityRepository.getPublicKeys(bjjPrivateKey: param);
 
       logger()
           .i("[GetPublicKeysUseCase] Message $param publicKeys: $publicKeys");

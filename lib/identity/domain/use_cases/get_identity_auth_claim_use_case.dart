@@ -3,7 +3,7 @@ import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
 import 'package:polygonid_flutter_sdk/common/domain/use_case.dart';
 
-/// Get the public keys as List<String> associated with the @param String privateKey
+/// Get the AuthClaim for a given baby jub jub public key
 class GetAuthClaimUseCase extends FutureUseCase<List<String>, List<String>> {
   final CredentialRepository _credentialRepo;
   final StacktraceManager _stacktraceManager;
@@ -13,7 +13,7 @@ class GetAuthClaimUseCase extends FutureUseCase<List<String>, List<String>> {
     this._stacktraceManager,
   );
 
-  /// [param] - public keys
+  /// [param] - BJJ public keys
   @override
   Future<List<String>> execute({required List<String> param}) {
     return Future(() async {

@@ -7,24 +7,24 @@ abstract class InteractionRepository {
   Future<InteractionBaseEntity> addInteraction({
     required InteractionBaseEntity interaction,
     String? genesisDid,
-    String? privateKey,
+    String? encryptionKey,
   });
 
   Future<List<InteractionBaseEntity>> getInteractions({
     List<FilterEntity>? filters,
     String? genesisDid,
-    String? privateKey,
+    String? encryptionKey,
   });
 
   Future<InteractionBaseEntity> getInteraction({
     required String id,
     String? genesisDid,
-    String? privateKey,
+    String? encryptionKey,
   });
 
   Future<void> removeInteractions({
     required List<String> ids,
     String? genesisDid,
-    String? privateKey,
+    String? encryptionKey,
   });
 }

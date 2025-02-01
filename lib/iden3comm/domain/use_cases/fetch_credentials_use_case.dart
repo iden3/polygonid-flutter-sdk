@@ -82,7 +82,7 @@ class FetchCredentialsUseCase {
       // (it could be also the public one if nonce is 0)
       final String profileDid = await _getDidIdentifierUseCase.execute(
         param: GetDidIdentifierParam.withPrivateKey(
-          privateKey: privateKey,
+          bjjPrivateKey: privateKey,
           blockchain: blockchain,
           network: network,
           profileNonce: profileNonce,

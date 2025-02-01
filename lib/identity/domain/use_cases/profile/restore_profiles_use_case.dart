@@ -4,9 +4,12 @@ import 'package:polygonid_flutter_sdk/identity/domain/use_cases/identity/update_
 
 class RestoreProfilesParam {
   final String genesisDid;
-  final String privateKey;
+  final String encryptionKey;
 
-  RestoreProfilesParam(this.genesisDid, this.privateKey);
+  RestoreProfilesParam({
+    required this.genesisDid,
+    required this.encryptionKey,
+  });
 }
 
 class RestoreProfilesUseCase extends FutureUseCase<RestoreProfilesParam, void> {
@@ -20,17 +23,16 @@ class RestoreProfilesUseCase extends FutureUseCase<RestoreProfilesParam, void> {
 
   @override
   Future<void> execute({required RestoreProfilesParam param}) async {
-    Map<BigInt, String> restoredProfiles =
-        await _identityRepository.getProfiles(
+    final restoredProfiles = await _identityRepository.getProfiles(
       did: param.genesisDid,
-      privateKey: param.privateKey,
+      encryptionKey: param.encryptionKey,
     );
 
     await _updateIdentityUseCase.execute(
         param: UpdateIdentityParam(
-      privateKey: param.privateKey,
       genesisDid: param.genesisDid,
       profiles: restoredProfiles,
+      encryptionKey: param.encryptionKey,
     ));
   }
 }

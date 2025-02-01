@@ -204,15 +204,20 @@ class Credential implements PolygonIdSdkCredential {
   );
 
   @override
-  Future<List<ClaimEntity>> saveClaims(
-      {required List<ClaimEntity> claims,
-      required String genesisDid,
-      required String privateKey}) {
+  Future<List<ClaimEntity>> saveClaims({
+    required List<ClaimEntity> claims,
+    required String genesisDid,
+    required String privateKey,
+  }) {
     _stacktraceManager.clear();
     _stacktraceManager.addTrace("PolygonIdSdk.Credential.saveClaims called");
     return _saveClaimsUseCase.execute(
-        param: SaveClaimsParam(
-            claims: claims, genesisDid: genesisDid, privateKey: privateKey));
+      param: SaveClaimsParam(
+        claims: claims,
+        genesisDid: genesisDid,
+        encryptionKey: privateKey,
+      ),
+    );
   }
 
   @override
@@ -227,7 +232,7 @@ class Credential implements PolygonIdSdkCredential {
     return _getCredentialByIdUseCase.execute(
         param: GetCredentialByIdParam(
       genesisDid: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
       id: credentialId,
     ));
   }
@@ -244,7 +249,7 @@ class Credential implements PolygonIdSdkCredential {
     return _getCredentialByPartialIdUseCase.execute(
         param: GetCredentialByPartialIdParam(
       genesisDid: genesisDid,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
       partialId: partialCredentialId,
     ));
   }
@@ -263,16 +268,17 @@ class Credential implements PolygonIdSdkCredential {
       filters: filters,
       genesisDid: genesisDid,
       profileNonce: GENESIS_PROFILE_NONCE,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
       credentialSortOrderList: credentialSortOrderList,
     ));
   }
 
   @override
-  Future<List<ClaimEntity>> getClaimsByIds(
-      {required List<String> claimIds,
-      required String genesisDid,
-      required String privateKey}) {
+  Future<List<ClaimEntity>> getClaimsByIds({
+    required List<String> claimIds,
+    required String genesisDid,
+    required String privateKey,
+  }) {
     _stacktraceManager.clear();
     _stacktraceManager
         .addTrace("PolygonIdSdk.Credential.getClaimsByIds called");
@@ -284,7 +290,7 @@ class Credential implements PolygonIdSdkCredential {
       ],
       genesisDid: genesisDid,
       profileNonce: GENESIS_PROFILE_NONCE,
-      privateKey: privateKey,
+      encryptionKey: privateKey,
     ));
   }
 
@@ -299,7 +305,10 @@ class Credential implements PolygonIdSdkCredential {
     _stacktraceManager
         .addTrace("PolygonIdSdk.Credential.getClaimRevocationStatus called");
     List<ClaimEntity> claimEntityList = await getClaimsByIds(
-        claimIds: [claimId], genesisDid: genesisDid, privateKey: privateKey);
+      claimIds: [claimId],
+      genesisDid: genesisDid,
+      privateKey: privateKey,
+    );
     if (claimEntityList.isNotEmpty) {
       return _getClaimRevocationStatusUseCase.execute(
           param: GetClaimRevocationStatusParam(
@@ -318,33 +327,37 @@ class Credential implements PolygonIdSdkCredential {
   }
 
   @override
-  Future<void> removeClaims(
-      {required List<String> claimIds,
-      required String genesisDid,
-      required String privateKey}) {
+  Future<void> removeClaims({
+    required List<String> claimIds,
+    required String genesisDid,
+    required String privateKey,
+  }) {
     _stacktraceManager.clear();
     _stacktraceManager.addTrace("PolygonIdSdk.Credential.removeClaims called");
     return _removeClaimsUseCase.execute(
-        param: RemoveClaimsParam(
-      claimIds: claimIds,
-      genesisDid: genesisDid,
-      privateKey: privateKey,
-    ));
+      param: RemoveClaimsParam(
+        claimIds: claimIds,
+        genesisDid: genesisDid,
+        encryptionKey: privateKey,
+      ),
+    );
   }
 
   @override
-  Future<void> removeClaim(
-      {required String claimId,
-      required String genesisDid,
-      required String privateKey}) {
+  Future<void> removeClaim({
+    required String claimId,
+    required String genesisDid,
+    required String privateKey,
+  }) {
     _stacktraceManager.clear();
     _stacktraceManager.addTrace("PolygonIdSdk.Credential.removeClaim called");
     return _removeClaimsUseCase.execute(
-        param: RemoveClaimsParam(
-      claimIds: [claimId],
-      genesisDid: genesisDid,
-      privateKey: privateKey,
-    ));
+      param: RemoveClaimsParam(
+        claimIds: [claimId],
+        genesisDid: genesisDid,
+        encryptionKey: privateKey,
+      ),
+    );
   }
 
   @override
@@ -361,15 +374,17 @@ class Credential implements PolygonIdSdkCredential {
     _stacktraceManager.clear();
     _stacktraceManager.addTrace("PolygonIdSdk.Credential.updateClaim called");
     return _updateClaimUseCase.execute(
-        param: UpdateClaimParam(
-            id: claimId,
-            issuer: issuer,
-            genesisDid: genesisDid,
-            state: state,
-            expiration: expiration,
-            type: type,
-            data: data,
-            privateKey: privateKey));
+      param: UpdateClaimParam(
+        id: claimId,
+        issuer: issuer,
+        genesisDid: genesisDid,
+        state: state,
+        expiration: expiration,
+        type: type,
+        data: data,
+        encryptionKey: privateKey,
+      ),
+    );
   }
 
   @override
@@ -379,11 +394,12 @@ class Credential implements PolygonIdSdkCredential {
     required ClaimEntity credential,
   }) {
     return _refreshCredentialUseCase.execute(
-        param: RefreshCredentialParam(
-      credential: credential,
-      genesisDid: genesisDid,
-      privateKey: privateKey,
-    ));
+      param: RefreshCredentialParam(
+        credential: credential,
+        genesisDid: genesisDid,
+        privateKey: privateKey,
+      ),
+    );
   }
 
   @override
