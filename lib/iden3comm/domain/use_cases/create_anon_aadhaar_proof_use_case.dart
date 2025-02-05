@@ -32,11 +32,9 @@ class CreateAnonAadhaarProofUseCase
   final LibPolygonIdCoreWrapper _libPolygonIdCoreWrapper;
   final ProveUseCase _proveUseCase;
 
-  CreateAnonAadhaarProofUseCase(
-    this._getEnvUseCase,
-    this._libPolygonIdCoreWrapper,
-    this._proveUseCase,
-  );
+  CreateAnonAadhaarProofUseCase(this._getEnvUseCase,
+      this._libPolygonIdCoreWrapper,
+      this._proveUseCase,);
 
   @override
   Future<ZKProofEntity> execute({
@@ -44,22 +42,26 @@ class CreateAnonAadhaarProofUseCase
   }) async {
     final env = await _getEnvUseCase.execute();
 
+    final anonAadhaarInputs = AnonAadhaarInputsParam
+        .fromSelfIssuedCredentialParams(
+      qrData: param.qrData,
+      credentialSubjectID: param.profileDid,
+      params: param.selfIssuedCredentialParams,
+    );
+
+
+
     final generateInputsResult = await _libPolygonIdCoreWrapper.getProofInputs(
-      AnonAadhaarInputsParam.fromSelfIssuedCredentialParams(
-        qrData: param.qrData,
-        credentialSubjectID: param.profileDid,
-        params: param.selfIssuedCredentialParams,
-      ),
+      anonAadhaarInputs,
       env.config,
     );
 
     final atomicQueryInputs = json.encode(generateInputsResult.inputs);
 
     final circuitId = param.circuitData?.circuitId ?? 'anonAadhaarV1';
-    final witnessCalculationData = param.circuitData?.witnessCalculationData ??
-        await _tryGetWitnessCalculationData(circuitId: circuitId);
-    final zKeyPath = param.circuitData?.circuitId ??
-        await _tryGetZKeyPath(circuitId: circuitId);
+    final witnessCalculationData = await _tryGetWitnessCalculationData(
+        circuitId: circuitId);
+    final zKeyPath = await _tryGetZKeyPath(circuitId: circuitId);
 
     final proof = await _proveUseCase.execute(
       param: ProveParam(
@@ -86,7 +88,8 @@ class CreateAnonAadhaarProofUseCase
       return await wcdFile.readAsBytes();
     } else {
       throw Exception(
-          'Witness calculation data file not found for circuit $circuitId at ${wcdFile.path}');
+          'Witness calculation data file not found for circuit $circuitId at ${wcdFile
+              .path}');
     }
   }
 
@@ -99,7 +102,8 @@ class CreateAnonAadhaarProofUseCase
       return zkeyFile.path;
     } else {
       throw Exception(
-          'Circuit zkey file not found for circuit $circuitId at ${zkeyFile.path}');
+          'Circuit zkey file not found for circuit $circuitId at ${zkeyFile
+              .path}');
     }
   }
 }
