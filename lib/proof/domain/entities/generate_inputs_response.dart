@@ -13,7 +13,9 @@ class GenerateInputsResponse {
     return GenerateInputsResponse(
       inputs: json["inputs"],
       verifiablePresentation: json["verifiablePresentation"],
-      publicStatesInfo: PublicStatesInfo.fromJson(json["publicStatesInfo"]),
+      publicStatesInfo: json.containsKey("publicStatesInfo")
+          ? PublicStatesInfo.fromJson(json["publicStatesInfo"])
+          : null,
     );
   }
 
