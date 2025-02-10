@@ -22,6 +22,7 @@ import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/self_issuance/se
 import 'package:polygonid_flutter_sdk/iden3comm/domain/exceptions/iden3comm_exceptions.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/authenticate_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/clean_schema_cache_use_case.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/core_claim_from_credential_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_credential_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/create_anon_aadhaar_proof_use_case.dart';
 import 'package:polygonid_flutter_sdk/iden3comm/domain/use_cases/fetch_and_save_claims_use_case.dart';
@@ -309,6 +310,7 @@ abstract class PolygonIdSdkIden3comm {
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    required Map<String, dynamic> additionalFields,
   });
 }
 
@@ -338,6 +340,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
   final FetchCredentialsUseCase _fetchCredentialsUseCase;
   final CreateAnonAadhaarCredentialUseCase _createAnonAadhaarCredentialUseCase;
   final CreateAnonAadhaarProofUseCase _createAnonAadhaarProofUseCase;
+  final CoreClaimFromCredentialUseCase _coreClaimFromCredentialUseCase;
 
   Iden3comm(
     this._fetchAndSaveClaimsUseCase,
@@ -364,6 +367,7 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     this._fetchCredentialsUseCase,
     this._createAnonAadhaarCredentialUseCase,
     this._createAnonAadhaarProofUseCase,
+    this._coreClaimFromCredentialUseCase,
   );
 
   @override
@@ -751,12 +755,25 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    Map<String, dynamic>? additionalFields,
   }) {
     return _createAnonAadhaarCredentialUseCase.execute(
       param: CreateAnonAadhaarCredentialParam(
-        qrData: qrData,
-        profileDid: profileDid,
-        selfIssuedCredentialParams: selfIssuedCredentialParams,
+          qrData: qrData,
+          profileDid: profileDid,
+          selfIssuedCredentialParams: selfIssuedCredentialParams,
+          additionalFields: additionalFields),
+    );
+  }
+
+  Future<String> coreClaimFromCredential({
+    required ClaimEntity credential,
+    EnvConfigEntity? config,
+  }) {
+    return _coreClaimFromCredentialUseCase.execute(
+      param: CoreClaimFromCredentialParam(
+        credential: credential,
+        config: config,
       ),
     );
   }

@@ -57,4 +57,9 @@ abstract class CredentialRepository {
     required String credential,
     String? config,
   });
+
+  Future<String> coreClaimFromCredential({
+    required String credential,
+    String? config,
+  });
 }

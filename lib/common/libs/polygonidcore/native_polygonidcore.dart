@@ -132,6 +132,36 @@ class NativePolygonIdCoreLib {
       int Function(ffi.Pointer<ffi.Pointer<ffi.Char>>, ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<PLGNStatus>>)>();
 
+  int PLGNW3CCredentialToCoreClaim(
+    ffi.Pointer<ffi.Pointer<ffi.Char>> jsonResponse,
+    ffi.Pointer<ffi.Char> in1,
+    ffi.Pointer<ffi.Char> cfg,
+    ffi.Pointer<ffi.Pointer<PLGNStatus>> status,
+  ) {
+    return _PLGNW3CCredentialToCoreClaim(
+      jsonResponse,
+      in1,
+      cfg,
+      status,
+    );
+  }
+
+  late final _PLGNW3CCredentialToCoreClaimPtr = _lookup<
+          ffi.NativeFunction<
+              GoUint8 Function(
+                  ffi.Pointer<ffi.Pointer<ffi.Char>>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Pointer<PLGNStatus>>)>>(
+      'PLGNW3CCredentialToCoreClaim');
+  late final _PLGNW3CCredentialToCoreClaim =
+      _PLGNW3CCredentialToCoreClaimPtr.asFunction<
+          int Function(
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<PLGNStatus>>)>();
+
   int PLGNCreateClaim(
     ffi.Pointer<ffi.Pointer<ffi.Char>> jsonResponse,
     ffi.Pointer<ffi.Char> in1,
@@ -1742,7 +1772,7 @@ const int MAC_OS_VERSION_15_1 = 150100;
 
 const int MAC_OS_VERSION_15_2 = 150200;
 
-const int __MAC_OS_X_VERSION_MIN_REQUIRED = 140000;
+const int __MAC_OS_X_VERSION_MIN_REQUIRED = 150000;
 
 const int __MAC_OS_X_VERSION_MAX_ALLOWED = 150200;
 

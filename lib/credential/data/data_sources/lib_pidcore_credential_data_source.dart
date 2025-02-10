@@ -77,4 +77,14 @@ class LibPolygonIdCoreCredentialDataSource {
       config,
     );
   }
+
+  String coreClaimFromCredential({
+    required String credential,
+    String? config,
+  }) {
+    return _polygonIdCoreCredential.coreClaimFromCredential(
+      credential,
+      config,
+    );
+  }
 }

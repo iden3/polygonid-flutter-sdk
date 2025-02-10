@@ -1017,6 +1017,7 @@ class PolygonIdFlutterChannel
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    required Map<String, dynamic> additionalFields,
   }) {
     // TODO: implement getAnonAadhaarCredential
     throw UnimplementedError();

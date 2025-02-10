@@ -14,11 +14,13 @@ class CreateAnonAadhaarCredentialParam {
   final String qrData;
   final String profileDid;
   final SelfIssuedCredentialParams selfIssuedCredentialParams;
+  Map<String, dynamic>? additionalFields;
 
   CreateAnonAadhaarCredentialParam({
     required this.qrData,
     required this.profileDid,
     required this.selfIssuedCredentialParams,
+    required this.additionalFields,
   });
 }
 
@@ -50,7 +52,14 @@ class CreateAnonAadhaarCredentialUseCase
       config: jsonEncode(env.config.toJson()),
     );
 
-    final claimJson = jsonDecode(credentialJson);
+    Map<String, dynamic> credentialJsonMap = jsonDecode(credentialJson);
+    if (param.additionalFields != null) {
+      credentialJsonMap.addAll(param.additionalFields!);
+    }
+
+    final credentialWithAdditionalFields = jsonEncode(credentialJsonMap);
+
+    final claimJson = jsonDecode(credentialWithAdditionalFields);
     final claimInfoDto = ClaimInfoDTO.fromJson(claimJson);
 
     final claimDto = ClaimDTO(

@@ -19,18 +19,10 @@ AuthBodyDidDocServiceResponseDTO _$AuthBodyDidDocServiceResponseDTOFromJson(
     );
 
 Map<String, dynamic> _$AuthBodyDidDocServiceResponseDTOToJson(
-    AuthBodyDidDocServiceResponseDTO instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('id', instance.id);
-  writeNotNull('type', instance.type);
-  writeNotNull('serviceEndpoint', instance.serviceEndpoint);
-  writeNotNull('metadata', instance.metadata);
-  return val;
-}
+        AuthBodyDidDocServiceResponseDTO instance) =>
+    <String, dynamic>{
+      if (instance.id case final value?) 'id': value,
+      if (instance.type case final value?) 'type': value,
+      if (instance.serviceEndpoint case final value?) 'serviceEndpoint': value,
+      if (instance.metadata case final value?) 'metadata': value,
+    };

@@ -163,4 +163,15 @@ class ZKProofEntity {
 
   @override
   int get hashCode => runtimeType.hashCode;
+
+  //copyWith method
+  ZKProofEntity copyWith({
+    ZKProofBaseEntity? proof,
+    List<String>? pubSignals,
+  }) {
+    return ZKProofEntity(
+      proof: proof ?? this.proof,
+      pubSignals: pubSignals ?? this.pubSignals,
+    );
+  }
 }

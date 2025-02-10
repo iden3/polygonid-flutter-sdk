@@ -20,7 +20,7 @@ class ClaimInfoDTO extends Equatable {
   final String issuer;
   final CredentialSchemaDTO credentialSchema;
   @JsonKey(name: 'proof')
-  final List<ClaimProofDTO> proofs;
+  final List<ClaimProofDTO>? proofs;
   final RefreshServiceDTO? refreshService;
   final DisplayMethodDTO? displayMethod;
 

@@ -51,7 +51,7 @@ class ContractResponseIden3MessageEntity
     super.nextRequest,
     String? from,
   }) : super(
-          messageType: Iden3MessageType.proofContractInvokeRequest,
+          messageType: Iden3MessageType.proofContractInvokeResponse,
           thid: thid ?? '',
           typ: typ ?? '',
           from: from ?? '',
