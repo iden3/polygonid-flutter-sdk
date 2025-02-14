@@ -58,4 +58,6 @@ abstract class ProofRepository {
   });
 
   Future<void> cancelDownloadCircuits();
+
+  Future<String> getProofFromSmartContract({required String inputs});
 }

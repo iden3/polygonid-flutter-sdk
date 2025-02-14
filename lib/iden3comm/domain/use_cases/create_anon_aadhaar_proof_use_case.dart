@@ -16,13 +16,13 @@ class CreateAnonAadhaarProofParam {
   final String qrData;
   final String profileDid;
   final SelfIssuedCredentialParams selfIssuedCredentialParams;
-  final CircuitDataEntity? circuitData;
+  final String circuitId;
 
   CreateAnonAadhaarProofParam({
     required this.qrData,
     required this.profileDid,
     required this.selfIssuedCredentialParams,
-    this.circuitData,
+    required this.circuitId,
   });
 }
 
@@ -58,16 +58,15 @@ class CreateAnonAadhaarProofUseCase
 
     final atomicQueryInputs = json.encode(generateInputsResult.inputs);
 
-    final circuitId = param.circuitData?.circuitId ?? 'anonAadhaarV1';
     final witnessCalculationData =
-        await _tryGetWitnessCalculationData(circuitId: circuitId);
-    final zKeyPath = await _tryGetZKeyPath(circuitId: circuitId);
+        await _tryGetWitnessCalculationData(circuitId: param.circuitId);
+    final zKeyPath = await _tryGetZKeyPath(circuitId: param.circuitId);
 
     final proof = await _proveUseCase.execute(
       param: ProveParam(
         atomicQueryInputs,
         CircuitDataEntity(
-          circuitId,
+          param.circuitId,
           witnessCalculationData,
           zKeyPath,
         ),

@@ -304,6 +304,7 @@ abstract class PolygonIdSdkIden3comm {
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    required String circuitId,
   });
 
   Future<ClaimEntity> getAnonAadhaarCredential({
@@ -738,14 +739,14 @@ class Iden3comm implements PolygonIdSdkIden3comm {
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
-    CircuitDataEntity? circuitData,
+    required String circuitId,
   }) async {
     return _createAnonAadhaarProofUseCase.execute(
       param: CreateAnonAadhaarProofParam(
         qrData: qrData,
         profileDid: profileDid,
         selfIssuedCredentialParams: selfIssuedCredentialParams,
-        circuitData: circuitData,
+        circuitId: circuitId,
       ),
     );
   }
@@ -768,12 +769,14 @@ class Iden3comm implements PolygonIdSdkIden3comm {
 
   Future<String> coreClaimFromCredential({
     required ClaimEntity credential,
+    required int revNonce,
     EnvConfigEntity? config,
   }) {
     return _coreClaimFromCredentialUseCase.execute(
       param: CoreClaimFromCredentialParam(
         credential: credential,
         config: config,
+        revNonce: revNonce,
       ),
     );
   }

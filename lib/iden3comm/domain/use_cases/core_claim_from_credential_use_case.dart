@@ -8,9 +8,11 @@ import 'package:polygonid_flutter_sdk/credential/domain/repositories/credential_
 class CoreClaimFromCredentialParam {
   final ClaimEntity credential;
   final EnvConfigEntity? config;
+  final int revNonce;
 
   CoreClaimFromCredentialParam({
     required this.credential,
+    required this.revNonce,
     this.config,
   });
 }
@@ -30,12 +32,11 @@ class CoreClaimFromCredentialUseCase
       config = jsonEncode(param.config!.toJson());
     }
 
-    param.credential.info.remove('id');
     String credential = jsonEncode(
       {
         "w3cCredential": param.credential.info,
         "coreClaimOptions": {
-          "revNonce": 954548273, //TODO: get from somewhere
+          "revNonce": param.revNonce,
           "version": 0,
           "merklizedRootPosition": "index",
         },

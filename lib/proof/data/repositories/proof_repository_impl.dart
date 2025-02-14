@@ -27,6 +27,7 @@ import 'package:polygonid_flutter_sdk/proof/domain/entities/zkproof_entity.dart'
 import 'package:polygonid_flutter_sdk/proof/domain/exceptions/proof_generation_exceptions.dart';
 import 'package:polygonid_flutter_sdk/proof/domain/repositories/proof_repository.dart';
 import 'package:polygonid_flutter_sdk/proof/gist_proof_cache.dart';
+import 'package:polygonid_flutter_sdk/proof/proof_from_smart_contract.dart';
 
 class ProofRepositoryImpl extends ProofRepository {
   final WitnessDataSource _witnessDataSource;
@@ -382,5 +383,12 @@ class ProofRepositoryImpl extends ProofRepository {
   @override
   Future<void> cancelDownloadCircuits() async {
     return _circuitsDownloadDataSource.cancelDownload();
+  }
+
+  @override
+  Future<String> getProofFromSmartContract({required String inputs}) async {
+    String proof = await ProofFromSmartContract()
+        .getProofFromSmartContract(inputs: inputs);
+    return proof;
   }
 }

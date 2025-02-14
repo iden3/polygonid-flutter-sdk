@@ -1028,8 +1028,15 @@ class PolygonIdFlutterChannel
     required String qrData,
     required String profileDid,
     required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    required String circuitId,
   }) {
     // TODO: implement getAnonAadhaarProof
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> getProofFromSmartContract({required String inputs}) {
+    // TODO: implement getProofFromSmartContract
     throw UnimplementedError();
   }
 }
