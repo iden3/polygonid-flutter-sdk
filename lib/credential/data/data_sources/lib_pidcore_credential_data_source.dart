@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:polygonid_flutter_sdk/common/domain/domain_logger.dart';
+import 'package:polygonid_flutter_sdk/iden3comm/domain/entities/self_issuance/self_issued_credential_params.dart';
+import 'package:polygonid_flutter_sdk/proof/data/dtos/atomic_query_inputs_param.dart';
 
 import '../../libs/polygonidcore/pidcore_credential.dart';
 
@@ -53,6 +55,35 @@ class LibPolygonIdCoreCredentialDataSource {
         "hexdata": hexdata,
         "version": version,
       }),
+      config,
+    );
+  }
+
+  String credentialFromAnonAadhaar({
+    required String qrData,
+    required String did,
+    required SelfIssuedCredentialParams selfIssuedCredentialParams,
+    String? config,
+  }) {
+    // This method accepts same inputs as the proof gen inputs calc
+    final param = AnonAadhaarInputsParam.fromSelfIssuedCredentialParams(
+      qrData: qrData,
+      credentialSubjectID: did,
+      params: selfIssuedCredentialParams,
+    );
+
+    return _polygonIdCoreCredential.createCredentialFromAnonAadhaarInputs(
+      jsonEncode(param.toJson()),
+      config,
+    );
+  }
+
+  String coreClaimFromCredential({
+    required String credential,
+    String? config,
+  }) {
+    return _polygonIdCoreCredential.coreClaimFromCredential(
+      credential,
       config,
     );
   }

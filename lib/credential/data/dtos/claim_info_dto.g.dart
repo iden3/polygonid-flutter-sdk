@@ -19,8 +19,8 @@ ClaimInfoDTO _$ClaimInfoDTOFromJson(Map<String, dynamic> json) => ClaimInfoDTO(
       json['issuer'] as String,
       CredentialSchemaDTO.fromJson(
           json['credentialSchema'] as Map<String, dynamic>),
-      (json['proof'] as List<dynamic>)
-          .map((e) => ClaimProofDTO.fromJson(e as Map<String, dynamic>))
+      (json['proof'] as List<dynamic>?)
+          ?.map((e) => ClaimProofDTO.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['refreshService'] == null
           ? null
@@ -43,7 +43,7 @@ Map<String, dynamic> _$ClaimInfoDTOToJson(ClaimInfoDTO instance) =>
       'credentialStatus': instance.credentialStatus.toJson(),
       'issuer': instance.issuer,
       'credentialSchema': instance.credentialSchema.toJson(),
-      'proof': instance.proofs.map((e) => e.toJson()).toList(),
+      'proof': instance.proofs?.map((e) => e.toJson()).toList(),
       'refreshService': instance.refreshService?.toJson(),
       'displayMethod': instance.displayMethod?.toJson(),
     };

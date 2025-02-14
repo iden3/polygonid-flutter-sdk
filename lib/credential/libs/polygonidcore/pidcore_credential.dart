@@ -128,6 +128,59 @@ class PolygonIdCoreCredential extends PolygonIdCore {
     return result;
   }
 
+  String createCredentialFromAnonAadhaarInputs(String input, String? config) {
+    return callGenericCoreFunction(
+      input: () => input,
+      function: PolygonIdCore
+          .nativePolygonIdCoreLib.PLGNW3CCredentialFromAnonAadhaarInputs,
+      parse: (o) => o,
+    );
+  }
+
+  String coreClaimFromCredential(String input, String? config) {
+    ffi.Pointer<ffi.Char> in1 = input.toNativeUtf8().cast<ffi.Char>();
+    ffi.Pointer<ffi.Char> cfg = ffi.nullptr;
+    if (config != null) {
+      cfg = config.toNativeUtf8().cast<ffi.Char>();
+    }
+    ffi.Pointer<ffi.Pointer<ffi.Char>> response =
+        malloc<ffi.Pointer<ffi.Char>>();
+    ffi.Pointer<ffi.Pointer<PLGNStatus>> status =
+        malloc<ffi.Pointer<PLGNStatus>>();
+
+    freeAllocatedMemory() {
+      malloc.free(response);
+      malloc.free(status);
+    }
+
+    int res = PolygonIdCore.nativePolygonIdCoreLib
+        .PLGNW3CCredentialToCoreClaim(response, in1, cfg, status);
+
+    // res 0 means error
+    if (res == 0) {
+      final ConsumedStatusResult consumedStatus = consumeStatus(status);
+      freeAllocatedMemory();
+      _trackError(consumedStatus, "PLGNW3CCredentialToCoreClaim");
+      throw CoreLibraryException(
+        coreLibraryName: "libpolygonid",
+        methodName: "PLGNW3CCredentialToCoreClaim",
+        errorMessage: consumedStatus.message,
+        statusCode: consumedStatus.statusCode,
+      );
+    }
+
+    // parse the response
+    String result = "";
+    ffi.Pointer<ffi.Char> jsonResponse = response.value;
+    ffi.Pointer<Utf8> jsonString = jsonResponse.cast<Utf8>();
+    if (jsonString != ffi.nullptr) {
+      result = jsonString.toDartString();
+    }
+
+    freeAllocatedMemory();
+    return result;
+  }
+
   void _trackError(ConsumedStatusResult consumedStatus, String methodName) {
     _stacktraceManager.addTrace(
         "libpolygonid - $methodName: [${consumedStatus.statusCode}] - ${consumedStatus.message}");

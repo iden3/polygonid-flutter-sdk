@@ -8,6 +8,8 @@ enum Iden3MessageType {
       "https://iden3-communication.io/credentials/1.0/issuance-response"),
   proofContractInvokeRequest(
       "https://iden3-communication.io/proofs/1.0/contract-invoke-request"),
+  proofContractInvokeResponse(
+      "https://iden3-communication.io/proofs/1.0/contract-invoke-response"),
   credentialRefresh("https://iden3-communication.io/credentials/1.0/refresh"),
   credentialProposalRequest(
       "https://iden3-communication.io/credentials/0.1/proposal-request"),

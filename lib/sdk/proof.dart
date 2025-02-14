@@ -20,6 +20,7 @@ import 'package:polygonid_flutter_sdk/proof/domain/entities/circuit_data_entity.
 import 'package:polygonid_flutter_sdk/proof/domain/use_cases/generate_zkproof_use_case.dart';
 import 'package:polygonid_flutter_sdk/proof/gist_proof_cache.dart';
 import 'package:polygonid_flutter_sdk/proof/infrastructure/proof_generation_stream_manager.dart';
+import 'package:polygonid_flutter_sdk/proof/proof_from_smart_contract.dart';
 import 'package:polygonid_flutter_sdk/sdk/di/injector.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -71,6 +72,8 @@ abstract class PolygonIdSdkProof {
 
   /// Cancel the download of circuits
   Future<void> cancelDownloadCircuits();
+
+  Future<String> getProofFromSmartContract({required String inputs});
 }
 
 @injectable
@@ -217,5 +220,11 @@ class Proof implements PolygonIdSdkProof {
           .addTrace("PolygonIdSdk.Proof.preCacheGistProof error: $e");
       return null;
     }
+  }
+
+  Future<String> getProofFromSmartContract({required String inputs}) async {
+    String proof = await ProofFromSmartContract()
+        .getProofFromSmartContract(inputs: inputs);
+    return proof;
   }
 }

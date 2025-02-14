@@ -36,6 +36,18 @@ class LocalClaimDataSource {
 
     return Future.value(children);
   }
+
+  Future<String> coreClaimFromCredential({
+    required String credential,
+    String? config,
+  }) async {
+    String coreClaim =
+        _libPolygonIdCoreCredentialDataSource.coreClaimFromCredential(
+      credential: credential,
+      config: config,
+    );
+    return Future.value(coreClaim);
+  }
 }
 
 String _cacheKey(String publicKey, String nonce) => publicKey + "_" + nonce;

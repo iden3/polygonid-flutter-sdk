@@ -28,4 +28,6 @@ const _$FetchClaimResponseTypeEnumMap = {
       'https://iden3-communication.io/credentials/1.0/issuance-response',
   FetchClaimResponseType.contractFunctionCall:
       'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
+  FetchClaimResponseType.contractFunctionCallResponse:
+      'https://iden3-communication.io/proofs/1.0/contract-invoke-response',
 };
